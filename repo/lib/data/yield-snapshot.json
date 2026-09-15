@@ -1,0 +1,19 @@
+{
+  "fetchedAt": "2026-09-11T21:31:34.825Z",
+  "assets": {
+    "aUSDC": {
+      "apy": 2.77222,
+      "asOf": "2026-09-11T21:31:34.825Z",
+      "source": "https://defillama.com/yields/pool/d9fa8e14-0447-4207-9ae8-7810199dfa1f",
+      "provider": "Aave V3 · Arbitrum native USDC",
+      "method": "Base supply APY reported by DefiLlama. Incentive rewards excluded. Fetch time shown; the upstream observation can be earlier."
+    },
+    "wstETH": {
+      "apy": 2.2560031983313467,
+      "asOf": "2026-09-11T12:23:35.000Z",
+      "source": "https://eth-api.lido.fi/v1/protocol/steth/apr/last",
+      "provider": "Lido · Ethereum staking",
+      "method": "Estimated APY from Lido APR of 2.231%, assuming daily compounding at an unchanged rate. Rewards accrue through the stETH exchange rate."
+    }
+  }
+}

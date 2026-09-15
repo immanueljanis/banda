@@ -1,0 +1,34 @@
+{
+  "wBTC": {
+    "path": "/assets/wbtc.png",
+    "source": "https://assets.coingecko.com/coins/images/39532/thumb/WBTCLOGO.png?1764570002"
+  },
+  "WETH": {
+    "path": "/assets/weth.webp",
+    "source": "https://assets.coingecko.com/coins/images/39713/thumb/WETH.PNG?1723731496"
+  },
+  "PAXG": {
+    "path": "/assets/paxg.png",
+    "source": "https://assets.coingecko.com/coins/images/9519/thumb/asset-paxg.png?1785284785"
+  },
+  "aUSDC": {
+    "path": "/assets/ausdc.png",
+    "source": "https://assets.coingecko.com/coins/images/32847/thumb/usdc_%281%29.png?1699619355"
+  },
+  "wstETH": {
+    "path": "/assets/wsteth.webp",
+    "source": "https://assets.coingecko.com/coins/images/53102/thumb/arbitrum-bridged-wsteth-arbitrum.webp?1735227527"
+  },
+  "ARB": {
+    "path": "/assets/arb.jpg",
+    "source": "https://assets.coingecko.com/coins/images/16547/thumb/arb.jpg?1721358242"
+  },
+  "GMX": {
+    "path": "/assets/gmx.png",
+    "source": "https://assets.coingecko.com/coins/images/18323/thumb/arbit.png?1696517814"
+  },
+  "PENDLE": {
+    "path": "/assets/pendle.png",
+    "source": "https://assets.coingecko.com/coins/images/15069/thumb/Pendle_Logo_Normal-03.png?1696514728"
+  }
+}
