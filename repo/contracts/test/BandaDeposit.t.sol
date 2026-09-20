@@ -19,6 +19,9 @@ import {MockStrategy} from "../src/banda/mocks/MockStrategy.sol";
 import {Mock6551Registry} from "../src/banda/mocks/Mock6551Registry.sol";
 import {MockReentrantStrategy} from "../src/banda/mocks/MockReentrantStrategy.sol";
 import {MockNavAdapter} from "../src/banda/mocks/MockNavAdapter.sol";
+import {MockCanonicalAsset} from "../src/banda/mocks/MockCanonicalAsset.sol";
+import {MockUsdGAssetPool} from "../src/banda/mocks/MockUsdGAssetPool.sol";
+import {MockGatewayStrategy} from "../src/banda/mocks/MockGatewayStrategy.sol";
 
 interface Vm {
     function prank(address) external;
@@ -222,6 +225,49 @@ contract BandaDepositTest {
         vm.prank(USER);
         (bool ok,) = address(diamond).call(abi.encodeCall(DepositFacet.deposit, (1, 25_000_000)));
         require(!ok, "future NAV accepted deposit");
+    }
+
+    function testGatewayBuysCanonicalTestAssetAndPartialRedeemReturnsUsdG() public {
+        MockCanonicalAsset twbtc = new MockCanonicalAsset();
+        MockUsdGAssetPool pool = new MockUsdGAssetPool(address(usdg), address(twbtc));
+        twbtc.setMinter(address(pool));
+        MockGatewayStrategy gateway = new MockGatewayStrategy(address(usdg), address(pool));
+        AdminFacet(address(diamond)).configureStrategy(0, address(gateway), 10_000_000, 100, FEE_RECIPIENT, true);
+
+        vm.prank(USER);
+        (, address account, uint256 shares) = DepositFacet(address(diamond)).deposit(2, 25_000_000);
+        require(shares == 25_000_000 && twbtc.balanceOf(account) == shares, "gateway did not buy canonical asset");
+        require(usdg.balanceOf(address(pool)) == 25_000_000, "gateway pool did not receive USDG");
+
+        vm.prank(USER);
+        uint256 proceeds = RedeemFacet(address(diamond)).redeem(1, 10_000_000, 10_000_000);
+        require(proceeds == 10_000_000 && twbtc.balanceOf(account) == 15_000_000, "partial gateway redeem incorrect");
+        require(
+            usdg.balanceOf(USER) == 85_000_000 && usdg.balanceOf(address(pool)) == 15_000_000, "USDG exit incorrect"
+        );
+    }
+
+    function testGatewayMinimumPayoutRevertPreservesCanonicalPosition() public {
+        MockCanonicalAsset twbtc = new MockCanonicalAsset();
+        MockUsdGAssetPool pool = new MockUsdGAssetPool(address(usdg), address(twbtc));
+        twbtc.setMinter(address(pool));
+        MockGatewayStrategy gateway = new MockGatewayStrategy(address(usdg), address(pool));
+        AdminFacet(address(diamond)).configureStrategy(0, address(gateway), 10_000_000, 100, FEE_RECIPIENT, true);
+
+        vm.prank(USER);
+        (, address account,) = DepositFacet(address(diamond)).deposit(2, 25_000_000);
+
+        vm.prank(USER);
+        (bool ok,) = address(diamond).call(abi.encodeCall(RedeemFacet.redeem, (1, 10_000_000, 10_000_001)));
+        require(!ok, "gateway minimum payout ignored");
+        (, address storedAccount, uint128 shares) = BasketViewFacet(address(diamond)).basket(1);
+        require(
+            storedAccount == account && shares == 25_000_000 && twbtc.balanceOf(account) == 25_000_000,
+            "gateway slippage revert changed position"
+        );
+        require(
+            usdg.balanceOf(USER) == 75_000_000 && usdg.balanceOf(address(pool)) == 25_000_000, "gateway funds changed"
+        );
     }
 
     function testMinimumPayoutRevertPreservesPosition() public {

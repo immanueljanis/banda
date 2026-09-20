@@ -39,6 +39,17 @@ that a production ERC-6551 registry/strategy is ready. Oracle-backed NAV gating,
 standalone fee collection, and mandate-bound rebalance remain the next BND-005
 facets and must be implemented before a deployment claim.
 
+## BND-016 gateway fixture
+
+`MockGatewayStrategy` demonstrates the intended settlement path in a local test:
+the Diamond receives mock USDG, buys a canonical test asset through
+`MockUsdGAssetPool`, and the Basket account holds that asset. A partial redemption
+sells part of the position and returns mock USDG to the Basket NFT owner. The
+fixture uses a fixed price and local mock assets only; it neither establishes
+testnet USDG availability nor proves mainnet liquidity, a bridge, or a production
+execution venue. The suite also verifies that a failed minimum-payout check rolls
+back the canonical asset position and pool balances.
+
 Run the focused suite from `repo/`:
 
 ```text
