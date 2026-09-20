@@ -6,9 +6,9 @@ import "./globals.css";
 const sans = Manrope({ subsets: ["latin"], variable: "--font-sans" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 export const metadata: Metadata = {
-  title: "Banda | A whole portfolio. A single holding.",
+  title: "Banda | Your DeFi portfolio. Simpler to manage.",
   description:
-    "An on-chain index provider on Arbitrum. Explore diversified baskets of crypto, commodities and on-chain yield, held as one transferable object.",
+    "A simpler way to own and manage a DeFi portfolio. Explore basket strategies, understand their costs and risks, and explore your portfolio in one place.",
 };
 export default function RootLayout({
   children,

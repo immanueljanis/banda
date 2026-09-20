@@ -374,8 +374,9 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                 verified strategy execution.
               </p>
               <p>
-                Management and performance fees, trading costs, slippage, taxes
-                and additional lending rewards are excluded. Current example
+                Management fees (Beta Play 1% per year; Alpha Play 2% per year),
+                trading costs, slippage, taxes and additional lending rewards
+                are excluded. The MVP has no performance fee. Current example
                 weights are applied retrospectively, introducing selection bias.
                 Returns do not predict future results.
               </p>

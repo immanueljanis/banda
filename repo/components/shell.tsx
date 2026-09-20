@@ -81,7 +81,7 @@ export function Footer() {
           <Mark />
           banda.
         </Link>
-        <p>A whole portfolio. A single holding.</p>
+        <p>Your DeFi portfolio. Simpler to manage.</p>
       </div>
       <div className="footer-links">
         <Link href="/#baskets">Explore baskets ↗</Link>
@@ -89,7 +89,7 @@ export function Footer() {
         <Link href="/#fees">Fee structure ↗</Link>
       </div>
       <div className="footer-note">
-        An independent on-chain index provider.
+        Simpler access to managed DeFi strategies.
         <p>
           Prototype. Portfolio values are examples; historical comparisons are
           simulations. No real funds are connected or transacted.

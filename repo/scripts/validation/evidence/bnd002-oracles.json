@@ -1,0 +1,71 @@
+{
+  "checkedAt": "2026-09-15T16:28:58.487Z",
+  "task": "BND-002",
+  "status": "partial: live feeds verified; sequencer policy unresolved",
+  "sources": [
+    "https://docs.chain.link/data-feeds/price-feeds/addresses?network=robinhood",
+    "https://reference-data-directory.vercel.app/feeds-robinhood-mainnet.json",
+    "https://docs.chain.link/data-feeds/l2-sequencer-feeds"
+  ],
+  "note": "Read-only feed evidence; no deployed Banda portfolio or executable NAV/exit quote.",
+  "snapshot": {
+    "chainId": "4663",
+    "blockNumber": "63798376",
+    "hash": "0xfa5608b2acb365fd270af5f37644b5ee0e95d0d6582cff4513d0007e5ea17c09",
+    "timestamp": 1789489739
+  },
+  "catalogSha256": "2ae1ea5f432cab06904134759033d7c6434c323171f954120c4933fdde42e85d",
+  "feeds": [
+    {
+      "asset": "ETH",
+      "proxy": "0x78F3556b67E17Df817D51Ef5a990cDaF09E8d3A9",
+      "description": "ETH / USD",
+      "heartbeat": 86400,
+      "ageSeconds": 3838,
+      "startedAt": "1789485889",
+      "blockNumber": "63798376",
+      "decimals": 8,
+      "roundId": "18446744073709553801",
+      "answer": "242247140000",
+      "updatedAt": 1789485901,
+      "answeredInRound": "18446744073709553801",
+      "maxAgeSeconds": 86400,
+      "paused": false,
+      "price": {
+        "numerator": "12112357",
+        "denominator": "5000"
+      },
+      "codeSha256": "330cc39684c86b86aaffa993fe3404625371898b472845b18c8659db25965056",
+      "pauseApplicability": "stock corporate-action pause not applicable; token execution restrictions separate"
+    },
+    {
+      "asset": "USDG",
+      "proxy": "0x61B7e5650328764B076A108EFF5fa7282a1B9aD2",
+      "description": "USDG / USD",
+      "heartbeat": 86400,
+      "ageSeconds": 3279,
+      "startedAt": "1789486447",
+      "blockNumber": "63798376",
+      "decimals": 8,
+      "roundId": "18446744073709551719",
+      "answer": "99986073",
+      "updatedAt": 1789486460,
+      "answeredInRound": "18446744073709551719",
+      "maxAgeSeconds": 86400,
+      "paused": false,
+      "price": {
+        "numerator": "99986073",
+        "denominator": "100000000"
+      },
+      "codeSha256": "330cc39684c86b86aaffa993fe3404625371898b472845b18c8659db25965056",
+      "pauseApplicability": "stock corporate-action pause not applicable; token execution restrictions separate"
+    }
+  ],
+  "feedChecks": "passed",
+  "sequencer": {
+    "status": "unverified",
+    "source": "https://docs.chain.link/data-feeds/l2-sequencer-feeds",
+    "reason": "Robinhood is not listed in the official supported uptime-feed networks checked on 2026-09-15; page states no expansion to additional networks. No alternative policy has been approved."
+  },
+  "guardCheck": "passed: NAV rejected missing sequencer evidence"
+}

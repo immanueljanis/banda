@@ -64,7 +64,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
           }}
         >
           <h2>Your portfolio starts here.</h2>
-          <p>Choose an amount. Own a share of every asset in this basket.</p>
+          <p>Choose an amount. See your allocation across this strategy.</p>
           <label htmlFor="amount">Amount in USDC</label>
           <input
             id="amount"
@@ -116,14 +116,15 @@ export function BasketDetail({ basket }: { basket: Basket }) {
           </div>
           <div className="fee-line">
             <span>Management fee</span>
-            <span className="mono">1% / year</span>
+            <span className="mono">
+              {basket.slug === "frontier" ? "2%" : "1%"} / year
+            </span>
           </div>
-          {basket.slug === "frontier" && (
-            <p>
-              <span className="mono">10%</span> performance fee above the
-              high-water mark.
-            </p>
-          )}
+          <p>
+            {basket.slug === "frontier" ? "Alpha Play" : "Beta Play"} management
+            fee. No performance fee in the MVP. Fee accrual is not implemented
+            in this local demo.
+          </p>
           <button
             className="primary-button"
             type="submit"

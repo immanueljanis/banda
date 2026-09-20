@@ -1,6 +1,6 @@
 # Banda
 
-Landing page and interactive frontend demo built from `../PRD.md` and `../FE-PROMPT.md`.
+Landing page and interactive frontend demo. Current product decisions and execution plan: [Open House brief](../openhouse/README.md).
 
 ## Run
 

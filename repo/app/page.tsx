@@ -8,14 +8,14 @@ export default function Home() {
     <main id="main">
       <section className="hero wrap">
         <div className="hero-copy">
-          <div className="hero-kicker">AN ON-CHAIN INDEX PROVIDER</div>
+          <div className="hero-kicker">DEFI, WITH FEWER STEPS</div>
           <h1>
-            Many assets.
-            <br className="desktop-break" /> <span>One simple investment.</span>
+            Your DeFi portfolio.
+            <br className="desktop-break" /> <span>Simpler to manage.</span>
           </h1>
           <p>
-            Invest in crypto, gold and income-generating assets together. Choose
-            a basket. Start with any amount.
+            Choose a strategy. Explore its assets, costs and risks, then follow
+            your portfolio in one place.
           </p>
           <div className="hero-actions">
             <Link className="primary-button" href="#baskets">
@@ -49,7 +49,7 @@ export default function Home() {
             {[
               ["Buy each asset separately", "Buy one basket"],
               ["Manage several positions", "See everything together"],
-              ["Sell assets one by one", "Transfer the whole portfolio"],
+              ["Track balances across protocols", "Follow one portfolio"],
             ].map(([a, b], i) => (
               <div className="comparison-row" key={i}>
                 <span>{a}</span>
@@ -104,22 +104,22 @@ export default function Home() {
         </div>
       </section>
       <section className="simple-how wrap" id="how-it-works">
-        <h2>From many assets to one portfolio.</h2>
+        <h2>A simpler way into DeFi.</h2>
         <div className="how-steps">
           <div>
             <span className="mono">01</span>
-            <h3>Choose your mix.</h3>
-            <p>Pick a basket that matches what you want to invest in.</p>
+            <h3>Choose a strategy.</h3>
+            <p>Compare each basket’s approach, assets, fees and risks.</p>
           </div>
           <div>
             <span className="mono">02</span>
-            <h3>Start at your size.</h3>
-            <p>Your investment is spread across the assets in the basket.</p>
+            <h3>Choose your amount.</h3>
+            <p>See how your chosen amount is allocated across the basket.</p>
           </div>
           <div>
             <span className="mono">03</span>
-            <h3>Keep it together.</h3>
-            <p>Track and transfer your portfolio as a single holding.</p>
+            <h3>See it in one place.</h3>
+            <p>Explore your holdings and allocation in one portfolio view.</p>
           </div>
         </div>
         <Link className="text-link" href="/docs">
@@ -129,30 +129,32 @@ export default function Home() {
       <section className="fees wrap" id="fees">
         <div>
           <h2>Simple, transparent fees.</h2>
-          <p>Proposed fees for the initial release.</p>
+          <p>Management fees for the MVP.</p>
           <Link className="text-link" href="/docs">
             Read the methodology ↗
           </Link>
         </div>
         <div>
           <table className="fee-table">
-            <caption className="sr-only">Proposed launch fees</caption>
+            <caption className="sr-only">MVP fees</caption>
             <tbody>
               <tr>
-                <th>Management</th>
+                <th>Core (Beta Play)</th>
                 <td>
                   <span className="mono">1%</span>
                   <span className="muted"> / year</span>
                 </td>
               </tr>
               <tr>
-                <th>
-                  Performance
-                  <small>
-                    On new profits above the previous peak. Frontier only.
-                  </small>
-                </th>
-                <td className="mono">10%</td>
+                <th>Frontier (Alpha Play)</th>
+                <td>
+                  <span className="mono">2%</span>
+                  <span className="muted"> / year</span>
+                </td>
+              </tr>
+              <tr>
+                <th>Performance</th>
+                <td>None</td>
               </tr>
               <tr>
                 <th>Buy</th>
@@ -165,15 +167,16 @@ export default function Home() {
             </tbody>
           </table>
           <p className="fee-note">
-            You can also withdraw the underlying holdings instead of selling
-            them.
+            Management fees are designed to be reflected in NAV without a
+            second charge on collection. Fee accrual is not implemented in
+            this local demo; portfolio values remain illustrative.
           </p>
         </div>
       </section>
       <section className="closing wrap">
         <div>
           <span className="network-dot" />
-          <h2>Many assets. One decision.</h2>
+          <h2>Explore DeFi. Find your strategy.</h2>
         </div>
         <Link className="primary-button" href="#baskets">
           Find your basket <span aria-hidden="true">↗</span>

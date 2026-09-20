@@ -6,7 +6,13 @@ export default function Docs() {
         ← Back to Banda
       </Link>
       <span className="section-index">BANDA / PRODUCT NOTES</span>
-      <h1>A portfolio with its own account.</h1>
+      <h1>A simpler way to own and manage DeFi.</h1>
+      <p>
+        Banda brings strategy selection, deposits, portfolio tracking and
+        redemption into one planned flow. This demo lets you explore baskets
+        and simulate deposits locally. Live deposits and redemption are not
+        available yet. Easier access does not remove investment risk.
+      </p>
       <section>
         <h2>What you own</h2>
         <p>
@@ -47,13 +53,20 @@ export default function Docs() {
         </p>
       </section>
       <section>
-        <h2>Proposed fees</h2>
+        <h2>MVP fees</h2>
         <p>
-          Management is <span className="mono">1%</span> annually. Frontier also
-          has a <span className="mono">10%</span> performance fee above its
-          high-water mark. Mint and redeem fees are{" "}
-          <span className="mono">0%</span> for the initial release. These are
-          planning figures subject to the pre-launch decision.
+          Annual management fees are <span className="mono">1%</span> for
+          Core (Beta Play) and <span className="mono">2%</span> for Frontier
+          (Alpha Play). These are strategy labels, not return guarantees.
+          The MVP has no performance fee. Mint and redeem fees are{" "}
+          <span className="mono">0%</span>.
+        </p>
+        <p>
+          Management fees are designed to be reflected in NAV, with no second
+          charge when collected. Accrual formulas, rounding and fee recipient
+          authorization still need to be specified. Contract fee accrual and
+          fee accounting in the NAV simulation are not implemented; demo values
+          remain illustrative.
         </p>
       </section>
       <section>

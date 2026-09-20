@@ -1,0 +1,77 @@
+{
+  "task": "BND-003",
+  "checkedDate": "2026-09-15",
+  "status": "passed-pinned-mainnet-fork",
+  "scope": "Execution feasibility only; this is not production Banda vault code, a security audit, or current liquidity assurance.",
+  "chainId": 4663,
+  "forkBlock": 63794454,
+  "rpc": "https://rpc.mainnet.chain.robinhood.com",
+  "route": {
+    "provider": "Uniswap v3 direct single pool",
+    "feePips": 500,
+    "usdg": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+    "weth": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "factory": "0x1f7d7550B1b028f7571E69A784071F0205FD2EfA",
+    "pool": "0x69BfaF19C9f377BB306a89aEd9F6B07e2c1a8d9a",
+    "quoterV2": "0x33e885eD0Ec9bF04EcfB19341582aADCb4c8A9E7",
+    "swapRouter02": "0xCaf681a66D020601342297493863E78C959E5cb2",
+    "quoteFunction": "quoteExactInputSingle((address,address,uint256,uint24,uint160))",
+    "swapFunction": "exactInputSingle((address,address,uint24,address,uint256,uint256,uint160))",
+    "swapSelector": "0x04e45aaf",
+    "quoteSelector": "0xc6a5026a",
+    "apiKeyRequired": false,
+    "source": "https://developers.uniswap.org/deployments.json",
+    "sourceGeneratedAt": "2026-07-15T22:25:40.000Z",
+    "sourceRepoCommit": "37936185dee7decf681360ec799c124e0e034672",
+    "deploymentRecordSourceRef": "56928a9"
+  },
+  "simulation": {
+    "command": "forge test --root contracts-validation -vvvv",
+    "testFile": "../../../contracts-validation/test/RobinhoodSwap.t.sol",
+    "traceFile": "bnd003-fork-trace.txt",
+    "toolchain": "Foundry 1.7.2 nightly; solc 0.8.30; Cancun",
+    "testsPassed": 4,
+    "testsFailed": 0,
+    "testsSkipped": 0,
+    "taker": "RobinhoodSwapTest deployed Solidity contract in local fork",
+    "funding": "vm.deal seeds local native ETH; deployed WETH deposit creates WETH; deployed Uniswap swap obtains USDG. No ERC20 storage overrides or mainnet transactions.",
+    "assertions": [
+      "Exact input balance debited; exact output balance delta equals router result and pre-swap quoter result",
+      "Both USDG-to-WETH-to-USDG and WETH-to-USDG-to-WETH contract-taker roundtrips execute",
+      "Missing allowance reverts without moving input or output balances",
+      "Impossible minimum output reverts without moving input or output balances",
+      "Approvals are exact amount and cleared after each successful leg"
+    ],
+    "roundtrips": [
+      {
+        "base": "WETH",
+        "inputRaw": "10000000000000000",
+        "intermediateUsdgRaw": "24187092",
+        "returnedRaw": "9990001946246278"
+      },
+      {
+        "base": "USDG",
+        "seedObtainedBySwappingWethRaw": "120935171",
+        "inputRaw": "60467585",
+        "intermediateWethRaw": "24975043783786446",
+        "returnedRaw": "60407132"
+      }
+    ]
+  },
+  "zeroX": {
+    "chainSupportSource": "https://docs.0x.org/docs/introduction/supported-chains",
+    "documentedSupportedChainId": 4663,
+    "quoteProbe": "GET https://api.0x.org/swap/allowance-holder/quote, chainId=4663, USDG/WETH, 0x-version:v2, no API key",
+    "httpStatus": 401,
+    "message": "No API key found in request",
+    "status": "not-executed; not needed for demonstrated direct Uniswap route",
+    "contractTakerRequirement": "0x documents txOrigin in addition to taker when taker is a smart contract",
+    "contractTakerSource": "https://docs.0x.org/api-reference/evm-ap-is/swap/allowanceholder-getprice"
+  },
+  "limits": [
+    "Small-notional pinned-block pool feasibility does not establish depth for proposed basket allocations or current best execution",
+    "Gas numbers in forge include test harness and are not user gas estimates",
+    "Production execution still requires BND-004 operator/exit decisions, bounds, quote deadlines, router allowlisting and complete vault accounting",
+    "No 0x route or Rialto route is claimed verified; no paid service, signup, wallet signature or public-chain write was used"
+  ]
+}

@@ -6,11 +6,11 @@ brand
 
 ## Users
 
-On-chain investors evaluating a diversified portfolio that can move as one object, at any investment size.
+People who want to access DeFi strategies without selecting and monitoring every asset or protocol themselves, including people new to on-chain investing.
 
 ## Product Purpose
 
-Banda is an Arbitrum index provider. The landing page explains basket ownership and leads to a clearly labelled local demonstration. PRD.md and FE-PROMPT.md in the parent directory are the source of truth.
+Banda makes it simpler to own and manage a DeFi portfolio through managed investment baskets. Lead with ease of access, understandable strategy choices and a single portfolio view. Portfolio transfer and NFT/account architecture support that experience; they are not the primary selling point. Avoid claims of guaranteed returns, universal eligibility or unrestricted access. The landing page leads to a clearly labelled local demonstration. The [Open House brief](../openhouse/README.md) is the source of current product decisions.
 
 ## Brand Personality
 
