@@ -28,6 +28,8 @@ library LibBandaStorage {
         address settlement;
         address accountRegistry;
         address accountImplementation;
+        address navAdapter;
+        uint48 maxNavAge;
         uint256 nextTokenId;
         uint32 nextStrategyId;
         mapping(uint32 => StrategyConfig) strategies;

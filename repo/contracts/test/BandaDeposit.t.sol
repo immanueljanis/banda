@@ -12,11 +12,13 @@ import {BasketNFTFacet} from "../src/banda/facets/BasketNFTFacet.sol";
 import {DepositFacet} from "../src/banda/facets/DepositFacet.sol";
 import {BasketViewFacet} from "../src/banda/facets/BasketViewFacet.sol";
 import {RedeemFacet} from "../src/banda/facets/RedeemFacet.sol";
+import {NavGuardFacet} from "../src/banda/facets/NavGuardFacet.sol";
 import {BasketAccount} from "../src/banda/accounts/BasketAccount.sol";
 import {MockUSDG} from "../src/banda/mocks/MockUSDG.sol";
 import {MockStrategy} from "../src/banda/mocks/MockStrategy.sol";
 import {Mock6551Registry} from "../src/banda/mocks/Mock6551Registry.sol";
 import {MockReentrantStrategy} from "../src/banda/mocks/MockReentrantStrategy.sol";
+import {MockNavAdapter} from "../src/banda/mocks/MockNavAdapter.sol";
 
 interface Vm {
     function prank(address) external;
@@ -26,9 +28,11 @@ interface Vm {
 contract BandaDepositTest {
     Vm constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
     address constant USER = address(0xB0B);
+    address constant APPROVED_OPERATOR = address(0xA11CE);
     address constant FEE_RECIPIENT = address(0xFEE);
     MockUSDG usdg;
     MockStrategy strategy;
+    MockNavAdapter navAdapter;
     Diamond diamond;
 
     function setUp() public {
@@ -42,7 +46,8 @@ contract BandaDepositTest {
         DepositFacet depositFacet = new DepositFacet();
         BasketViewFacet viewFacet = new BasketViewFacet();
         RedeemFacet redeemFacet = new RedeemFacet();
-        IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](8);
+        NavGuardFacet navFacet = new NavGuardFacet();
+        IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](9);
         cuts[0] = _cut(address(cutFacet), _cutSelectors());
         cuts[1] = _cut(address(loupeFacet), _loupeSelectors());
         cuts[2] = _cut(address(ownershipFacet), _ownershipSelectors());
@@ -51,6 +56,7 @@ contract BandaDepositTest {
         cuts[5] = _cut(address(depositFacet), _depositSelectors());
         cuts[6] = _cut(address(viewFacet), _viewSelectors());
         cuts[7] = _cut(address(redeemFacet), _redeemSelectors());
+        cuts[8] = _cut(address(navFacet), _navSelectors());
         BandaInit init = new BandaInit();
         Mock6551Registry registry = new Mock6551Registry();
         BasketAccount accountImplementation = new BasketAccount(address(0), 0, address(0));
@@ -60,6 +66,8 @@ contract BandaDepositTest {
             address(init),
             abi.encodeCall(BandaInit.init, (address(usdg), address(registry), address(accountImplementation)))
         );
+        navAdapter = new MockNavAdapter();
+        AdminFacet(address(diamond)).configureNavGuard(address(navAdapter), 1 hours);
         AdminFacet(address(diamond)).configureStrategy(0, address(strategy), 10_000_000, 100, FEE_RECIPIENT, true);
         usdg.mint(USER, 100_000_000);
         vm.prank(USER);
@@ -105,7 +113,7 @@ contract BandaDepositTest {
         DepositFacet(address(diamond)).deposit(1, 25_000_000);
         AdminFacet(address(diamond)).setPaused(true);
         vm.prank(USER);
-        uint256 assets = RedeemFacet(address(diamond)).redeem(1, 25_000_000);
+        uint256 assets = RedeemFacet(address(diamond)).redeem(1, 25_000_000, 25_000_000);
         require(assets == 25_000_000 && usdg.balanceOf(USER) == 100_000_000, "pause blocked valid redeem");
     }
 
@@ -122,6 +130,10 @@ contract BandaDepositTest {
         vm.prank(USER);
         (bool pauseOk,) = address(diamond).call(abi.encodeCall(AdminFacet.setPaused, (true)));
         require(!pauseOk, "user paused protocol");
+        vm.prank(USER);
+        (bool navOk,) =
+            address(diamond).call(abi.encodeCall(AdminFacet.configureNavGuard, (address(navAdapter), uint48(1 hours))));
+        require(!navOk, "user configured NAV guard");
     }
 
     function testOnlyDiamondOwnerCanUpgrade() public {
@@ -155,7 +167,7 @@ contract BandaDepositTest {
         vm.prank(USER);
         (, address account,) = DepositFacet(address(diamond)).deposit(1, 25_000_000);
         vm.prank(USER);
-        uint256 assets = RedeemFacet(address(diamond)).redeem(1, 10_000_000);
+        uint256 assets = RedeemFacet(address(diamond)).redeem(1, 10_000_000, 10_000_000);
         require(assets == 10_000_000 && usdg.balanceOf(USER) == 85_000_000, "incorrect partial payout");
         require(BasketNFTFacet(address(diamond)).ownerOf(1) == USER, "partial redeem burned NFT");
         (, address storedAccount, uint128 shares) = BasketViewFacet(address(diamond)).basket(1);
@@ -165,11 +177,96 @@ contract BandaDepositTest {
         );
     }
 
+    function testPreviewReportsGrossFeeAndNetPayout() public {
+        vm.prank(USER);
+        DepositFacet(address(diamond)).deposit(1, 25_000_000);
+        vm.warp(block.timestamp + 365 days);
+        navAdapter.setQuote(1e18, block.timestamp, block.number, true);
+        (uint256 grossAssets, uint256 fee, uint256 netAssets) =
+            RedeemFacet(address(diamond)).previewRedeem(1, 10_000_000);
+        require(grossAssets == 10_000_000 && fee == 100_000 && netAssets == 9_900_000, "incorrect redeem preview");
+    }
+
+    function testStaleNavBlocksDepositWithoutMovingUsdG() public {
+        vm.warp(10_000);
+        navAdapter.setQuote(1e18, block.timestamp - 1 hours - 1, block.number, true);
+        vm.prank(USER);
+        (bool ok,) = address(diamond).call(abi.encodeCall(DepositFacet.deposit, (1, 25_000_000)));
+        require(!ok && usdg.balanceOf(USER) == 100_000_000, "stale NAV accepted deposit");
+    }
+
+    function testStaleNavBlocksRedeemWithoutChangingPosition() public {
+        vm.prank(USER);
+        (, address account,) = DepositFacet(address(diamond)).deposit(1, 25_000_000);
+        vm.warp(block.timestamp + 1 hours + 1);
+        navAdapter.setQuote(1e18, block.timestamp - 1 hours - 1, block.number, true);
+        vm.prank(USER);
+        (bool ok,) = address(diamond).call(abi.encodeCall(RedeemFacet.redeem, (1, 10_000_000, 0)));
+        require(!ok, "stale NAV accepted redeem");
+        (, address storedAccount, uint128 shares) = BasketViewFacet(address(diamond)).basket(1);
+        require(
+            storedAccount == account && shares == 25_000_000 && strategy.shareBalance(account) == 25_000_000,
+            "stale NAV changed position"
+        );
+    }
+
+    function testMixedBlockNavBlocksDeposit() public {
+        navAdapter.setQuote(1e18, block.timestamp, block.number + 1, true);
+        vm.prank(USER);
+        (bool ok,) = address(diamond).call(abi.encodeCall(DepositFacet.deposit, (1, 25_000_000)));
+        require(!ok, "mixed-block NAV accepted deposit");
+    }
+
+    function testFutureDatedNavBlocksDeposit() public {
+        navAdapter.setQuote(1e18, block.timestamp + 1, block.number, true);
+        vm.prank(USER);
+        (bool ok,) = address(diamond).call(abi.encodeCall(DepositFacet.deposit, (1, 25_000_000)));
+        require(!ok, "future NAV accepted deposit");
+    }
+
+    function testMinimumPayoutRevertPreservesPosition() public {
+        vm.prank(USER);
+        (, address account,) = DepositFacet(address(diamond)).deposit(1, 25_000_000);
+        vm.prank(USER);
+        (bool ok,) = address(diamond).call(abi.encodeCall(RedeemFacet.redeem, (1, 10_000_000, 10_000_001)));
+        require(!ok, "minimum payout ignored");
+        (, address storedAccount, uint128 shares) = BasketViewFacet(address(diamond)).basket(1);
+        require(
+            storedAccount == account && shares == 25_000_000 && strategy.shareBalance(account) == 25_000_000,
+            "slippage revert lost position"
+        );
+    }
+
+    function testPayoutFailureRollsBackSharesAndNft() public {
+        vm.prank(USER);
+        (, address account,) = DepositFacet(address(diamond)).deposit(1, 25_000_000);
+        usdg.setRejectRecipient(USER, true);
+        vm.prank(USER);
+        (bool ok,) = address(diamond).call(abi.encodeCall(RedeemFacet.redeem, (1, 10_000_000, 0)));
+        require(!ok, "failed payout accepted");
+        require(BasketNFTFacet(address(diamond)).ownerOf(1) == USER, "failed payout burned NFT");
+        (, address storedAccount, uint128 shares) = BasketViewFacet(address(diamond)).basket(1);
+        require(
+            storedAccount == account && shares == 25_000_000 && strategy.shareBalance(account) == 25_000_000,
+            "failed payout changed position"
+        );
+    }
+
+    function testApprovedOperatorRedeemPaysNftOwner() public {
+        vm.prank(USER);
+        DepositFacet(address(diamond)).deposit(1, 25_000_000);
+        vm.prank(USER);
+        BasketNFTFacet(address(diamond)).approve(APPROVED_OPERATOR, 1);
+        vm.prank(APPROVED_OPERATOR);
+        RedeemFacet(address(diamond)).redeem(1, 10_000_000, 10_000_000);
+        require(usdg.balanceOf(USER) == 85_000_000 && usdg.balanceOf(APPROVED_OPERATOR) == 0, "payout sent to caller");
+    }
+
     function testFullRedeemPaysThenBurnsBasket() public {
         vm.prank(USER);
         DepositFacet(address(diamond)).deposit(1, 25_000_000);
         vm.prank(USER);
-        RedeemFacet(address(diamond)).redeem(1, 25_000_000);
+        RedeemFacet(address(diamond)).redeem(1, 25_000_000, 25_000_000);
         require(usdg.balanceOf(USER) == 100_000_000, "full payout missing");
         (bool ownerRead,) = address(diamond).staticcall(abi.encodeCall(BasketNFTFacet.ownerOf, (1)));
         require(!ownerRead, "full redeem did not burn NFT");
@@ -179,13 +276,14 @@ contract BandaDepositTest {
         vm.prank(USER);
         DepositFacet(address(diamond)).deposit(1, 25_000_000);
         vm.warp(block.timestamp + 365 days);
+        navAdapter.setQuote(1e18, block.timestamp, block.number, true);
         vm.prank(USER);
-        RedeemFacet(address(diamond)).redeem(1, 10_000_000);
+        RedeemFacet(address(diamond)).redeem(1, 10_000_000, 9_900_000);
         require(usdg.balanceOf(FEE_RECIPIENT) == 100_000, "incorrect partial fee");
         (uint128 liability,,) = BasketViewFacet(address(diamond)).feeState(1);
         require(liability == 150_000, "remaining fee incorrect");
         vm.prank(USER);
-        RedeemFacet(address(diamond)).redeem(1, 15_000_000);
+        RedeemFacet(address(diamond)).redeem(1, 15_000_000, 14_850_000);
         require(usdg.balanceOf(FEE_RECIPIENT) == 250_000, "fee charged twice or lost");
         require(usdg.balanceOf(USER) == 99_750_000, "net investor value incorrect");
     }
@@ -214,9 +312,10 @@ contract BandaDepositTest {
     }
 
     function _adminSelectors() private pure returns (bytes4[] memory x) {
-        x = new bytes4[](2);
+        x = new bytes4[](3);
         x[0] = AdminFacet.configureStrategy.selector;
         x[1] = AdminFacet.setPaused.selector;
+        x[2] = AdminFacet.configureNavGuard.selector;
     }
 
     function _nftSelectors() private pure returns (bytes4[] memory x) {
@@ -247,7 +346,14 @@ contract BandaDepositTest {
     }
 
     function _redeemSelectors() private pure returns (bytes4[] memory x) {
-        x = new bytes4[](1);
+        x = new bytes4[](2);
         x[0] = RedeemFacet.redeem.selector;
+        x[1] = RedeemFacet.previewRedeem.selector;
+    }
+
+    function _navSelectors() private pure returns (bytes4[] memory x) {
+        x = new bytes4[](2);
+        x[0] = NavGuardFacet.navGuard.selector;
+        x[1] = NavGuardFacet.previewNav.selector;
     }
 }

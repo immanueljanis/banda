@@ -5,6 +5,7 @@ import {IERC20} from "../interfaces/IERC20.sol";
 import {IManagedStrategy} from "../interfaces/IManagedStrategy.sol";
 import {IERC6551Registry} from "../interfaces/IERC6551Registry.sol";
 import {LibBandaStorage} from "../libraries/LibBandaStorage.sol";
+import {LibNavGuard} from "../libraries/LibNavGuard.sol";
 import {BasketNFTFacet} from "./BasketNFTFacet.sol";
 
 /// @notice Atomically collects settlement assets, mints a basket, binds an account, and receives shares.
@@ -29,6 +30,7 @@ contract DepositFacet is BasketNFTFacet {
         LibBandaStorage.StrategyConfig memory config = s.strategies[strategyId];
         require(config.enabled, "Banda: strategy disabled");
         require(assets >= config.minimumDeposit, "Banda: deposit too small");
+        LibNavGuard.requireValidQuote(config.strategy, assets);
 
         IERC20 settlement = IERC20(s.settlement);
         uint256 beforeBalance = settlement.balanceOf(address(this));

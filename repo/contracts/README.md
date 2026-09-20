@@ -29,7 +29,10 @@ guard and revokes its temporary strategy allowance.
 Partial redemption preserves the NFT and account; a full redemption pays before
 the NFT is burned. It checkpoints the configured annual management fee against
 the strategy's fixture NAV and allocates the accrued liability pro-rata at
-redemption, so the same liability is not deducted twice. The local
+redemption, so the same liability is not deducted twice. `previewRedeem` returns
+the gross, fee, and net quote; `redeem` requires the caller's minimum net payout
+and rolls back the strategy, accounting, and NFT lifecycle if either fee or owner
+payout fails. The local
 `Mock6551Registry`, `BasketAccount`, `MockUSDG`, and `MockStrategy` are
 test fixtures. They are not a deployment, canonical USDG integration, or evidence
 that a production ERC-6551 registry/strategy is ready. Oracle-backed NAV gating,

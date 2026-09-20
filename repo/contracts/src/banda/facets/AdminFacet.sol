@@ -7,6 +7,7 @@ import {LibBandaStorage} from "../libraries/LibBandaStorage.sol";
 /// @notice Administrative configuration only. This facet has no asset withdrawal path.
 contract AdminFacet {
     event PauseSet(bool paused);
+    event NavGuardConfigured(address indexed adapter, uint48 maxAge);
     event StrategyConfigured(
         uint32 indexed strategyId,
         address indexed strategy,
@@ -55,5 +56,14 @@ contract AdminFacet {
         LibDiamond.enforceIsContractOwner();
         LibBandaStorage.appStorage().paused = paused;
         emit PauseSet(paused);
+    }
+
+    function configureNavGuard(address adapter, uint48 maxAge) external {
+        LibDiamond.enforceIsContractOwner();
+        require(adapter.code.length != 0 && maxAge != 0, "Banda: invalid NAV guard");
+        LibBandaStorage.AppStorage storage s = LibBandaStorage.appStorage();
+        s.navAdapter = adapter;
+        s.maxNavAge = maxAge;
+        emit NavGuardConfigured(adapter, maxAge);
     }
 }
