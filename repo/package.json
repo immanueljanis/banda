@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
     "build": "next build",
+    "assets:logos": "node scripts/fetch-asset-logos.mjs",
     "start": "next start --hostname 0.0.0.0",
     "check": "node --test scripts/validation/nav.test.mjs && forge test --root contracts --match-contract Banda && tsc --noEmit && next build",
     "validate:identity": "python scripts/validation/research-network.py",

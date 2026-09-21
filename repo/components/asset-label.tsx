@@ -6,7 +6,7 @@ export function AssetLogo({ ticker }: { ticker: string }) {
   return (
     <img
       className="asset-logo"
-      src={`/assets/tickers/${ticker.toLowerCase()}.svg`}
+      src={`/assets/tickers/${ticker.toLowerCase()}.png`}
       width={32}
       height={32}
       alt={`${ASSETS[ticker].name} mark`}
