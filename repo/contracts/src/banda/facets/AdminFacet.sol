@@ -7,6 +7,8 @@ import {LibBandaStorage} from "../libraries/LibBandaStorage.sol";
 /// @notice Administrative configuration only. This facet has no asset withdrawal path.
 contract AdminFacet {
     event PauseSet(bool paused);
+    event RebalanceOperatorSet(address indexed operator);
+    event RebalanceBoundsSet(uint32 indexed strategyId, uint16 minimumBps, uint16 maximumBps);
     event NavGuardConfigured(address indexed adapter, uint48 maxAge);
     event StrategyConfigured(
         uint32 indexed strategyId,
@@ -56,6 +58,22 @@ contract AdminFacet {
         LibDiamond.enforceIsContractOwner();
         LibBandaStorage.appStorage().paused = paused;
         emit PauseSet(paused);
+    }
+
+    function setRebalanceOperator(address operator) external {
+        LibDiamond.enforceIsContractOwner();
+        require(operator != address(0), "Banda: invalid operator");
+        LibBandaStorage.appStorage().rebalanceOperator = operator;
+        emit RebalanceOperatorSet(operator);
+    }
+
+    function setRebalanceBounds(uint32 strategyId, uint16 minimumBps, uint16 maximumBps) external {
+        LibDiamond.enforceIsContractOwner();
+        LibBandaStorage.AppStorage storage s = LibBandaStorage.appStorage();
+        require(s.strategies[strategyId].strategy != address(0), "Banda: strategy missing");
+        require(minimumBps <= maximumBps && maximumBps <= 10_000, "Banda: invalid bounds");
+        s.rebalanceBounds[strategyId] = LibBandaStorage.RebalanceBounds(minimumBps, maximumBps, true);
+        emit RebalanceBoundsSet(strategyId, minimumBps, maximumBps);
     }
 
     function configureNavGuard(address adapter, uint48 maxAge) external {

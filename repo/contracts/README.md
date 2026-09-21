@@ -50,6 +50,35 @@ testnet USDG availability nor proves mainnet liquidity, a bridge, or a productio
 execution venue. The suite also verifies that a failed minimum-payout check rolls
 back the canonical asset position and pool balances.
 
+The mainnet asset identity, pricing, liquidity, exit, and exposure gates are
+tracked in [ASSET_ADMISSION.md](ASSET_ADMISSION.md). No production asset is
+enabled by the local gateway fixture.
+The USDG yield-vault candidate and its unresolved deposit/redeem checks are
+tracked in [YIELD_ADMISSION.md](YIELD_ADMISSION.md).
+
+## BND-008 rebalance fixture
+
+The Diamond owner configures a separate rebalance operator and an allocation
+range for each strategy. The operator can trigger `RebalanceFacet.rebalance`
+only for an existing basket, only while deposits and rebalances are unpaused,
+and only through that basket's configured strategy. The call requires a reason,
+a fresh NAV quote before and after execution, a minimum resulting NAV, and an
+unchanged strategy share count. The local test rebalances two basket accounts
+independently and checks their shares and NFT ownership.
+
+`MockRebalanceStrategy` records sleeve percentages but executes no swap. The
+fixture does not establish asset-level mandate enforcement, actual rebalance
+execution, account-specific NAV, or production readiness.
+
+## BND-009 ownership transfer fixture
+
+Transferring a Basket NFT moves redeem authority to the new owner while the
+ERC-6551 account and its strategy shares stay in place. Token-level approvals
+are cleared on transfer, and only the Diamond can execute account calls.
+`safeTransferFrom` checks contract recipients; a rejected recipient rolls
+back the ownership change. These behaviors are covered in
+`test/BandaNFTTransfer.t.sol`.
+
 Run the focused suite from `repo/`:
 
 ```text

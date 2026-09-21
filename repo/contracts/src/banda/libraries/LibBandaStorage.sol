@@ -21,6 +21,12 @@ library LibBandaStorage {
         uint256 feeRemainder;
     }
 
+    struct RebalanceBounds {
+        uint16 minimumBps;
+        uint16 maximumBps;
+        bool configured;
+    }
+
     struct AppStorage {
         bool initialized;
         bool paused;
@@ -39,6 +45,8 @@ library LibBandaStorage {
         mapping(address => uint256) balanceOf;
         mapping(uint256 => address) tokenApproval;
         mapping(address => mapping(address => bool)) operatorApproval;
+        address rebalanceOperator;
+        mapping(uint32 => RebalanceBounds) rebalanceBounds;
     }
 
     function appStorage() internal pure returns (AppStorage storage s) {

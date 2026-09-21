@@ -13,6 +13,7 @@ import {DepositFacet} from "../src/banda/facets/DepositFacet.sol";
 import {BasketViewFacet} from "../src/banda/facets/BasketViewFacet.sol";
 import {RedeemFacet} from "../src/banda/facets/RedeemFacet.sol";
 import {NavGuardFacet} from "../src/banda/facets/NavGuardFacet.sol";
+import {RebalanceFacet} from "../src/banda/facets/RebalanceFacet.sol";
 import {BasketAccount} from "../src/banda/accounts/BasketAccount.sol";
 import {MockUSDG} from "../src/banda/mocks/MockUSDG.sol";
 import {MockStrategy} from "../src/banda/mocks/MockStrategy.sol";
@@ -22,6 +23,7 @@ import {MockNavAdapter} from "../src/banda/mocks/MockNavAdapter.sol";
 import {MockCanonicalAsset} from "../src/banda/mocks/MockCanonicalAsset.sol";
 import {MockUsdGAssetPool} from "../src/banda/mocks/MockUsdGAssetPool.sol";
 import {MockGatewayStrategy} from "../src/banda/mocks/MockGatewayStrategy.sol";
+import {MockRebalanceStrategy} from "../src/banda/mocks/MockRebalanceStrategy.sol";
 
 interface Vm {
     function prank(address) external;
@@ -31,6 +33,8 @@ interface Vm {
 contract BandaDepositTest {
     Vm constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
     address constant USER = address(0xB0B);
+    address constant USER_TWO = address(0xB0B2);
+    address constant REBALANCE_OPERATOR = address(0x0A7);
     address constant APPROVED_OPERATOR = address(0xA11CE);
     address constant FEE_RECIPIENT = address(0xFEE);
     MockUSDG usdg;
@@ -50,7 +54,8 @@ contract BandaDepositTest {
         BasketViewFacet viewFacet = new BasketViewFacet();
         RedeemFacet redeemFacet = new RedeemFacet();
         NavGuardFacet navFacet = new NavGuardFacet();
-        IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](9);
+        RebalanceFacet rebalanceFacet = new RebalanceFacet();
+        IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](10);
         cuts[0] = _cut(address(cutFacet), _cutSelectors());
         cuts[1] = _cut(address(loupeFacet), _loupeSelectors());
         cuts[2] = _cut(address(ownershipFacet), _ownershipSelectors());
@@ -60,6 +65,7 @@ contract BandaDepositTest {
         cuts[6] = _cut(address(viewFacet), _viewSelectors());
         cuts[7] = _cut(address(redeemFacet), _redeemSelectors());
         cuts[8] = _cut(address(navFacet), _navSelectors());
+        cuts[9] = _cut(address(rebalanceFacet), _rebalanceSelectors());
         BandaInit init = new BandaInit();
         Mock6551Registry registry = new Mock6551Registry();
         BasketAccount accountImplementation = new BasketAccount(address(0), 0, address(0));
@@ -73,7 +79,10 @@ contract BandaDepositTest {
         AdminFacet(address(diamond)).configureNavGuard(address(navAdapter), 1 hours);
         AdminFacet(address(diamond)).configureStrategy(0, address(strategy), 10_000_000, 100, FEE_RECIPIENT, true);
         usdg.mint(USER, 100_000_000);
+        usdg.mint(USER_TWO, 100_000_000);
         vm.prank(USER);
+        usdg.approve(address(diamond), type(uint256).max);
+        vm.prank(USER_TWO);
         usdg.approve(address(diamond), type(uint256).max);
     }
 
@@ -334,6 +343,69 @@ contract BandaDepositTest {
         require(usdg.balanceOf(USER) == 99_750_000, "net investor value incorrect");
     }
 
+    function testRebalanceChangesOnlySelectedAccountWithinMandate() public {
+        MockRebalanceStrategy managed = _setupRebalanceStrategy();
+        vm.prank(USER);
+        (, address first,) = DepositFacet(address(diamond)).deposit(2, 25_000_000);
+        vm.prank(USER_TWO);
+        (, address second,) = DepositFacet(address(diamond)).deposit(2, 35_000_000);
+
+        vm.prank(REBALANCE_OPERATOR);
+        uint256 navAfter = RebalanceFacet(address(diamond)).rebalance(1, 6000, 25_000_000, keccak256("adjust sleeve"));
+        require(navAfter == 25_000_000, "NAV changed");
+        require(managed.sleeveBps(first) == 6000 && managed.sleeveBps(second) == 0, "wrong account changed");
+        vm.prank(REBALANCE_OPERATOR);
+        uint256 secondNav =
+            RebalanceFacet(address(diamond)).rebalance(2, 4000, 35_000_000, keccak256("adjust second sleeve"));
+        require(secondNav == 35_000_000, "second NAV changed");
+        require(managed.sleeveBps(first) == 6000 && managed.sleeveBps(second) == 4000, "accounts not isolated");
+        require(
+            managed.shareBalance(first) == 25_000_000 && managed.shareBalance(second) == 35_000_000, "shares changed"
+        );
+        (, address storedFirst, uint128 firstShares) = BasketViewFacet(address(diamond)).basket(1);
+        (, address storedSecond, uint128 secondShares) = BasketViewFacet(address(diamond)).basket(2);
+        require(storedFirst == first && firstShares == 25_000_000, "first basket changed");
+        require(storedSecond == second && secondShares == 35_000_000, "second basket changed");
+        require(BasketNFTFacet(address(diamond)).ownerOf(1) == USER, "first NFT owner changed");
+        require(BasketNFTFacet(address(diamond)).ownerOf(2) == USER_TWO, "second NFT owner changed");
+    }
+
+    function testRebalanceRejectsWrongRolePauseBoundsAndInvalidNav() public {
+        MockRebalanceStrategy managed = _setupRebalanceStrategy();
+        vm.prank(USER);
+        (, address account,) = DepositFacet(address(diamond)).deposit(2, 25_000_000);
+        bytes memory action =
+            abi.encodeCall(RebalanceFacet.rebalance, (1, 6000, 25_000_000, keccak256("adjust sleeve")));
+        vm.prank(USER);
+        (bool userOk,) = address(diamond).call(action);
+        require(!userOk, "holder rebalanced");
+        AdminFacet(address(diamond)).setPaused(true);
+        vm.prank(REBALANCE_OPERATOR);
+        (bool pausedOk,) = address(diamond).call(action);
+        require(!pausedOk, "paused rebalance accepted");
+        AdminFacet(address(diamond)).setPaused(false);
+        vm.prank(REBALANCE_OPERATOR);
+        (bool boundsOk,) =
+            address(diamond).call(abi.encodeCall(RebalanceFacet.rebalance, (1, 9000, 0, keccak256("outside bounds"))));
+        require(!boundsOk, "out of bounds accepted");
+        vm.prank(REBALANCE_OPERATOR);
+        (bool minOk,) =
+            address(diamond).call(abi.encodeCall(RebalanceFacet.rebalance, (1, 6000, 25_000_001, keccak256("min NAV"))));
+        require(!minOk, "low NAV accepted");
+        require(managed.sleeveBps(account) == 0, "failed rebalance persisted");
+        navAdapter.setQuote(1e18, block.timestamp, block.number + 1, true);
+        vm.prank(REBALANCE_OPERATOR);
+        (bool navOk,) = address(diamond).call(action);
+        require(!navOk && managed.sleeveBps(account) == 0, "invalid NAV accepted");
+    }
+
+    function _setupRebalanceStrategy() private returns (MockRebalanceStrategy managed) {
+        managed = new MockRebalanceStrategy(address(usdg), address(diamond));
+        AdminFacet(address(diamond)).configureStrategy(0, address(managed), 10_000_000, 100, FEE_RECIPIENT, true);
+        AdminFacet(address(diamond)).setRebalanceOperator(REBALANCE_OPERATOR);
+        AdminFacet(address(diamond)).setRebalanceBounds(2, 2000, 8000);
+    }
+
     function _cut(address facet, bytes4[] memory selectors) private pure returns (IDiamondCut.FacetCut memory) {
         return IDiamondCut.FacetCut(facet, IDiamondCut.FacetCutAction.Add, selectors);
     }
@@ -358,14 +430,16 @@ contract BandaDepositTest {
     }
 
     function _adminSelectors() private pure returns (bytes4[] memory x) {
-        x = new bytes4[](3);
+        x = new bytes4[](5);
         x[0] = AdminFacet.configureStrategy.selector;
         x[1] = AdminFacet.setPaused.selector;
         x[2] = AdminFacet.configureNavGuard.selector;
+        x[3] = AdminFacet.setRebalanceOperator.selector;
+        x[4] = AdminFacet.setRebalanceBounds.selector;
     }
 
     function _nftSelectors() private pure returns (bytes4[] memory x) {
-        x = new bytes4[](9);
+        x = new bytes4[](11);
         x[0] = BasketNFTFacet.name.selector;
         x[1] = BasketNFTFacet.symbol.selector;
         x[2] = BasketNFTFacet.ownerOf.selector;
@@ -375,6 +449,8 @@ contract BandaDepositTest {
         x[6] = BasketNFTFacet.approve.selector;
         x[7] = BasketNFTFacet.setApprovalForAll.selector;
         x[8] = BasketNFTFacet.transferFrom.selector;
+        x[9] = bytes4(keccak256("safeTransferFrom(address,address,uint256)"));
+        x[10] = bytes4(keccak256("safeTransferFrom(address,address,uint256,bytes)"));
     }
 
     function _depositSelectors() private pure returns (bytes4[] memory x) {
@@ -401,5 +477,10 @@ contract BandaDepositTest {
         x = new bytes4[](2);
         x[0] = NavGuardFacet.navGuard.selector;
         x[1] = NavGuardFacet.previewNav.selector;
+    }
+
+    function _rebalanceSelectors() private pure returns (bytes4[] memory x) {
+        x = new bytes4[](1);
+        x[0] = RebalanceFacet.rebalance.selector;
     }
 }

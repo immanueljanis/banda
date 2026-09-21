@@ -3,6 +3,12 @@ pragma solidity 0.8.30;
 
 import {LibBandaStorage} from "../libraries/LibBandaStorage.sol";
 
+interface IERC721Receiver {
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
+        external
+        returns (bytes4);
+}
+
 /// @dev Minimal ERC-721 ownership surface. Mint/burn stay private to lifecycle facets.
 contract BasketNFTFacet {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
@@ -57,6 +63,7 @@ contract BasketNFTFacet {
         address owner_ = ownerOf(tokenId);
         require(owner_ == from, "Banda: wrong from");
         LibBandaStorage.AppStorage storage s = LibBandaStorage.appStorage();
+        require(!s.depositEntered, "Banda: lifecycle busy");
         require(
             msg.sender == owner_ || msg.sender == s.tokenApproval[tokenId] || s.operatorApproval[owner_][msg.sender],
             "Banda: not approved"
@@ -66,6 +73,21 @@ contract BasketNFTFacet {
         ++s.balanceOf[to];
         s.ownerOf[tokenId] = to;
         emit Transfer(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId) external {
+        safeTransferFrom(from, to, tokenId, "");
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public {
+        transferFrom(from, to, tokenId);
+        if (to.code.length != 0) {
+            require(
+                IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, data)
+                    == IERC721Receiver.onERC721Received.selector,
+                "Banda: unsafe recipient"
+            );
+        }
     }
 
     function _mint(address to, uint256 tokenId) internal {
