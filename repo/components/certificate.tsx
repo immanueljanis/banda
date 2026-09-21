@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { animate, motion } from "motion/react";
-import { type Basket, money } from "@/lib/mock";
+import { type Basket, money } from "@/constants/baskets";
 import { AssetLabel, AssetLogo } from "./asset-label";
 
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
@@ -66,27 +66,24 @@ export function Allocation({ basket }: { basket: Basket }) {
   return (
     <>
       <div className="allocation" aria-label="Asset allocation">
-        {basket.allocation.map((n, i) => (
+        {basket.allocation.map((allocation, i) => (
           <span
-            key={i}
+            key={allocation.label}
             className={`category-${i}`}
-            style={{ flexBasis: `${n}%` }}
+            style={{ flexBasis: `${allocation.weight}%` }}
           />
         ))}
       </div>
       <div className="allocation-legend">
-        {["Gold", "Crypto", "Income"].map(
-          (label, i) =>
-            basket.allocation[i] > 0 && (
-              <div key={label}>
-                <span>
-                  <i className={`category-${i}`} />
-                  {label}
-                </span>
-                <b className="mono">{basket.allocation[i]}%</b>
-              </div>
-            ),
-        )}
+        {basket.allocation.map((allocation, i) => (
+          <div key={allocation.label}>
+            <span>
+              <i className={`category-${i}`} />
+              {allocation.label}
+            </span>
+            <b className="mono">{allocation.weight}%</b>
+          </div>
+        ))}
       </div>
     </>
   );
@@ -155,13 +152,10 @@ function PortfolioAssembly({
   const reduced = useReducedMotion();
   const [replay, setReplay] = useState(0);
   const moving = !reduced && (animateIntro || replay > 0);
-  const positions = [
-    [-108, -45],
-    [0, -62],
-    [108, -45],
-    [-84, 55],
-    [84, 55],
-  ];
+  const positions = basket.holdings.map((_, index) => {
+    const angle = (Math.PI * 2 * index) / basket.holdings.length - Math.PI / 2;
+    return [Math.cos(angle) * 108, Math.sin(angle) * 60];
+  });
   return (
     <div className="portfolio-assembly">
       <div

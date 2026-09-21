@@ -1,15 +1,15 @@
 "use client";
 import { useRef, useState } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
-import { ASSETS, ASSET_FACTS, logoFor } from "@/lib/assets";
+import { ASSETS, ASSET_FACTS } from "@/constants/baskets";
 export function AssetLogo({ ticker }: { ticker: string }) {
   return (
     <img
       className="asset-logo"
-      src={logoFor(ticker)}
+      src={`/assets/tickers/${ticker.toLowerCase()}.svg`}
       width={32}
       height={32}
-      alt={`${ASSETS[ticker].name} logo`}
+      alt={`${ASSETS[ticker].name} mark`}
     />
   );
 }
@@ -25,18 +25,27 @@ export function AssetLabel({
   const asset = ASSETS[ticker];
   return (
     <Tooltip.Provider delayDuration={180}>
-      <Tooltip.Root open={open} onOpenChange={setOpen}>
+      <Tooltip.Root open={open}>
         <Tooltip.Trigger asChild>
           <button
             type="button"
             className={`asset-label ${compact ? "asset-compact" : ""}`}
             aria-label={`About ${ticker}: ${asset.name}`}
+            onMouseEnter={() => setOpen(true)}
+            onMouseLeave={() => setOpen(false)}
+            onFocus={() => setOpen(true)}
+            onBlur={() => setOpen(false)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                setOpen(false);
+              }
+            }}
             onPointerDown={() => {
               wasOpen.current = open;
             }}
             onClick={(event) => {
               event.preventDefault();
-              setOpen(event.detail === 0 ? !open : !wasOpen.current);
+              setOpen(event.detail === 0 ? true : !wasOpen.current);
             }}
           >
             <AssetLogo ticker={ticker} />

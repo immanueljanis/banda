@@ -13,8 +13,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
-import { type Basket, money } from "@/lib/mock";
-import { ASSETS } from "@/lib/assets";
+import { ASSETS, type Basket, money } from "@/constants/baskets";
 import {
   backtest,
   historicalAsset,
@@ -203,14 +202,9 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                       <span>Portfolio share</span>
                       <strong className="mono">{h.weight}%</strong>
                     </div>
-                    {h.ticker === "aUSDC" && (
+                    {h.ticker === "USDG" && (
                       <small className="asset-proxy-note">
-                        Cash proxy; lending interest excluded.
-                      </small>
-                    )}
-                    {h.ticker === "wBTC" && (
-                      <small className="asset-proxy-note">
-                        Bitcoin price proxy for wrapped Bitcoin.
+                        Cash price held at $1; candidate vault yield excluded.
                       </small>
                     )}
                   </article>
@@ -368,15 +362,16 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                 excluding dividends.
               </p>
               <p>
-                Bitcoin is a proxy for wBTC; ETH for WETH. aUSDC is held at{" "}
-                <span className="mono">$1</span> without interest. wstETH uses
-                its own market price. Prices reflect market behavior, not a
-                verified strategy execution.
+                Listed equities and ETFs use their underlying Yahoo Finance
+                closes. Crypto uses the corresponding spot-price series. USDG is
+                held at <span className="mono">$1</span> without yield. Prices
+                reflect market behavior, not a verified strategy execution or
+                Robinhood Stock Token liquidity.
               </p>
               <p>
-                Management fees (Beta Play 1% per year; Alpha Play 2% per year),
-                trading costs, slippage, taxes and additional lending rewards
-                are excluded. The MVP has no performance fee. Current example
+                The {basket.managementFee}% annual management fee, trading
+                costs, slippage, taxes and additional lending rewards are
+                excluded. The MVP has no performance fee. Current example
                 weights are applied retrospectively, introducing selection bias.
                 Returns do not predict future results.
               </p>
@@ -423,15 +418,14 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             <div className="panel-heading">
               <h2>Know what you’re holding.</h2>
               <span className="risk-label">
-                {basket.slug === "frontier"
-                  ? "Higher volatility"
-                  : "Capital at risk"}
+                {basket.character === "Defensive"
+                  ? "Capital at risk"
+                  : "Higher volatility"}
               </span>
             </div>
             <p className="risk-intro">
-              {basket.slug === "frontier"
-                ? "Frontier concentrates on a small group of crypto projects. Expect larger price swings."
-                : "Core spreads exposure across gold, crypto and lending. Diversification can reduce concentration, but it cannot prevent losses."}
+              {basket.mandate} Its {basket.character.toLowerCase()} profile can
+              still lose value, and diversification cannot prevent losses.
             </p>
             <div className="risk-observation">
               <span>

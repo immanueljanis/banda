@@ -6,7 +6,7 @@
     "dev": "next dev --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
-    "check": "node --test scripts/validation/nav.test.mjs && forge test --root contracts --match-path test/BandaDeposit.t.sol && tsc --noEmit && next build",
+    "check": "node --test scripts/validation/nav.test.mjs && forge test --root contracts --match-contract Banda && tsc --noEmit && next build",
     "validate:identity": "python scripts/validation/research-network.py",
     "validate:oracles": "node scripts/validation/probe-oracles.mjs",
     "validate:swap": "forge test --root contracts -vvvv",

@@ -1,5 +1,5 @@
 import market from "./data/market-history.json";
-import type { Basket } from "./mock";
+import type { Basket } from "@/constants/baskets";
 export type Period = "1W" | "1M" | "3M";
 export const periodDays: Record<Period, number> = {
   "1W": 7,
@@ -21,7 +21,7 @@ export function backtest(basket: Basket, period: Period): HistoryPoint[] {
         Date.parse(date) <= end,
     );
   const price = (ticker: string, date: string) => {
-    if (ticker === "aUSDC") return 1;
+    if (ticker === "USDG") return 1;
     const point = series[ticker]?.find((p) => p.date === date);
     if (!point) throw new Error(`Missing ${ticker} price on ${date}`);
     return point.close;
@@ -42,7 +42,7 @@ export function backtest(basket: Basket, period: Period): HistoryPoint[] {
 }
 export function historicalAsset(ticker: string) {
   const points =
-    ticker === "aUSDC"
+    ticker === "USDG"
       ? market.series.benchmark.map((p) => ({ date: p.date, close: 1 }))
       : (market.series as Record<string, { date: string; close: number }[]>)[
           ticker

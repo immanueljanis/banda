@@ -6,11 +6,11 @@ export default function Docs() {
         ← Back to Banda
       </Link>
       <span className="section-index">BANDA / PRODUCT NOTES</span>
-      <h1>A simpler way to own and manage DeFi.</h1>
+      <h1>Managed baskets, built to keep capital working.</h1>
       <p>
         Banda brings strategy selection, deposits, portfolio tracking and
-        redemption into one planned flow. This demo lets you explore baskets
-        and simulate deposits locally. Live deposits and redemption are not
+        redemption into one planned flow. This demo lets you explore baskets and
+        simulate deposits locally. Live deposits and redemption are not
         available yet. Easier access does not remove investment risk.
       </p>
       <section>
@@ -21,6 +21,17 @@ export default function Docs() {
           <span className="mono">ERC-4626</span> strategy shares. Transferring
           basket ownership transfers the whole portfolio without selling each
           holding.
+        </p>
+      </section>
+      <section>
+        <h2>Login and wallet</h2>
+        <p>
+          Banda plans to use Privy so new users can sign in with familiar
+          methods and use an embedded or smart wallet, while existing Web3 users
+          can connect an external wallet. That user wallet owns the basket NFT.
+          It is separate from the basket&apos;s restricted{" "}
+          <span className="mono">ERC-6551</span> account, which holds the
+          portfolio positions.
         </p>
       </section>
       <section>
@@ -56,16 +67,17 @@ export default function Docs() {
         <h2>MVP fees</h2>
         <p>
           Annual management fees are <span className="mono">1%</span> for
-          Core (Beta Play) and <span className="mono">2%</span> for Frontier
-          (Alpha Play). These are strategy labels, not return guarantees.
+          diversified and defensive mandates, and{" "}
+          <span className="mono">2%</span> for thematic and active mandates.
+          Basket character describes its strategy and is not a return guarantee.
           The MVP has no performance fee. Mint and redeem fees are{" "}
           <span className="mono">0%</span>.
         </p>
         <p>
           Management fees are designed to be reflected in NAV, with no second
           charge when collected. Accrual formulas, rounding and fee recipient
-          authorization still need to be specified. Contract fee accrual and
-          fee accounting in the NAV simulation are not implemented; demo values
+          authorization still need to be specified. Contract fee accrual and fee
+          accounting in the NAV simulation are not implemented; demo values
           remain illustrative.
         </p>
       </section>
@@ -73,8 +85,9 @@ export default function Docs() {
         <h2>About this demonstration</h2>
         <p>
           Portfolio values, yields and block numbers are examples. The wallet is
-          a local simulation; no transaction is sent. Historical comparisons use
-          daily market prices from June to September 2025 with hypothetical
+          a local simulation; no transaction is sent. Privy is planned but not
+          integrated in this demonstration. Historical comparisons use daily
+          market prices from June to September 2025 with hypothetical
           allocations. Open Methodology in the Historical tab for assumptions,
           excluded costs, price proxies and downloadable source data.
         </p>

@@ -1,28 +1,29 @@
 import Link from "next/link";
-import { BASKETS, money } from "@/lib/mock";
+import { BASKETS, money } from "@/constants/baskets";
 import { AssetLabel } from "@/components/asset-label";
 import { BasketFeatures } from "@/components/asset-facts";
 import { Certificate, Sparkline } from "@/components/certificate";
+import { yieldAssets, yieldWeight } from "@/lib/yields";
 export default function Home() {
   return (
     <main id="main">
       <section className="hero wrap">
         <div className="hero-copy">
-          <div className="hero-kicker">DEFI, WITH FEWER STEPS</div>
+          <div className="hero-kicker">MANAGED DEFI BASKETS</div>
           <h1>
-            Your DeFi portfolio.
-            <br className="desktop-break" /> <span>Simpler to manage.</span>
+            Growth in one basket.
+            <br className="desktop-break" /> <span>Yield at work in DeFi.</span>
           </h1>
           <p>
-            Choose a strategy. Explore its assets, costs and risks, then follow
-            your portfolio in one place.
+            Own a managed mix of growth assets and productive DeFi positions.
+            The mandate, yield sources and risks stay visible.
           </p>
           <div className="hero-actions">
             <Link className="primary-button" href="#baskets">
               Browse baskets <span aria-hidden="true">↗</span>
             </Link>
-            <Link className="text-link" href="#how-it-works">
-              How it works <span aria-hidden="true">↓</span>
+            <Link className="text-link" href="#mandate">
+              See the mandate <span aria-hidden="true">↓</span>
             </Link>
           </div>
         </div>
@@ -30,44 +31,64 @@ export default function Home() {
           <Certificate basket={BASKETS[0]} hero />
         </div>
       </section>
-      <section className="tension">
+      <section className="tension" id="mandate">
         <div className="wrap tension-grid">
           <div>
             <h2>
-              A diverse portfolio.
+              Built for growth.
               <br />
-              <span>Less to manage.</span>
+              <span>Kept productive in DeFi.</span>
             </h2>
           </div>
-          <div className="comparison">
-            <div className="comparison-head">
-              <span>Without Banda</span>
-              <span>
-                With Banda <span aria-hidden="true">↗</span>
-              </span>
+          <div>
+            <p className="mandate-intro">
+              Each Banda basket has a published job: pursue its growth mandate,
+              put a defined portion to work through DeFi, and retain liquidity
+              discipline for portfolio operations.
+            </p>
+            <div className="mandate-map">
+              {[
+                [
+                  "01",
+                  "Growth sleeve",
+                  "Assets selected for long-term appreciation.",
+                ],
+                [
+                  "02",
+                  "Yield sleeve",
+                  "Defined DeFi positions designed to keep part of the basket productive.",
+                ],
+                [
+                  "03",
+                  "Liquidity discipline",
+                  "A mandate for rebalances and future redemption needs.",
+                ],
+              ].map(([number, title, copy]) => (
+                <div className="mandate-row" key={number}>
+                  <span className="mono">{number}</span>
+                  <div>
+                    <h3>{title}</h3>
+                    <p>{copy}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            {[
-              ["Buy each asset separately", "Buy one basket"],
-              ["Manage several positions", "See everything together"],
-              ["Track balances across protocols", "Follow one portfolio"],
-            ].map(([a, b], i) => (
-              <div className="comparison-row" key={i}>
-                <span>{a}</span>
-                <span>{b}</span>
-              </div>
-            ))}
           </div>
         </div>
       </section>
       <section className="shelf wrap" id="baskets">
         <div className="section-heading">
           <div>
-            <h2>Find your mix.</h2>
+            <h2>Choose a managed mandate.</h2>
           </div>
         </div>
         <div className="basket-grid">
-          {BASKETS.map((b, i) => (
+          {BASKETS.map((b) => (
             <article className={`shelf-card shelf-${b.slug}`} key={b.slug}>
+              <div className="shelf-card-top">
+                <span>{b.thesis}</span>
+                <span className="mono">{b.character}</span>
+              </div>
               <div className="shelf-title">
                 <h3>
                   <Link href={`/basket/${b.slug}`}>{b.name}</Link>
@@ -91,6 +112,14 @@ export default function Home() {
                 <Sparkline basket={b} />
               </div>
               <BasketFeatures basket={b} />
+              <div className="sleeve-summary">
+                <span className="eyebrow">YIELD SLEEVE</span>
+                <strong className="mono">{yieldWeight(b)}%</strong>
+                <p>
+                  DeFi yield exposure through {yieldAssets(b).join(" + ")}.
+                  Variable, illustrative and before Banda fees.
+                </p>
+              </div>
               <div className="ticker-row">
                 {b.holdings.map((h) => (
                   <AssetLabel ticker={h.ticker} compact key={h.ticker} />
@@ -104,22 +133,24 @@ export default function Home() {
         </div>
       </section>
       <section className="simple-how wrap" id="how-it-works">
-        <h2>A simpler way into DeFi.</h2>
+        <h2>One basket, visible work.</h2>
         <div className="how-steps">
           <div>
             <span className="mono">01</span>
-            <h3>Choose a strategy.</h3>
-            <p>Compare each basket’s approach, assets, fees and risks.</p>
+            <h3>Choose a mandate.</h3>
+            <p>Compare its growth approach, yield sleeve, fees and risks.</p>
           </div>
           <div>
             <span className="mono">02</span>
-            <h3>Choose your amount.</h3>
-            <p>See how your chosen amount is allocated across the basket.</p>
+            <h3>Fund one basket.</h3>
+            <p>Own the full mix through a single basket position.</p>
           </div>
           <div>
             <span className="mono">03</span>
-            <h3>See it in one place.</h3>
-            <p>Explore your holdings and allocation in one portfolio view.</p>
+            <h3>Follow the mandate.</h3>
+            <p>
+              See holdings, allocation and yield sources in one portfolio view.
+            </p>
           </div>
         </div>
         <Link className="text-link" href="/docs">
@@ -139,14 +170,14 @@ export default function Home() {
             <caption className="sr-only">MVP fees</caption>
             <tbody>
               <tr>
-                <th>Core (Beta Play)</th>
+                <th>Diversified and defensive</th>
                 <td>
                   <span className="mono">1%</span>
                   <span className="muted"> / year</span>
                 </td>
               </tr>
               <tr>
-                <th>Frontier (Alpha Play)</th>
+                <th>Thematic and active</th>
                 <td>
                   <span className="mono">2%</span>
                   <span className="muted"> / year</span>
@@ -167,16 +198,16 @@ export default function Home() {
             </tbody>
           </table>
           <p className="fee-note">
-            Management fees are designed to be reflected in NAV without a
-            second charge on collection. Fee accrual is not implemented in
-            this local demo; portfolio values remain illustrative.
+            Management fees are designed to be reflected in NAV without a second
+            charge on collection. Fee accrual is not implemented in this local
+            demo; portfolio values remain illustrative.
           </p>
         </div>
       </section>
       <section className="closing wrap">
         <div>
           <span className="network-dot" />
-          <h2>Explore DeFi. Find your strategy.</h2>
+          <h2>One mandate. Many assets at work.</h2>
         </div>
         <Link className="primary-button" href="#baskets">
           Find your basket <span aria-hidden="true">↗</span>

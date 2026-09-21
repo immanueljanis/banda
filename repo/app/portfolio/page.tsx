@@ -1,18 +1,18 @@
 "use client";
 import Link from "next/link";
 import { useWallet } from "@/components/wallet";
-import { BASKETS, money } from "@/lib/mock";
+import { BASKETS, money } from "@/constants/baskets";
 export default function Portfolio() {
   const wallet = useWallet();
   return (
     <main className="portfolio wrap" id="main">
-      <span className="section-index">YOUR DEMO ACCOUNT</span>
+      <span className="section-index">YOUR ACCOUNT</span>
       <h1>Held together.</h1>
       {!wallet.connected ? (
         <p>
-          Connect the demo wallet to explore your portfolio.{" "}
+          Connect your wallet to explore your portfolio.{" "}
           <button className="wallet-button" onClick={wallet.connect}>
-            Connect demo wallet
+            Connect wallet
           </button>
         </p>
       ) : (
@@ -34,7 +34,7 @@ export default function Portfolio() {
             <div className="portfolio-list">
               {wallet.positions.map((p) => (
                 <article className="portfolio-item" key={p.id}>
-                  <span className="eyebrow">DEMO PORTFOLIO CERTIFICATE</span>
+                  <span className="eyebrow">PORTFOLIO CERTIFICATE</span>
                   <h2>{BASKETS.find((b) => b.slug === p.slug)?.name}</h2>
                   <p className="detail-nav mono">{money(p.value)}</p>
                   <p className="muted">Illustrative NAV. No real funds held.</p>
@@ -42,7 +42,7 @@ export default function Portfolio() {
                     className="primary-button"
                     onClick={() => wallet.redeem(p.id)}
                   >
-                    Redeem demo basket ↗
+                    Redeem basket ↗
                   </button>
                 </article>
               ))}

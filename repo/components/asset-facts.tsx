@@ -1,5 +1,4 @@
-import { ASSET_FACTS } from "@/lib/assets";
-import type { Basket } from "@/lib/mock";
+import { ASSET_FACTS, type Basket } from "@/constants/baskets";
 import {
   yieldFor,
   basketYield,

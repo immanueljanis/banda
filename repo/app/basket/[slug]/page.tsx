@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { BASKETS } from "@/lib/mock";
+import { BASKETS } from "@/constants/baskets";
 import { BasketDetail } from "@/components/basket-detail";
 export function generateStaticParams() {
   return BASKETS.map((b) => ({ slug: b.slug }));

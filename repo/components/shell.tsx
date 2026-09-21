@@ -58,7 +58,7 @@ export function Header() {
         {wallet.connected ? (
           <>
             <Link className="wallet-button" href="/portfolio">
-              Demo portfolio ↗
+              Portfolio ↗
             </Link>
             <button className="disconnect" onClick={wallet.disconnect}>
               Disconnect

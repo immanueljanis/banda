@@ -1,31 +1,34 @@
 import { test, expect } from "@playwright/test";
-test("yield explanations remain available and KYC mentions are absent", async ({
+test("the five mandates expose sourced USDG yield without implying live availability", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 375, height: 900 });
-  await page.goto("/basket/core");
-  const lending = page.locator(".asset-card").filter({
-    has: page.getByRole("button", { name: "About aUSDC: US dollar lending" }),
+  await page.goto("/");
+  for (const name of ["NEURAL", "RAILS", "RESERVE", "FRONTIER", "FORTRESS"])
+    await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+
+  for (const slug of ["neural", "rails", "reserve", "frontier", "fortress"]) {
+    await page.goto(`/basket/${slug}`);
+    const sleeve = page.locator(".asset-card").filter({
+      has: page.getByRole("button", { name: "About USDG: USDG DeFi Yield" }),
+    });
+    await sleeve.locator("summary").filter({ hasText: "DeFi yield" }).click();
+    await expect(sleeve).toContainText("Rates are variable");
+    await expect(sleeve).toContainText("candidate");
+    await expect(sleeve).toContainText("not been integrated");
+    await expect(sleeve.locator(".asset-apy")).toContainText(
+      /Est. APY\d+\.\d{2}%/,
+    );
+    await expect(
+      sleeve.getByRole("link", { name: "Rate source" }),
+    ).toHaveAttribute("href", /morpho\.org\/robinhood-chain\/vault/);
+    await expect(page.locator(".asset-card .fact-yield")).toHaveCount(1);
+  }
+
+  await page.goto("/basket/neural");
+  const gold = page.locator(".asset-card").filter({
+    has: page.getByRole("button", { name: "About GLD: Gold ETF" }),
   });
-  await lending.locator("summary").filter({ hasText: "Lending yield" }).click();
-  await expect(lending).toContainText("variable lending interest");
-  await expect(lending.locator(".asset-apy")).toContainText(
-    /Est. APY\d+\.\d{2}%/,
-  );
-  await expect(
-    lending.getByRole("link", { name: "Rate source" }),
-  ).toHaveAttribute("href", /defillama.com\/yields\/pool/);
-  await expect(lending).toContainText("excluded from this demo");
-  const staking = page.locator(".asset-card").filter({
-    has: page.getByRole("button", { name: "About wstETH: Staked Ethereum" }),
-  });
-  await staking.locator("summary").click();
-  await expect(staking).toContainText("rather than extra tokens");
-  await expect(staking.locator(".asset-apy")).toContainText(/\d+\.\d{2}%/);
-  await expect(staking).toContainText("daily compounding");
-  const gold = page
-    .locator(".asset-card")
-    .filter({ has: page.getByRole("button", { name: "About PAXG: Gold" }) });
   await expect(gold.locator(".asset-fact")).toHaveCount(0);
   await expect(gold.locator(".asset-apy")).toHaveCount(0);
   await gold.getByRole("button").hover();
@@ -41,8 +44,6 @@ test("yield explanations remain available and KYC mentions are absent", async ({
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-  await page.goto("/basket/frontier");
-  await expect(page.locator(".asset-card .fact-yield")).toHaveCount(1);
 });
 test("asset explanations open on touch and close on a second tap", async ({
   browser,
@@ -53,8 +54,8 @@ test("asset explanations open on touch and close on a second tap", async ({
     viewport: { width: 375, height: 900 },
   });
   const page = await context.newPage();
-  await page.goto("http://127.0.0.1:3100/basket/core");
-  const asset = page.getByRole("button", { name: "About PAXG: Gold" });
+  await page.goto("http://127.0.0.1:3100/basket/neural");
+  const asset = page.getByRole("button", { name: "About GLD: Gold ETF" });
   await asset.tap();
   await expect(page.getByRole("tooltip")).toBeVisible();
   await asset.tap();
@@ -86,7 +87,7 @@ test("landing and linked pages fit mobile and desktop in both themes", async ({
           .click();
       for (const route of [
         "/",
-        "/basket/core",
+        "/basket/neural",
         "/basket/frontier",
         "/docs",
         "/portfolio",
@@ -103,25 +104,26 @@ test("landing and linked pages fit mobile and desktop in both themes", async ({
   }
   expect(errors).toEqual([]);
 });
-test("browse, buy an arbitrary amount, and redeem the demo basket", async ({
+test("browse, buy an arbitrary amount, and redeem the basket", async ({
   page,
 }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "Browse baskets" }).click();
   await page
-    .locator(".shelf-core")
-    .getByRole("link", { name: "Banda Core" })
+    .locator(".shelf-neural")
+    .getByRole("link", { name: "NEURAL" })
     .click();
-  await expect(page).toHaveURL(/basket\/core/);
-  await page.getByLabel("Amount in USDC").fill("17.35");
+  await expect(page).toHaveURL(/basket\/neural/);
+  await page.getByLabel("Amount in USDG").fill("17.35");
   await page
-    .getByRole("button", { name: "Connect demo wallet", exact: true })
+    .locator(".buy-panel")
+    .getByRole("button", { name: "Connect wallet", exact: true })
     .click();
-  await page.getByRole("button", { name: "Create demo basket" }).click();
+  await page.getByRole("button", { name: "Create basket" }).click();
   await expect(page.getByRole("status")).toContainText("$17.35");
   await page.getByRole("link", { name: "View portfolio" }).click();
   await expect(page.locator(".portfolio-item")).toContainText("$17.35");
-  await page.getByRole("button", { name: "Redeem demo basket" }).click();
+  await page.getByRole("button", { name: "Redeem basket" }).click();
   await expect(page.getByText("No baskets yet.")).toBeVisible();
 });
 test("invalid amounts are blocked and basket tabs and chart periods work", async ({
@@ -129,19 +131,20 @@ test("invalid amounts are blocked and basket tabs and chart periods work", async
 }) => {
   await page.goto("/basket/frontier");
   await page
-    .getByRole("button", { name: "Connect demo wallet", exact: true })
+    .locator(".buy-panel")
+    .getByRole("button", { name: "Connect wallet", exact: true })
     .click();
   for (const value of ["0", "-1", "9999"]) {
-    await page.getByLabel("Amount in USDC").fill(value);
+    await page.getByLabel("Amount in USDG").fill(value);
     await expect(
-      page.getByRole("button", { name: "Create demo basket" }),
+      page.getByRole("button", { name: "Create basket" }),
     ).toBeDisabled();
   }
-  await expect(page.locator(".asset-card")).toHaveCount(4);
+  await expect(page.locator(".asset-card")).toHaveCount(8);
   await expect(page.locator(".donut-wrap svg")).toBeVisible();
-  const asset = page.getByRole("button", { name: "About ARB: Arbitrum" });
+  const asset = page.getByRole("button", { name: "About RENDER: Render" });
   await asset.focus();
-  await expect(page.getByRole("tooltip")).toContainText("Arbitrum");
+  await expect(page.getByRole("tooltip")).toContainText("Render");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("tooltip")).toHaveCount(0);
   expect(
