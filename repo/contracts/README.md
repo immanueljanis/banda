@@ -15,7 +15,13 @@ src/
     libraries/   namespaced Banda storage
     mocks/       local-only USDG, strategy and ERC-6551 registry fixtures
 test/            lifecycle and authorization tests
+script/          guarded Robinhood Chain testnet deployment rehearsal
 ```
+
+The current deployment procedure is documented in
+[ROBINHOOD_TESTNET.md](ROBINHOOD_TESTNET.md). It targets chain ID `46630` and
+uses explicit test-only dependencies until canonical testnet USDG and production
+strategy integrations are verified.
 
 ## Current BND-005 slice
 
