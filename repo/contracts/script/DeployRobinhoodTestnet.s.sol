@@ -21,10 +21,8 @@ import {Mock6551Registry} from "../src/banda/mocks/Mock6551Registry.sol";
 import {MockNavAdapter} from "../src/banda/mocks/MockNavAdapter.sol";
 
 interface Vm {
-    function envUint(string calldata name) external view returns (uint256 value);
     function envAddress(string calldata name) external view returns (address value);
-    function addr(uint256 privateKey) external pure returns (address keyAddr);
-    function startBroadcast(uint256 privateKey) external;
+    function startBroadcast() external;
     function stopBroadcast() external;
 }
 
@@ -37,15 +35,13 @@ contract DeployRobinhoodTestnet {
     function run() external returns (Diamond diamond, MockUSDG settlement, MockNavAdapter navAdapter) {
         require(block.chainid == ROBINHOOD_TESTNET_CHAIN_ID, "Deploy: wrong chain");
 
-        uint256 deployerKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
         address admin = vm.envAddress("BANDA_ADMIN");
         address operator = vm.envAddress("BANDA_OPERATOR");
         address feeRecipient = vm.envAddress("BANDA_FEE_RECIPIENT");
-        require(admin == vm.addr(deployerKey), "Deploy: admin must broadcast");
         require(operator != address(0) && operator != admin, "Deploy: distinct operator required");
         require(feeRecipient != address(0), "Deploy: fee recipient required");
 
-        vm.startBroadcast(deployerKey);
+        vm.startBroadcast();
 
         settlement = new MockUSDG();
         navAdapter = new MockNavAdapter();

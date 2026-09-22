@@ -23,21 +23,28 @@ ERC-6551 infrastructure, real asset execution, or mainnet-ready strategies.
   the admin wallet for this testnet rehearsal.
 
 Run the following commands from `repo/contracts`. Copy `.env.example` into your
-local secret manager or shell environment. Never commit the populated values.
-The deployer needs Robinhood Chain testnet gas.
+local shell environment. Never commit populated values. Import the admin signer
+into Foundry's encrypted keystore; do not place its private key in this file:
+
+```text
+cast wallet import banda-admin --interactive
+```
+
+The admin needs Robinhood Chain testnet gas.
 
 Dry-run against the public endpoint:
 
 ```text
 forge script script/DeployRobinhoodTestnet.s.sol:DeployRobinhoodTestnet \
-  --rpc-url robinhood_testnet -vvvv
+  --rpc-url robinhood_testnet --sender $BANDA_ADMIN -vvvv
 ```
 
 Broadcast only after the dry-run returns chain ID `46630` and the expected admin:
 
 ```text
 forge script script/DeployRobinhoodTestnet.s.sol:DeployRobinhoodTestnet \
-  --rpc-url robinhood_testnet --broadcast -vvvv
+  --rpc-url robinhood_testnet --account banda-admin \
+  --sender $BANDA_ADMIN --broadcast -vvvv
 ```
 
 Foundry writes receipts and deployed addresses below
