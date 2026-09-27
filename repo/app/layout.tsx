@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Geist_Mono } from "next/font/google";
-import { WalletProvider } from "@/components/wallet";
+import { Providers } from "@/components/providers";
 import { Header, Footer } from "@/components/shell";
 import "./globals.css";
 const sans = Manrope({ subsets: ["latin"], variable: "--font-sans" });
@@ -16,14 +16,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${sans.variable} ${mono.variable}`}>
-        <WalletProvider>
+        <Providers>
           <a className="skip-link" href="#main">
             Skip to content
           </a>
           <Header />
           {children}
           <Footer />
-        </WalletProvider>
+        </Providers>
       </body>
     </html>
   );
