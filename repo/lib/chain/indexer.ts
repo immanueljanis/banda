@@ -88,17 +88,19 @@ export async function getLivePortfolio(address: Address): Promise<LivePortfolio>
     rpc.readContract({ address: ROBINHOOD_TESTNET.settlementAsset, abi: erc20Abi, functionName: "balanceOf", args: [address] }),
   ]);
   const tokenIds = [...indexed.ownership.entries()].filter(([, owner]) => owner.toLowerCase() === address.toLowerCase()).map(([tokenId]) => tokenId);
-  const rows = await rpc.multicall({ allowFailure: true, contracts: tokenIds.flatMap((tokenId) => [
-    { address: ROBINHOOD_TESTNET.diamond, abi: nftAbi, functionName: "ownerOf", args: [tokenId] },
-    { address: ROBINHOOD_TESTNET.diamond, abi: nftAbi, functionName: "basket", args: [tokenId] },
-  ]) });
+  const rows = await Promise.all(tokenIds.map(async (tokenId) => {
+    const [owner, basket] = await Promise.allSettled([
+      rpc.readContract({ address: ROBINHOOD_TESTNET.diamond, abi: nftAbi, functionName: "ownerOf", args: [tokenId] }),
+      rpc.readContract({ address: ROBINHOOD_TESTNET.diamond, abi: nftAbi, functionName: "basket", args: [tokenId] }),
+    ]);
+    return { owner, basket };
+  }));
   const positions: PortfolioPosition[] = [];
   for (let i = 0; i < tokenIds.length; i += 1) {
-    const owner = rows[i * 2];
-    const basket = rows[i * 2 + 1];
-    if (owner.status !== "success" || basket.status !== "success") continue;
-    const [strategyId, account, shares] = basket.result as readonly [number, Address, bigint];
-    if ((owner.result as Address).toLowerCase() !== address.toLowerCase()) continue;
+    const { owner, basket } = rows[i];
+    if (owner.status !== "fulfilled" || basket.status !== "fulfilled") continue;
+    const [strategyId, account, shares] = basket.value as readonly [number, Address, bigint];
+    if ((owner.value as Address).toLowerCase() !== address.toLowerCase()) continue;
     positions.push({ tokenId: tokenIds[i].toString(), strategyId, account, shares: shares.toString() });
   }
   return { address, blockNumber: indexed.blockNumber.toString(), settlementBalance: settlementBalance.toString(), positions, source: "robinhood-rpc-events", fetchedAt: new Date().toISOString() };

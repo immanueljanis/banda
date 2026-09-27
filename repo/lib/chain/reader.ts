@@ -56,18 +56,17 @@ export function getPublicClient(): PublicClient {
 
 async function readSnapshot(): Promise<LiveChainSnapshot> {
   const rpc = getPublicClient();
+  const readDiamond = (functionName: string, args?: readonly unknown[]) =>
+    rpc.readContract(call(functionName, args) as never);
   const [blockNumber, state] = await Promise.all([
     rpc.getBlockNumber(),
-    rpc.multicall({
-      allowFailure: false,
-      contracts: [
-        call("isPaused"),
-        call("settlementAsset"),
-        call("navGuard"),
-        call("navBlockLag"),
-        ...STRATEGY_IDS.map((strategyId) => call("strategy", [strategyId])),
-      ],
-    }),
+    Promise.all([
+      readDiamond("isPaused"),
+      readDiamond("settlementAsset"),
+      readDiamond("navGuard"),
+      readDiamond("navBlockLag"),
+      ...STRATEGY_IDS.map((strategyId) => readDiamond("strategy", [strategyId])),
+    ]),
   ]);
   const [paused, settlementAsset, navGuard, navBlockLag, ...strategies] = state;
   const [navAdapter, maxAge] = navGuard as unknown as readonly [Address, bigint];
