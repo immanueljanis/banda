@@ -58,12 +58,10 @@ export function BasketDetail({ basket }: { basket: Basket }) {
               wallet.connect();
               return;
             }
-            if (valid) {
-              wallet.buy(basket.slug, value);
+            if (valid)
               setMessage(
-                `Basket created with ${money(value)}. View it in your portfolio.`,
+                "Live deposit signing is the next integration step. No transaction was sent.",
               );
-            }
           }}
         >
           <h2>Your portfolio starts here.</h2>
@@ -130,7 +128,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             type="submit"
             disabled={wallet.connected && !valid}
           >
-            {wallet.connected ? "Create basket" : "Connect wallet"}{" "}
+            {wallet.connected ? "Deposit integration next" : "Connect wallet"}{" "}
             <span aria-hidden="true">↗</span>
           </button>
           {wallet.connected && value > wallet.balance && (
@@ -148,8 +146,8 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             )}
           </div>
           <p>
-            Simulation only. Balances reset when you reload. No wallet
-            permissions or real funds are used.
+            The displayed balance is read from Robinhood testnet. This screen
+            does not request approval or submit a deposit yet.
           </p>
         </form>
       </div>
