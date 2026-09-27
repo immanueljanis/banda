@@ -1,12 +1,13 @@
 "use client";
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { useConnectOrCreateWallet, usePrivy, useWallets } from "@privy-io/react-auth";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 type Position = { id: number; slug: string; value: number };
 type Wallet = {
   connected: boolean;
   ready: boolean;
   address?: string;
   connecting: boolean;
+  error?: string;
   connect: () => void;
   disconnect: () => void;
   balance: number;
@@ -18,7 +19,7 @@ const Context = createContext<Wallet | null>(null);
 export function FallbackWalletProvider({ children }: { children: ReactNode }) {
   return (
     <Context.Provider value={{
-      connected: false, ready: true, connecting: false,
+      connected: false, ready: false, connecting: false,
       connect: () => undefined, disconnect: () => undefined,
       balance: 0, positions: [], buy: () => undefined, redeem: () => undefined,
     }}>
@@ -27,10 +28,10 @@ export function FallbackWalletProvider({ children }: { children: ReactNode }) {
   );
 }
 export function WalletProvider({ children }: { children: ReactNode }) {
-  const { ready, authenticated, logout } = usePrivy();
-  const { connectOrCreateWallet } = useConnectOrCreateWallet();
+  const { ready, authenticated, logout, login } = usePrivy();
   const { wallets } = useWallets();
   const [connecting, setConnecting] = useState(false);
+  const [error, setError] = useState<string>();
   const [balance, setBalance] = useState(2500);
   const [positions, setPositions] = useState<Position[]>([]);
   function buy(slug: string, value: number) {
@@ -48,7 +49,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }
   async function connect() {
     setConnecting(true);
-    try { await connectOrCreateWallet(); } finally { setConnecting(false); }
+    setError(undefined);
+    try { await login(); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : "Wallet login failed"); }
+    finally { setConnecting(false); }
   }
   return (
     <Context.Provider
@@ -57,6 +61,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         ready,
         address: wallets[0]?.address,
         connecting,
+        error,
         connect,
         disconnect: () => { void logout(); },
         balance,

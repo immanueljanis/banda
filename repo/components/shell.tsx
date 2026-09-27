@@ -65,10 +65,11 @@ export function Header() {
             </button>
           </>
         ) : (
-          <button className="wallet-button" onClick={wallet.connect}>
-            Connect wallet <span aria-hidden="true">↗</span>
+          <button className="wallet-button" onClick={wallet.connect} disabled={!wallet.ready || wallet.connecting}>
+            {wallet.connecting ? "Opening login…" : "Connect wallet"} <span aria-hidden="true">↗</span>
           </button>
         )}
+        {wallet.error ? <span className="wallet-error" role="status">{wallet.error}</span> : null}
       </div>
     </header>
   );

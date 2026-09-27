@@ -202,6 +202,11 @@ input[inputmode="decimal"] {
   border-radius: 2px;
   white-space: nowrap;
 }
+.wallet-error {
+  max-width: 220px;
+  color: var(--negative);
+  font-size: 11px;
+}
 .wallet-button span {
   margin-left: 16px;
 }

@@ -45,7 +45,7 @@ const call = (functionName: string, args?: readonly unknown[]) => ({
 let cached: { expiresAt: number; value: LiveChainSnapshot } | undefined;
 let inFlight: Promise<LiveChainSnapshot> | undefined;
 
-function client(): PublicClient {
+export function getPublicClient(): PublicClient {
   const rpcUrl = process.env.ROBINHOOD_TESTNET_RPC_URL;
   if (!rpcUrl) throw new Error("ROBINHOOD_TESTNET_RPC_URL is not configured");
   return createPublicClient({
@@ -55,7 +55,7 @@ function client(): PublicClient {
 }
 
 async function readSnapshot(): Promise<LiveChainSnapshot> {
-  const rpc = client();
+  const rpc = getPublicClient();
   const [blockNumber, state] = await Promise.all([
     rpc.getBlockNumber(),
     rpc.multicall({
