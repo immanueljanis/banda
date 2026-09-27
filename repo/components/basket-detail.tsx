@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { type Basket, money } from "@/constants/baskets";
+import { BASKETS, type Basket, money } from "@/constants/baskets";
 import { useWallet } from "./wallet";
 import { NavNumber } from "./certificate";
 import { BasketExplorer } from "./basket-explorer";
@@ -52,16 +52,24 @@ export function BasketDetail({ basket }: { basket: Basket }) {
         </div>
         <form
           className="buy-panel"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             if (!wallet.connected) {
               wallet.connect();
               return;
             }
-            if (valid)
-              setMessage(
-                "Live deposit signing is the next integration step. No transaction was sent.",
-              );
+            if (valid) {
+              setMessage("Preparing approval…");
+              try {
+                const strategyId = BASKETS.findIndex((entry) => entry.slug === basket.slug) + 1;
+                const hash = await wallet.deposit(strategyId, amount);
+                setMessage(`Deposit confirmed: ${hash.slice(0, 10)}…`);
+              } catch (reason) {
+                setMessage(
+                  reason instanceof Error ? reason.message : "Deposit failed",
+                );
+              }
+            }
           }}
         >
           <h2>Your portfolio starts here.</h2>
@@ -128,7 +136,15 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             type="submit"
             disabled={wallet.connected && !valid}
           >
-            {wallet.connected ? "Deposit integration next" : "Connect wallet"}{" "}
+            {!wallet.connected
+              ? "Connect wallet"
+              : wallet.transactionStatus === "signing"
+                ? "Confirm in wallet…"
+                : wallet.transactionStatus === "confirming"
+                  ? "Confirming…"
+                  : wallet.transactionStatus === "success"
+                    ? "Deposit confirmed"
+                    : "Deposit now"}{" "}
             <span aria-hidden="true">↗</span>
           </button>
           {wallet.connected && value > wallet.balance && (
@@ -146,8 +162,8 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             )}
           </div>
           <p>
-            The displayed balance is read from Robinhood testnet. This screen
-            does not request approval or submit a deposit yet.
+            Balance and transactions use Robinhood testnet. Deposit requires two
+            wallet confirmations: USDG approval, then the Basket deposit.
           </p>
         </form>
       </div>

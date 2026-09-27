@@ -10,8 +10,17 @@ import {
   type ReactNode,
 } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { formatUnits } from "viem";
+import {
+  createWalletClient,
+  custom,
+  formatUnits,
+  parseUnits,
+  publicActions,
+  type Address,
+  type Hash,
+} from "viem";
 import { BASKETS } from "@/constants/baskets";
+import { ROBINHOOD_TESTNET } from "@/lib/chain/config";
 
 export type WalletPosition = {
   tokenId: string;
@@ -53,6 +62,8 @@ type Wallet = {
   portfolioBlock?: string;
   portfolioFetchedAt?: string;
   refreshPortfolio: () => void;
+  deposit: (strategyId: number, amount: string) => Promise<Hash>;
+  transactionStatus: "idle" | "signing" | "confirming" | "success" | "error";
 };
 
 const Context = createContext<Wallet | null>(null);
@@ -68,7 +79,20 @@ const fallbackValue: Wallet = {
   positions: [],
   portfolioStatus: "idle",
   refreshPortfolio: () => undefined,
+  deposit: async () => { throw new Error("Wallet provider is not available"); },
+  transactionStatus: "idle",
 };
+
+const erc20Abi = [{
+  type: "function", name: "approve", stateMutability: "nonpayable",
+  inputs: [{ name: "spender", type: "address" }, { name: "amount", type: "uint256" }],
+  outputs: [{ type: "bool" }],
+}] as const;
+const diamondAbi = [{
+  type: "function", name: "deposit", stateMutability: "nonpayable",
+  inputs: [{ name: "strategyId", type: "uint32" }, { name: "assets", type: "uint256" }],
+  outputs: [{ type: "uint256" }, { type: "address" }, { type: "uint256" }],
+}] as const;
 
 export function FallbackWalletProvider({ children }: { children: ReactNode }) {
   return <Context.Provider value={fallbackValue}>{children}</Context.Provider>;
@@ -82,6 +106,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [portfolio, setPortfolio] = useState<PortfolioResponse>();
   const [portfolioStatus, setPortfolioStatus] =
     useState<Wallet["portfolioStatus"]>("idle");
+  const [transactionStatus, setTransactionStatus] =
+    useState<Wallet["transactionStatus"]>("idle");
 
   const activeWallet = useMemo(() => {
     const external = wallets
@@ -170,6 +196,49 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function deposit(strategyId: number, amount: string): Promise<Hash> {
+    if (!activeWallet || !address) throw new Error("Connect a wallet first");
+    const amountUnits = parseUnits(amount, 6);
+    if (amountUnits <= BigInt(0)) throw new Error("Enter a positive USDG amount");
+    setTransactionStatus("signing");
+    setError(undefined);
+    try {
+      await activeWallet.switchChain(ROBINHOOD_TESTNET.id);
+      const provider = await activeWallet.getEthereumProvider();
+      const client = createWalletClient({
+        account: address as Address,
+        chain: ROBINHOOD_TESTNET,
+        transport: custom(provider),
+      });
+      const receiptClient = client.extend(publicActions);
+      const approvalHash = await client.writeContract({
+        address: ROBINHOOD_TESTNET.settlementAsset,
+        abi: erc20Abi,
+        functionName: "approve",
+        args: [ROBINHOOD_TESTNET.diamond, amountUnits],
+      });
+      setTransactionStatus("confirming");
+      await receiptClient.waitForTransactionReceipt({ hash: approvalHash });
+      setTransactionStatus("signing");
+      const depositHash = await client.writeContract({
+        address: ROBINHOOD_TESTNET.diamond,
+        abi: diamondAbi,
+        functionName: "deposit",
+        args: [strategyId, amountUnits],
+      });
+      setTransactionStatus("confirming");
+      await receiptClient.waitForTransactionReceipt({ hash: depositHash });
+      setTransactionStatus("success");
+      await loadPortfolio();
+      return depositHash;
+    } catch (reason) {
+      setTransactionStatus("error");
+      const message = reason instanceof Error ? reason.message : "Transaction failed";
+      setError(message);
+      throw new Error(message);
+    }
+  }
+
   return (
     <Context.Provider
       value={{
@@ -192,6 +261,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         refreshPortfolio: () => {
           void loadPortfolio();
         },
+        deposit,
+        transactionStatus,
       }}
     >
       {children}

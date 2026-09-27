@@ -57,6 +57,10 @@ export function Header() {
         </button>
         {wallet.connected ? (
           <>
+            <Link className="wallet-balance" href="/portfolio" aria-label={`${wallet.balanceLabel} test USDG available`}>
+              <span className="wallet-balance-label">TEST USDG</span>
+              <span className="wallet-balance-value">{wallet.balanceLabel}</span>
+            </Link>
             <Link className="wallet-button" href="/portfolio">
               Portfolio ↗
             </Link>

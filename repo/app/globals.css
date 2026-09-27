@@ -195,6 +195,25 @@ input[inputmode="decimal"] {
   align-items: center;
   gap: 16px;
 }
+.wallet-balance {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 0 12px;
+  color: var(--ink);
+  text-decoration: none;
+  border-right: 1px solid var(--line);
+}
+.wallet-balance-label {
+  color: var(--muted);
+  font: 10px/1 var(--mono);
+  letter-spacing: .08em;
+}
+.wallet-balance-value {
+  font: 14px/1.1 var(--mono);
+  font-variant-numeric: tabular-nums;
+}
 .wallet-button {
   border: 1px solid var(--rule);
   padding: 10px 16px;
@@ -1343,6 +1362,9 @@ h1 > span {
   }
   .disconnect {
     font-size: 9px;
+  }
+  .wallet-balance {
+    display: none;
   }
   .hero {
     grid-template-columns: 1fr;
