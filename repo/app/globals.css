@@ -1173,6 +1173,48 @@ h1 > span {
 .portfolio-item .primary-button {
   margin-top: 18px;
 }
+.redeem-panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.redeem-panel label {
+  color: var(--muted);
+  font: 11px/1 var(--mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.redeem-controls {
+  display: flex;
+  gap: 8px;
+}
+.redeem-input {
+  min-width: 0;
+  width: 130px;
+  padding: 10px 11px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper);
+  color: var(--ink);
+  font: 14px/1 var(--mono);
+}
+.text-button {
+  width: fit-content;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font: 12px/1.2 var(--mono);
+  text-decoration: underline;
+}
+.transaction-message {
+  margin: 0;
+  color: var(--accent);
+  font: 12px/1.4 var(--mono);
+  overflow-wrap: anywhere;
+}
 .portfolio-summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 0.7fr);

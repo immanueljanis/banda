@@ -63,6 +63,7 @@ type Wallet = {
   portfolioFetchedAt?: string;
   refreshPortfolio: () => void;
   deposit: (strategyId: number, amount: string) => Promise<Hash>;
+  redeem: (tokenId: string, shares: string) => Promise<Hash>;
   transactionStatus: "idle" | "signing" | "confirming" | "success" | "error";
 };
 
@@ -80,6 +81,7 @@ const fallbackValue: Wallet = {
   portfolioStatus: "idle",
   refreshPortfolio: () => undefined,
   deposit: async () => { throw new Error("Wallet provider is not available"); },
+  redeem: async () => { throw new Error("Wallet provider is not available"); },
   transactionStatus: "idle",
 };
 
@@ -93,6 +95,22 @@ const diamondAbi = [{
   inputs: [{ name: "strategyId", type: "uint32" }, { name: "assets", type: "uint256" }],
   outputs: [{ type: "uint256" }, { type: "address" }, { type: "uint256" }],
 }] as const;
+const redeemAbi = [
+  {
+    type: "function", name: "previewRedeem", stateMutability: "view",
+    inputs: [{ name: "tokenId", type: "uint256" }, { name: "shares", type: "uint256" }],
+    outputs: [{ name: "assets", type: "uint256" }],
+  },
+  {
+    type: "function", name: "redeem", stateMutability: "nonpayable",
+    inputs: [
+      { name: "tokenId", type: "uint256" },
+      { name: "shares", type: "uint256" },
+      { name: "minAssetsOut", type: "uint256" },
+    ],
+    outputs: [{ name: "assets", type: "uint256" }],
+  },
+] as const;
 
 export function FallbackWalletProvider({ children }: { children: ReactNode }) {
   return <Context.Provider value={fallbackValue}>{children}</Context.Provider>;
@@ -239,6 +257,47 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function redeem(tokenId: string, shares: string): Promise<Hash> {
+    if (!activeWallet || !address) throw new Error("Connect a wallet first");
+    const sharesUnits = parseUnits(shares, 6);
+    if (sharesUnits <= BigInt(0)) throw new Error("Enter a positive share amount");
+    setTransactionStatus("signing");
+    setError(undefined);
+    try {
+      await activeWallet.switchChain(ROBINHOOD_TESTNET.id);
+      const provider = await activeWallet.getEthereumProvider();
+      const client = createWalletClient({
+        account: address as Address,
+        chain: ROBINHOOD_TESTNET,
+        transport: custom(provider),
+      });
+      const receiptClient = client.extend(publicActions);
+      const preview = await receiptClient.readContract({
+        address: ROBINHOOD_TESTNET.diamond,
+        abi: redeemAbi,
+        functionName: "previewRedeem",
+        args: [BigInt(tokenId), sharesUnits],
+      });
+      const minAssetsOut = (preview * BigInt(995)) / BigInt(1000);
+      const hash = await client.writeContract({
+        address: ROBINHOOD_TESTNET.diamond,
+        abi: redeemAbi,
+        functionName: "redeem",
+        args: [BigInt(tokenId), sharesUnits, minAssetsOut],
+      });
+      setTransactionStatus("confirming");
+      await receiptClient.waitForTransactionReceipt({ hash });
+      setTransactionStatus("success");
+      await loadPortfolio();
+      return hash;
+    } catch (reason) {
+      setTransactionStatus("error");
+      const message = reason instanceof Error ? reason.message : "Redemption failed";
+      setError(message);
+      throw new Error(message);
+    }
+  }
+
   return (
     <Context.Provider
       value={{
@@ -262,6 +321,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           void loadPortfolio();
         },
         deposit,
+        redeem,
         transactionStatus,
       }}
     >
