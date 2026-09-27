@@ -47,6 +47,7 @@ library LibBandaStorage {
         mapping(address => mapping(address => bool)) operatorApproval;
         address rebalanceOperator;
         mapping(uint32 => RebalanceBounds) rebalanceBounds;
+        uint48 maxNavBlockLag;
     }
 
     function appStorage() internal pure returns (AppStorage storage s) {

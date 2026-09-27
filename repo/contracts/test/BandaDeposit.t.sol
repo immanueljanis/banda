@@ -28,6 +28,7 @@ import {MockRebalanceStrategy} from "../src/banda/mocks/MockRebalanceStrategy.so
 interface Vm {
     function prank(address) external;
     function warp(uint256) external;
+    function roll(uint256) external;
 }
 
 contract BandaDepositTest {
@@ -227,6 +228,22 @@ contract BandaDepositTest {
         vm.prank(USER);
         (bool ok,) = address(diamond).call(abi.encodeCall(DepositFacet.deposit, (1, 25_000_000)));
         require(!ok, "mixed-block NAV accepted deposit");
+    }
+
+    function testRecentPriorBlockNavAllowsDeposit() public {
+        navAdapter.setQuote(1e18, block.timestamp, block.number, true);
+        vm.roll(block.number + 1);
+        vm.prank(USER);
+        DepositFacet(address(diamond)).deposit(1, 25_000_000);
+        require(BasketNFTFacet(address(diamond)).ownerOf(1) == USER, "recent NAV rejected");
+    }
+
+    function testExcessiveBlockLagBlocksDeposit() public {
+        navAdapter.setQuote(1e18, block.timestamp, block.number, true);
+        vm.roll(block.number + 21);
+        vm.prank(USER);
+        (bool ok,) = address(diamond).call(abi.encodeCall(DepositFacet.deposit, (1, 25_000_000)));
+        require(!ok && usdg.balanceOf(USER) == 100_000_000, "stale block NAV accepted");
     }
 
     function testFutureDatedNavBlocksDeposit() public {

@@ -10,6 +10,7 @@ contract AdminFacet {
     event RebalanceOperatorSet(address indexed operator);
     event RebalanceBoundsSet(uint32 indexed strategyId, uint16 minimumBps, uint16 maximumBps);
     event NavGuardConfigured(address indexed adapter, uint48 maxAge);
+    event NavGuardPolicyConfigured(address indexed adapter, uint48 maxAge, uint48 maxBlockLag);
     event StrategyConfigured(
         uint32 indexed strategyId,
         address indexed strategy,
@@ -82,6 +83,17 @@ contract AdminFacet {
         LibBandaStorage.AppStorage storage s = LibBandaStorage.appStorage();
         s.navAdapter = adapter;
         s.maxNavAge = maxAge;
+        if (s.maxNavBlockLag == 0) s.maxNavBlockLag = 20;
         emit NavGuardConfigured(adapter, maxAge);
+    }
+
+    function configureNavGuardPolicy(address adapter, uint48 maxAge, uint48 maxBlockLag) external {
+        LibDiamond.enforceIsContractOwner();
+        require(adapter.code.length != 0 && maxAge != 0 && maxBlockLag != 0, "Banda: invalid NAV policy");
+        LibBandaStorage.AppStorage storage s = LibBandaStorage.appStorage();
+        s.navAdapter = adapter;
+        s.maxNavAge = maxAge;
+        s.maxNavBlockLag = maxBlockLag;
+        emit NavGuardPolicyConfigured(adapter, maxAge, maxBlockLag);
     }
 }

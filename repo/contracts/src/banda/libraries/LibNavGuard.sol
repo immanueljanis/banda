@@ -14,6 +14,7 @@ library LibNavGuard {
         (grossAssets, updatedAt, observedBlock, valid) = INavAdapter(s.navAdapter).quote(strategy, shares);
         require(valid && grossAssets != 0, "Banda: invalid NAV");
         require(updatedAt <= block.timestamp && block.timestamp - updatedAt <= s.maxNavAge, "Banda: stale NAV");
-        require(observedBlock == block.number, "Banda: mixed-block NAV");
+        require(observedBlock <= block.number, "Banda: future-block NAV");
+        require(s.maxNavBlockLag != 0 && block.number - observedBlock <= s.maxNavBlockLag, "Banda: stale-block NAV");
     }
 }

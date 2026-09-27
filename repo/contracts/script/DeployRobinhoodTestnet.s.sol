@@ -18,7 +18,7 @@ import {BasketAccount} from "../src/banda/accounts/BasketAccount.sol";
 import {MockUSDG} from "../src/banda/mocks/MockUSDG.sol";
 import {MockStrategy} from "../src/banda/mocks/MockStrategy.sol";
 import {Mock6551Registry} from "../src/banda/mocks/Mock6551Registry.sol";
-import {MockNavAdapter} from "../src/banda/mocks/MockNavAdapter.sol";
+import {SecureMockNavAdapter} from "../src/banda/mocks/SecureMockNavAdapter.sol";
 
 interface Vm {
     function envAddress(string calldata name) external view returns (address value);
@@ -32,7 +32,7 @@ contract DeployRobinhoodTestnet {
     uint256 private constant ROBINHOOD_TESTNET_CHAIN_ID = 46_630;
     uint96 private constant MINIMUM_DEPOSIT = 10_000_000; // 10 tUSDG
 
-    function run() external returns (Diamond diamond, MockUSDG settlement, MockNavAdapter navAdapter) {
+    function run() external returns (Diamond diamond, MockUSDG settlement, SecureMockNavAdapter navAdapter) {
         require(block.chainid == ROBINHOOD_TESTNET_CHAIN_ID, "Deploy: wrong chain");
 
         address admin = vm.envAddress("BANDA_ADMIN");
@@ -44,7 +44,7 @@ contract DeployRobinhoodTestnet {
         vm.startBroadcast();
 
         settlement = new MockUSDG();
-        navAdapter = new MockNavAdapter();
+        navAdapter = new SecureMockNavAdapter(admin, operator, 1_000);
         Mock6551Registry registry = new Mock6551Registry();
         BasketAccount accountImplementation = new BasketAccount(address(0), 0, address(0));
         BandaInit init = new BandaInit();
@@ -58,7 +58,7 @@ contract DeployRobinhoodTestnet {
         );
 
         AdminFacet adminFacet = AdminFacet(address(diamond));
-        adminFacet.configureNavGuard(address(navAdapter), 1 hours);
+        adminFacet.configureNavGuardPolicy(address(navAdapter), 15 minutes, 20);
         adminFacet.setRebalanceOperator(operator);
         _configureMandate(adminFacet, settlement, feeRecipient, 200); // NEURAL
         _configureMandate(adminFacet, settlement, feeRecipient, 200); // RAILS
@@ -70,12 +70,9 @@ contract DeployRobinhoodTestnet {
         vm.stopBroadcast();
     }
 
-    function _configureMandate(
-        AdminFacet adminFacet,
-        MockUSDG settlement,
-        address feeRecipient,
-        uint16 annualFeeBps
-    ) private {
+    function _configureMandate(AdminFacet adminFacet, MockUSDG settlement, address feeRecipient, uint16 annualFeeBps)
+        private
+    {
         MockStrategy strategy = new MockStrategy(address(settlement));
         adminFacet.configureStrategy(0, address(strategy), MINIMUM_DEPOSIT, annualFeeBps, feeRecipient, true);
     }
@@ -118,12 +115,13 @@ contract DeployRobinhoodTestnet {
     }
 
     function _adminSelectors() private pure returns (bytes4[] memory x) {
-        x = new bytes4[](5);
+        x = new bytes4[](6);
         x[0] = AdminFacet.configureStrategy.selector;
         x[1] = AdminFacet.setPaused.selector;
         x[2] = AdminFacet.configureNavGuard.selector;
         x[3] = AdminFacet.setRebalanceOperator.selector;
         x[4] = AdminFacet.setRebalanceBounds.selector;
+        x[5] = AdminFacet.configureNavGuardPolicy.selector;
     }
 
     function _nftSelectors() private pure returns (bytes4[] memory x) {
@@ -162,9 +160,10 @@ contract DeployRobinhoodTestnet {
     }
 
     function _navSelectors() private pure returns (bytes4[] memory x) {
-        x = new bytes4[](2);
+        x = new bytes4[](3);
         x[0] = NavGuardFacet.navGuard.selector;
         x[1] = NavGuardFacet.previewNav.selector;
+        x[2] = NavGuardFacet.navBlockLag.selector;
     }
 
     function _rebalanceSelectors() private pure returns (bytes4[] memory x) {

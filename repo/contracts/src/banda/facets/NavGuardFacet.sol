@@ -11,6 +11,10 @@ contract NavGuardFacet {
         return (s.navAdapter, s.maxNavAge);
     }
 
+    function navBlockLag() external view returns (uint48) {
+        return LibBandaStorage.appStorage().maxNavBlockLag;
+    }
+
     function previewNav(address strategy, uint256 shares) external view returns (uint256 grossAssets) {
         return LibNavGuard.requireValidQuote(strategy, shares);
     }
