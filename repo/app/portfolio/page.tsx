@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useWallet } from "@/components/wallet";
 import { BASKETS, money } from "@/constants/baskets";
+import { LiveChainStatus } from "@/components/live-chain-status";
 export default function Portfolio() {
   const wallet = useWallet();
   return (
@@ -51,9 +52,10 @@ export default function Portfolio() {
         </>
       )}
       <p className="muted">
-        This local demonstration resets on reload. Deposit and transfer require
-        the future contract integration.
+        Portfolio positions are read from the connected wallet once the live
+        transaction flow is enabled. No custody or private keys live here.
       </p>
+      <LiveChainStatus />
     </main>
   );
 }

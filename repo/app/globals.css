@@ -123,6 +123,24 @@ input[inputmode="decimal"] {
 .muted {
   color: var(--muted);
 }
+.chain-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-top: 32px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: 12px;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.status-dot-live { background: var(--accent); }
+.status-dot-paused { background: var(--gold); }
 .positive {
   color: var(--accent);
 }
