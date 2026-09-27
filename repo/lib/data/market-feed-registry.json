@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "sourceChain": {
+    "name": "Robinhood Chain Mainnet",
+    "chainId": 4663
+  },
+  "quoteCurrency": "USD",
+  "settlementAsset": "USDG",
+  "sources": {
+    "robinhoodOracles": "https://docs.robinhood.com/chain/oracles-and-price-feeds/",
+    "chainlinkRobinhood": "https://docs.chain.link/data-feeds/tokenized-equity-feeds/robinhood"
+  },
+  "assets": {
+    "AMD": { "assetClass": "stock-token", "status": "feed-audit-pending", "feedProxy": null },
+    "BTC": { "assetClass": "crypto", "status": "feed-audit-pending", "feedProxy": null },
+    "COIN": { "assetClass": "stock-token", "status": "feed-audit-pending", "feedProxy": null },
+    "CRCL": { "assetClass": "stock-token", "status": "feed-audit-pending", "feedProxy": null },
+    "ETH": { "assetClass": "crypto", "status": "feed-audit-pending", "feedProxy": null },
+    "GLD": { "assetClass": "stock-token", "status": "feed-audit-pending", "feedProxy": null },
+    "GOOGL": { "assetClass": "stock-token", "status": "feed-audit-pending", "feedProxy": null },
+    "LINK": { "assetClass": "crypto", "status": "feed-audit-pending", "feedProxy": null },
+    "NEAR": { "assetClass": "crypto", "status": "feed-audit-pending", "feedProxy": null },
+    "NVDA": { "assetClass": "stock-token", "status": "feed-audit-pending", "feedProxy": null },
+    "QQQ": { "assetClass": "stock-token", "status": "feed-audit-pending", "feedProxy": null },
+    "RENDER": { "assetClass": "crypto", "status": "feed-audit-pending", "feedProxy": null },
+    "SOL": { "assetClass": "crypto", "status": "feed-audit-pending", "feedProxy": null },
+    "SPY": { "assetClass": "stock-token", "status": "feed-audit-pending", "feedProxy": null },
+    "TAO": { "assetClass": "crypto", "status": "feed-audit-pending", "feedProxy": null },
+    "TSLA": { "assetClass": "stock-token", "status": "feed-audit-pending", "feedProxy": null },
+    "USDG": { "assetClass": "stablecoin", "status": "feed-audit-pending", "feedProxy": null },
+    "USO": { "assetClass": "stock-token", "status": "feed-audit-pending", "feedProxy": null }
+  }
+}
