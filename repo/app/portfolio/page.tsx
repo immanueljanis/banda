@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
 import Link from "next/link";
-import { useWallet, type WalletPosition } from "@/components/wallet";
+import { useWallet } from "@/components/wallet";
 import { LiveChainStatus } from "@/components/live-chain-status";
+import { RedeemPanel } from "@/components/redeem-panel";
 export default function Portfolio() {
   const wallet = useWallet();
   return (
@@ -44,7 +44,7 @@ export default function Portfolio() {
         <>
           <div className="portfolio-summary">
             <div>
-              <span className="eyebrow">AVAILABLE TEST USDG</span>
+              <span className="eyebrow">AVAILABLE USDG</span>
               <strong className="portfolio-balance mono">
                 {wallet.balanceLabel}
               </strong>
@@ -92,7 +92,7 @@ export default function Portfolio() {
                     <Link className="primary-button" href={`/basket/${p.slug}`}>
                       View Basket ↗
                     </Link>
-                    <PositionRedeem position={p} />
+                    <RedeemPanel position={p} />
                     </>
                   ) : null}
                 </article>
@@ -108,57 +108,5 @@ export default function Portfolio() {
       </p>
       <LiveChainStatus />
     </main>
-  );
-}
-
-function PositionRedeem({ position }: { position: WalletPosition }) {
-  const wallet = useWallet();
-  const [shares, setShares] = useState("");
-  const [message, setMessage] = useState("");
-  const entered = Number(shares);
-  const available = Number(position.displayShares);
-  const valid = Number.isFinite(entered) && entered > 0 && entered <= available;
-  const full = valid && entered === available;
-  const busy = wallet.transactionStatus === "signing" || wallet.transactionStatus === "confirming";
-
-  return (
-    <div className="redeem-panel">
-      <label htmlFor={`redeem-${position.tokenId}`}>Redeem shares</label>
-      <div className="redeem-controls">
-        <input
-          id={`redeem-${position.tokenId}`}
-          className="redeem-input"
-          inputMode="decimal"
-          type="number"
-          min="0.000001"
-          max={position.displayShares}
-          step="any"
-          placeholder={position.displayShares}
-          value={shares}
-          onChange={(event) => { setShares(event.target.value); setMessage(""); }}
-        />
-        <button
-          className="secondary-button"
-          type="button"
-          disabled={!valid || busy}
-          onClick={async () => {
-            try {
-              const hash = await wallet.redeem(position.tokenId, shares);
-              setMessage(`${full ? "Full" : "Partial"} redeem confirmed: ${hash.slice(0, 10)}…`);
-              setShares("");
-            } catch (reason) {
-              setMessage(reason instanceof Error ? reason.message : "Redemption failed");
-            }
-          }}
-        >
-          {wallet.transactionStatus === "signing" ? "Confirm in wallet…" : wallet.transactionStatus === "confirming" ? "Confirming…" : full ? "Redeem all" : "Redeem"}
-        </button>
-      </div>
-      <button className="text-button" type="button" onClick={() => { setShares(position.displayShares); setMessage(""); }}>
-        Use all {position.displayShares} shares
-      </button>
-      <p className="muted">Estimated payout uses live NAV with 0.5% slippage protection.</p>
-      {message ? <p className="transaction-message" role="status">{message}</p> : null}
-    </div>
   );
 }

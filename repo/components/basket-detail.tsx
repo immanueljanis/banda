@@ -134,7 +134,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
           <button
             className="primary-button"
             type="submit"
-            disabled={wallet.connected && !valid}
+            disabled={wallet.connected && (!valid || wallet.transactionStatus === "signing" || wallet.transactionStatus === "confirming")}
           >
             {!wallet.connected
               ? "Connect wallet"

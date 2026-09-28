@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -16,6 +17,7 @@ import {
   formatUnits,
   parseUnits,
   publicActions,
+  parseAbi,
   type Address,
   type Hash,
 } from "viem";
@@ -64,6 +66,7 @@ type Wallet = {
   refreshPortfolio: () => void;
   deposit: (strategyId: number, amount: string) => Promise<Hash>;
   redeem: (tokenId: string, shares: string) => Promise<Hash>;
+  previewRedemption: (tokenId: string, shares: string) => Promise<readonly [bigint, bigint, bigint]>;
   transactionStatus: "idle" | "signing" | "confirming" | "success" | "error";
 };
 
@@ -82,6 +85,7 @@ const fallbackValue: Wallet = {
   refreshPortfolio: () => undefined,
   deposit: async () => { throw new Error("Wallet provider is not available"); },
   redeem: async () => { throw new Error("Wallet provider is not available"); },
+  previewRedemption: async () => { throw new Error("Connect a wallet first"); },
   transactionStatus: "idle",
 };
 
@@ -99,7 +103,7 @@ const redeemAbi = [
   {
     type: "function", name: "previewRedeem", stateMutability: "view",
     inputs: [{ name: "tokenId", type: "uint256" }, { name: "shares", type: "uint256" }],
-    outputs: [{ name: "assets", type: "uint256" }],
+    outputs: [{ name: "grossAssets", type: "uint256" }, { name: "fee", type: "uint256" }, { name: "netAssets", type: "uint256" }],
   },
   {
     type: "function", name: "redeem", stateMutability: "nonpayable",
@@ -117,6 +121,7 @@ export function FallbackWalletProvider({ children }: { children: ReactNode }) {
 }
 
 export function WalletProvider({ children }: { children: ReactNode }) {
+  const transactionLock = useRef(false);
   const { ready, authenticated, logout, login } = usePrivy();
   const { wallets } = useWallets();
   const [connecting, setConnecting] = useState(false);
@@ -218,6 +223,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (!activeWallet || !address) throw new Error("Connect a wallet first");
     const amountUnits = parseUnits(amount, 6);
     if (amountUnits <= BigInt(0)) throw new Error("Enter a positive USDG amount");
+    if (!/^\d+(\.\d{1,6})?$/.test(amount)) throw new Error("Use up to six decimal places");
+    if (transactionLock.current) throw new Error("A transaction is already in progress");
+    transactionLock.current = true;
     setTransactionStatus("signing");
     setError(undefined);
     try {
@@ -229,6 +237,21 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         transport: custom(provider),
       });
       const receiptClient = client.extend(publicActions);
+      const guardAbi = parseAbi([
+        "function isPaused() view returns (bool)",
+        "function strategy(uint32) view returns (address,uint96,uint16,address,bool)",
+        "function previewNav(address,uint256) view returns (uint256)",
+      ]);
+      if (await receiptClient.readContract({address: ROBINHOOD_TESTNET.diamond, abi: guardAbi, functionName: "isPaused"})) throw new Error("Deposits are paused. Please try again later.");
+      const [strategy, minimum, , , enabled] = await receiptClient.readContract({address: ROBINHOOD_TESTNET.diamond, abi: guardAbi, functionName: "strategy", args: [strategyId]});
+      if (!enabled || amountUnits < minimum) throw new Error(`Minimum deposit is ${formatUnits(minimum, 6)} USDG for this strategy.`);
+      await receiptClient.readContract({address: ROBINHOOD_TESTNET.diamond, abi: guardAbi, functionName: "previewNav", args: [strategy, amountUnits]});
+      const tokenAbi = parseAbi(["function balanceOf(address) view returns (uint256)", "function allowance(address,address) view returns (uint256)"]);
+      const balance = await receiptClient.readContract({address: ROBINHOOD_TESTNET.settlementAsset, abi: tokenAbi, functionName: "balanceOf", args: [address as Address]});
+      if (balance < amountUnits) throw new Error("Insufficient USDG balance");
+      const allowance = await receiptClient.readContract({address: ROBINHOOD_TESTNET.settlementAsset, abi: tokenAbi, functionName: "allowance", args: [address as Address, ROBINHOOD_TESTNET.diamond]});
+      if (allowance < amountUnits) {
+      await receiptClient.simulateContract({address: ROBINHOOD_TESTNET.settlementAsset, abi: erc20Abi, functionName: "approve", args: [ROBINHOOD_TESTNET.diamond, amountUnits], account: address as Address});
       const approvalHash = await client.writeContract({
         address: ROBINHOOD_TESTNET.settlementAsset,
         abi: erc20Abi,
@@ -236,8 +259,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         args: [ROBINHOOD_TESTNET.diamond, amountUnits],
       });
       setTransactionStatus("confirming");
-      await receiptClient.waitForTransactionReceipt({ hash: approvalHash });
+      const approval = await receiptClient.waitForTransactionReceipt({ hash: approvalHash });
+      if (approval.status !== "success") throw new Error("Approval reverted. Deposit was not sent.");
+      }
       setTransactionStatus("signing");
+      await receiptClient.simulateContract({address: ROBINHOOD_TESTNET.diamond, abi: diamondAbi, functionName: "deposit", args: [strategyId, amountUnits], account: address as Address});
       const depositHash = await client.writeContract({
         address: ROBINHOOD_TESTNET.diamond,
         abi: diamondAbi,
@@ -245,7 +271,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         args: [strategyId, amountUnits],
       });
       setTransactionStatus("confirming");
-      await receiptClient.waitForTransactionReceipt({ hash: depositHash });
+      const depositReceipt = await receiptClient.waitForTransactionReceipt({ hash: depositHash });
+      if (depositReceipt.status !== "success") throw new Error("Deposit reverted. No Basket was created.");
       setTransactionStatus("success");
       await loadPortfolio();
       return depositHash;
@@ -254,13 +281,25 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const message = reason instanceof Error ? reason.message : "Transaction failed";
       setError(message);
       throw new Error(message);
+    } finally {
+      transactionLock.current = false;
     }
   }
+
+  const previewRedemption = useCallback(async (tokenId: string, shares: string) => {
+    if (!activeWallet) throw new Error("Connect a wallet first");
+    const provider = await activeWallet.getEthereumProvider();
+    const client = createWalletClient({chain: ROBINHOOD_TESTNET, transport: custom(provider)}).extend(publicActions);
+    if (await client.getChainId() !== ROBINHOOD_TESTNET.id) throw new Error("Switch your wallet to Robinhood Chain Testnet to preview.");
+    return client.readContract({address: ROBINHOOD_TESTNET.diamond, abi: redeemAbi, functionName: "previewRedeem", args: [BigInt(tokenId), parseUnits(shares, 6)]});
+  }, [activeWallet]);
 
   async function redeem(tokenId: string, shares: string): Promise<Hash> {
     if (!activeWallet || !address) throw new Error("Connect a wallet first");
     const sharesUnits = parseUnits(shares, 6);
     if (sharesUnits <= BigInt(0)) throw new Error("Enter a positive share amount");
+    if (transactionLock.current) throw new Error("A transaction is already in progress");
+    transactionLock.current = true;
     setTransactionStatus("signing");
     setError(undefined);
     try {
@@ -278,7 +317,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         functionName: "previewRedeem",
         args: [BigInt(tokenId), sharesUnits],
       });
-      const minAssetsOut = (preview * BigInt(995)) / BigInt(1000);
+      const minAssetsOut = (preview[2] * BigInt(995)) / BigInt(1000);
+      if (minAssetsOut <= BigInt(0)) throw new Error("Payout is too small");
+      await receiptClient.simulateContract({address: ROBINHOOD_TESTNET.diamond, abi: redeemAbi, functionName: "redeem", args: [BigInt(tokenId), sharesUnits, minAssetsOut], account: address as Address});
       const hash = await client.writeContract({
         address: ROBINHOOD_TESTNET.diamond,
         abi: redeemAbi,
@@ -286,7 +327,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         args: [BigInt(tokenId), sharesUnits, minAssetsOut],
       });
       setTransactionStatus("confirming");
-      await receiptClient.waitForTransactionReceipt({ hash });
+      const receipt = await receiptClient.waitForTransactionReceipt({ hash });
+      if (receipt.status !== "success") throw new Error("Redemption reverted. Your Basket was not redeemed.");
       setTransactionStatus("success");
       await loadPortfolio();
       return hash;
@@ -295,6 +337,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const message = reason instanceof Error ? reason.message : "Redemption failed";
       setError(message);
       throw new Error(message);
+    } finally {
+      transactionLock.current = false;
     }
   }
 
@@ -322,6 +366,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         },
         deposit,
         redeem,
+        previewRedemption,
         transactionStatus,
       }}
     >

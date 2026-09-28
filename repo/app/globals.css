@@ -1,4 +1,45 @@
 @import "tailwindcss";
+/* Wallet and redemption controls use the shared Banda surface tokens. */
+.header-actions .wallet-balance {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--surface);
+  white-space: nowrap;
+}
+.header-actions .wallet-balance-value { font-family: var(--font-mono), monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.header-actions .wallet-balance-label { font-family: var(--font-sans), sans-serif; font-size: 11px; letter-spacing: .04em; color: var(--muted); }
+.redemption { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--rule); }
+.redemption-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.redemption-heading h3 { margin: 4px 0 0; font-size: 19px; font-weight: 500; }
+.redemption-percentage { font-family: var(--font-mono), monospace; font-size: 32px; letter-spacing: -.06em; color: var(--accent); }
+.redemption-percentage span { font-size: 17px; margin-left: 3px; }
+.redemption-slider { appearance: none; display: block; width: 100%; height: 6px; margin: 28px 0 22px; border-radius: 8px; cursor: pointer; background: linear-gradient(to right, var(--accent) var(--portion), var(--rule) var(--portion)); }
+.redemption-slider::-webkit-slider-thumb { appearance: none; width: 22px; height: 22px; border: 3px solid var(--paper); border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.redemption-slider::-moz-range-thumb { width: 17px; height: 17px; border: 3px solid var(--paper); border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.redemption-presets { display: flex; gap: 8px; }
+.redemption-presets button { flex: 1; padding: 6px 12px; border: 1px solid var(--rule); border-radius: 4px; font-size: 12px; cursor: pointer; }
+.redemption-presets button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--button-text); }
+.redemption-presets button:hover:not(:disabled) { border-color: var(--accent); }
+.redemption-summary { margin: 24px 0 16px; }
+.redemption-summary > div { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; font-size: 12px; }
+.redemption-summary dt { color: var(--muted); }
+.redemption-summary dd { margin: 0; text-align: right; font-family: var(--font-mono), monospace; overflow-wrap: anywhere; }
+.redemption-summary .redemption-payout { border-top: 1px solid var(--rule); margin-top: 10px; padding-top: 16px; align-items: baseline; }
+.redemption-payout dd { font-size: 22px; }
+.redemption-payout small { font-size: 11px; color: var(--muted); }
+.redemption .redemption-note { font-size: 12px; line-height: 1.6; color: var(--muted); margin: 12px 0; }
+.portfolio-item .redemption-submit { display: flex; justify-content: center; width: 100%; margin-top: 18px; }
+.redemption button:disabled, .redemption input:disabled { opacity: .5; cursor: not-allowed; }
+.portfolio-item .mono { overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .header-actions .wallet-balance { display: inline-flex; padding: 7px 9px; gap: 5px; }
+  .header-actions { flex-wrap: wrap; }
+}
 :root {
   --ink: #16150f;
   --paper: #fbfaf7;
