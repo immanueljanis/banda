@@ -1,7 +1,13 @@
 # On-demand testnet NAV preparation
 
-The Next.js backend renews a strategy's existing mock quote when a signed-in user
-prepares a deposit or redemption. No polling process, Redis, or portfolio database
+A backend-only Railway service renews a strategy's existing mock quote when a
+signed-in user prepares a deposit or redemption. The frontend stays on Vercel and
+calls it cross-origin via `NEXT_PUBLIC_NAV_API_URL`; CORS is granted only to the
+exact `BANDA_APP_ORIGIN`. Railway service variables
+`RAILPACK_BUILD_CMD=echo backend-only` and
+`RAILPACK_START_CMD=bun scripts/nav-server.mjs` skip `next build`; the server
+serves only `/api/nav/prepare`. Set values via `--stdin` from Bash `printf '%s'`:
+PowerShell pipes prepend a UTF-8 BOM, and `bunx` on Windows splits spaced args. No polling process, Redis, or portfolio database
 is needed. This preserves the mock price; it is NOT market-price publication.
 
 ## Railway setup before enabling
@@ -23,14 +29,16 @@ Set server-only variables (see `../.env.example`):
 ```dotenv
 BANDA_NAV_ON_DEMAND=true
 BANDA_NAV_SINGLE_INSTANCE=true
-BANDA_APP_ORIGIN=https://bandafinance.xyz
+BANDA_APP_ORIGIN=https://www.bandafinance.xyz
 BANDA_NAV_STATE_DIR=/data/banda-nav
 PRIVY_VERIFICATION_KEY="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
 BANDA_OPERATOR_PRIVATE_KEY=<dedicated-operator-key>
 ROBINHOOD_TESTNET_RPC_URL=<private-rpc>
 ```
 
-Keep the existing `NEXT_PUBLIC_PRIVY_APP_ID`. Copy the public ES256 verification
+Keep the existing `NEXT_PUBLIC_PRIVY_APP_ID` (JWT audience). On Vercel, set
+`NEXT_PUBLIC_NAV_API_URL=https://banda-production.up.railway.app` and redeploy the
+frontend; the apex redirects to www, so the browser Origin is the www host. Copy the public ES256 verification
 key from Privy Dashboard > App settings, not the app secret. Local JWT verification
 checks signature, issuer, audience, expiry and subject. If Privy rotates the
 verification key, update this variable and restart. `PRIVY_APP_SECRET` is not

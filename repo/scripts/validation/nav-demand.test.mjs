@@ -190,13 +190,26 @@ test("authenticated endpoint executes the lifecycle and redacts unexpected trans
   const request = (body, origin = "https://banda.test", auth = `Bearer ${bearer}`) => new Request("https://banda.test/api/nav/prepare", {
     method: "POST", headers: { origin, authorization: auth, "content-type": "application/json" }, body,
   });
-  assert.equal((await handler(request('{"strategyId":1}', "https://evil.test"))).status, 403);
+  const preflight = origin => handler(new Request("https://banda.test/api/nav/prepare", { method: "OPTIONS", headers: { origin } }));
+  const allowedPreflight = await preflight("https://banda.test");
+  assert.equal(allowedPreflight.status, 204);
+  assert.equal(allowedPreflight.headers.get("access-control-allow-origin"), "https://banda.test");
+  assert.match(allowedPreflight.headers.get("access-control-allow-headers"), /authorization/);
+  const deniedPreflight = await preflight("https://evil.test");
+  assert.equal(deniedPreflight.status, 403);
+  assert.equal(deniedPreflight.headers.get("access-control-allow-origin"), null);
+  const evil = await handler(request('{"strategyId":1}', "https://evil.test"));
+  assert.equal(evil.status, 403);
+  assert.equal(evil.headers.get("access-control-allow-origin"), null);
+  const unauthorized = await handler(request('{"strategyId":1}', "https://banda.test", "Bearer invalid"));
+  assert.equal(unauthorized.headers.get("access-control-allow-origin"), "https://banda.test");
   assert.equal((await handler(request('{"strategyId":1}', "https://banda.test", "Bearer invalid"))).status, 401);
   assert.equal((await handler(request('{"strategyId":1,"price":1}'))).status, 400);
   assert.equal((await handler(request(" ".repeat(257)))).status, 413);
   assert.equal(f.events.length, 0);
   const response = await handler(request('{"strategyId":1}'));
   assert.equal(response.status, 200);
+  assert.equal(response.headers.get("access-control-allow-origin"), "https://banda.test");
   assert.equal((await response.json()).status, "refreshed");
   f.chain.chainId = async () => { throw Error("https://private.rpc/credential"); };
   const failed = await handler(request('{"strategyId":1}'));

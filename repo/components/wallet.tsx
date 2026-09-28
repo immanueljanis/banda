@@ -146,7 +146,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const prepareNav = useCallback(async (strategyId: number) => {
     const token = await getAccessToken();
     if (!token) throw new Error("Please sign in again to prepare a quote.");
-    const response = await fetch("/api/nav/prepare", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_NAV_API_URL ?? ""}/api/nav/prepare`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ strategyId }),
