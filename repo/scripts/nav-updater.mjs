@@ -20,6 +20,9 @@ const abi = parseAbi([
 ]);
 const broadcast = process.argv.includes("--broadcast");
 const once = process.argv.includes("--once");
+if (broadcast && process.env.BANDA_NAV_ON_DEMAND === "true") {
+  throw new Error("On-demand NAV is enabled. Do not run a second signer worker.");
+}
 const rpc = process.env.ROBINHOOD_TESTNET_RPC_URL;
 if (!rpc) throw new Error("Set ROBINHOOD_TESTNET_RPC_URL");
 const publicClient = createPublicClient({ chain, transport: http(rpc, {timeout: 15000, retryCount: 1}) });

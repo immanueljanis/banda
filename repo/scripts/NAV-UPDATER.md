@@ -1,5 +1,9 @@
 # Testnet mock NAV updater
 
+For the Railway demo, use [on-demand preparation](NAV-ON-DEMAND.md) instead.
+Do not run this background worker with the same operator while on-demand is
+enabled. It is retained as an alternative, not a second concurrent signer.
+
 This standalone Node worker renews existing valid mock quotes for strategies 1–5.
 It preserves prices; it does not fetch market prices or attest real asset value.
 No contract upgrades or unpausing are performed. Quotes are renewed even while

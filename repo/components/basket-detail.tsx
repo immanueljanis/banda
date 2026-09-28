@@ -59,7 +59,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
               return;
             }
             if (valid) {
-              setMessage("Preparing approval…");
+              setMessage("Checking your balance and preparing the testnet quote…");
               try {
                 const strategyId = BASKETS.findIndex((entry) => entry.slug === basket.slug) + 1;
                 const hash = await wallet.deposit(strategyId, amount);
@@ -134,10 +134,12 @@ export function BasketDetail({ basket }: { basket: Basket }) {
           <button
             className="primary-button"
             type="submit"
-            disabled={wallet.connected && (!valid || wallet.transactionStatus === "signing" || wallet.transactionStatus === "confirming")}
+            disabled={wallet.connected && (!valid || wallet.transactionStatus === "preparing" || wallet.transactionStatus === "signing" || wallet.transactionStatus === "confirming")}
           >
             {!wallet.connected
               ? "Connect wallet"
+              : wallet.transactionStatus === "preparing"
+                ? "Preparing quote…"
               : wallet.transactionStatus === "signing"
                 ? "Confirm in wallet…"
                 : wallet.transactionStatus === "confirming"
