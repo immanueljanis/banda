@@ -31,17 +31,17 @@ BANDA_NAV_ON_DEMAND=true
 BANDA_NAV_SINGLE_INSTANCE=true
 BANDA_APP_ORIGIN=https://www.bandafinance.xyz
 BANDA_NAV_STATE_DIR=/data/banda-nav
-PRIVY_VERIFICATION_KEY="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
 BANDA_OPERATOR_PRIVATE_KEY=<dedicated-operator-key>
 ROBINHOOD_TESTNET_RPC_URL=<private-rpc>
 ```
 
 Keep the existing `NEXT_PUBLIC_PRIVY_APP_ID` (JWT audience). On Vercel, set
 `NEXT_PUBLIC_NAV_API_URL=https://banda-production.up.railway.app` and redeploy the
-frontend; the apex redirects to www, so the browser Origin is the www host. Copy the public ES256 verification
-key from Privy Dashboard > App settings, not the app secret. Local JWT verification
-checks signature, issuer, audience, expiry and subject. If Privy rotates the
-verification key, update this variable and restart. `PRIVY_APP_SECRET` is not
+frontend; the apex redirects to www, so the browser Origin is the www host. Tokens are verified against
+Privy's public JWKS (`auth.privy.io/api/v1/apps/<app-id>/jwks.json`), which
+publishes several keys and follows rotation by `kid`. `PRIVY_VERIFICATION_KEY` is
+an optional single-PEM override. Verification checks signature, issuer, audience,
+expiry and subject. `PRIVY_APP_SECRET` is not
 required by this feature. Keep keys/RPC out of Git and NEXT_PUBLIC variables.
 
 The operator must match the adapter's on-chain `updater()` and must NOT be its

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { generateKeyPair, exportSPKI, SignJWT } from "jose";
+import { createLocalJWKSet, exportJWK, generateKeyPair, exportSPKI, SignJWT } from "jose";
 import { createAuthVerifier } from "../../lib/nav/auth.mjs";
 import { createCoordinator, createLimiter, strategyInput } from "../../lib/nav/coordinator.mjs";
 import { createHandler } from "../../lib/nav/handler.mjs";
@@ -180,6 +180,18 @@ test("Privy verification checks signature, expiry, issuer and app audience", asy
   const forged = await new SignJWT({}).setProtectedHeader({ alg: "ES256" }).setSubject("did:privy:demo")
     .setIssuer("privy.io").setAudience("banda-app").setIssuedAt().setExpirationTime("1h").sign(otherPair.privateKey);
   await assert.rejects(verify(`Bearer ${forged}`), { code: "UNAUTHORIZED" });
+});
+
+test("Privy JWKS verification accepts any published key by kid and rejects unknown keys", async () => {
+  const rotated = await generateKeyPair("ES256", { extractable: true });
+  const keys = [{ ...await exportJWK(pair.publicKey), kid: "old", alg: "ES256" }, { ...await exportJWK(rotated.publicKey), kid: "new", alg: "ES256" }];
+  const viaJwks = createAuthVerifier("banda-app", createLocalJWKSet({ keys }));
+  const signed = (privateKey, kid) => new SignJWT({}).setProtectedHeader({ alg: "ES256", kid }).setSubject("did:privy:demo")
+    .setIssuer("privy.io").setAudience("banda-app").setIssuedAt().setExpirationTime("1h").sign(privateKey);
+  assert.equal(await viaJwks(`Bearer ${await signed(pair.privateKey, "old")}`), "did:privy:demo");
+  assert.equal(await viaJwks(`Bearer ${await signed(rotated.privateKey, "new")}`), "did:privy:demo");
+  const stranger = await generateKeyPair("ES256");
+  await assert.rejects(viaJwks(`Bearer ${await signed(stranger.privateKey, "new")}`), { code: "UNAUTHORIZED" });
 });
 
 test("authenticated endpoint executes the lifecycle and redacts unexpected transport errors", async () => {

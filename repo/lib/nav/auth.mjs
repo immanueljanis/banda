@@ -2,7 +2,8 @@ import { importSPKI, jwtVerify } from "jose";
 import { NavError } from "./errors.mjs";
 
 /**
- * Verify locally against the public verification key from the Privy dashboard.
+ * Verify against Privy's public keys: a PEM override, or a jose key resolver such
+ * as the app's JWKS, which follows key rotation by `kid`.
  * No Privy app secret or operator key is required to authenticate requests.
  */
 export function createAuthVerifier(appId, verificationKey) {
@@ -13,7 +14,9 @@ export function createAuthVerifier(appId, verificationKey) {
       throw new NavError("UNAUTHORIZED", "Please sign in again to prepare a quote.", 401);
     }
     try {
-      key ??= await importSPKI(verificationKey.replace(/\\n/g, "\n"), "ES256");
+      key ??= typeof verificationKey === "string"
+        ? await importSPKI(verificationKey.replace(/\\n/g, "\n"), "ES256")
+        : verificationKey;
       const { payload } = await jwtVerify(authorization.slice(7), key, {
         issuer: "privy.io", audience: appId, algorithms: ["ES256"],
         requiredClaims: ["sub", "iat", "exp"],

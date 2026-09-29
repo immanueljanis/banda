@@ -1,3 +1,4 @@
+import { createRemoteJWKSet } from "jose";
 import { createAuthVerifier } from "./auth.mjs";
 import { createCoordinator, createLimiter } from "./coordinator.mjs";
 import { createHandler } from "./handler.mjs";
@@ -24,7 +25,8 @@ export function navHandler() {
     globalThis[key] = createHandler({
       origin: env.BANDA_APP_ORIGIN,
       enabled,
-      authenticate: createAuthVerifier(env.NEXT_PUBLIC_PRIVY_APP_ID, env.PRIVY_VERIFICATION_KEY),
+      authenticate: createAuthVerifier(env.NEXT_PUBLIC_PRIVY_APP_ID, env.PRIVY_VERIFICATION_KEY ||
+        (env.NEXT_PUBLIC_PRIVY_APP_ID && createRemoteJWKSet(new URL(`https://auth.privy.io/api/v1/apps/${env.NEXT_PUBLIC_PRIVY_APP_ID}/jwks.json`)))),
       limit: createLimiter(),
       prepare,
     });
