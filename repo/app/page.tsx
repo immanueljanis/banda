@@ -1,217 +1,200 @@
 import Link from "next/link";
 import { BASKETS, money } from "@/constants/baskets";
-import { AssetLabel } from "@/components/asset-label";
-import { BasketFeatures } from "@/components/asset-facts";
+import { AssetLabel, AssetLogo } from "@/components/asset-label";
 import { Certificate, Sparkline } from "@/components/certificate";
+import { Microtext, Rosette, WaveBand } from "@/components/guilloche";
 import { yieldAssets, yieldWeight } from "@/lib/yields";
+
+const SPECIMEN = BASKETS[0];
+
 export default function Home() {
   return (
     <main id="main">
-      <section className="hero wrap">
-        <div className="hero-copy">
-          <div className="hero-kicker">MANAGED DEFI BASKETS</div>
-          <h1>
-            Growth in one basket.
-            <br className="desktop-break" /> <span>Yield at work in DeFi.</span>
-          </h1>
-          <p>
-            Own a managed mix of growth assets and productive DeFi positions.
-            The mandate, yield sources and risks stay visible.
-          </p>
-          <div className="hero-actions">
-            <Link className="primary-button" href="#baskets">
-              Browse baskets <span aria-hidden="true">↗</span>
-            </Link>
-            <Link className="text-link" href="#mandate">
-              See the mandate <span aria-hidden="true">↓</span>
-            </Link>
-          </div>
-        </div>
-        <div className="hero-object">
-          <Certificate basket={BASKETS[0]} hero />
-        </div>
-      </section>
-      <section className="tension" id="mandate">
-        <div className="wrap tension-grid">
-          <div>
-            <h2>
-              Built for growth.
-              <br />
-              <span>Kept productive in DeFi.</span>
-            </h2>
-          </div>
-          <div>
-            <p className="mandate-intro">
-              Each Banda basket has a published job: pursue its growth mandate,
-              put a defined portion to work through DeFi, and retain liquidity
-              discipline for portfolio operations.
+      <section className="hero-note">
+        <Rosette className="hero-rosette" />
+        <div className="wrap hero">
+          <div className="hero-copy">
+            <p className="hero-network">
+              <span className="network-dot" aria-hidden="true" /> Live on Robinhood Chain testnet
             </p>
-            <div className="mandate-map">
-              {[
-                [
-                  "01",
-                  "Growth sleeve",
-                  "Assets selected for long-term appreciation.",
-                ],
-                [
-                  "02",
-                  "Yield sleeve",
-                  "Defined DeFi positions designed to keep part of the basket productive.",
-                ],
-                [
-                  "03",
-                  "Liquidity discipline",
-                  "A mandate for rebalances and future redemption needs.",
-                ],
-              ].map(([number, title, copy]) => (
-                <div className="mandate-row" key={number}>
-                  <span className="mono">{number}</span>
-                  <div>
-                    <h3>{title}</h3>
-                    <p>{copy}</p>
-                  </div>
-                </div>
-              ))}
+            <h1>A managed portfolio you own as a single token.</h1>
+            <p className="hero-lede">
+              Pick a Basket of tokenized stocks, crypto, gold and DeFi yield.
+              Deposit USDG and receive one NFT that holds the whole mix, with
+              its mandate, fees and risks on record.
+            </p>
+            <div className="hero-actions">
+              <Link className="gold-button" href="#baskets">
+                Browse Baskets <span aria-hidden="true">→</span>
+              </Link>
+              <Link className="text-link" href="#how-it-works">
+                How it works
+              </Link>
             </div>
           </div>
-        </div>
-      </section>
-      <section className="shelf wrap" id="baskets">
-        <div className="section-heading">
-          <div>
-            <h2>Choose a managed mandate.</h2>
+          <div className="hero-object">
+            <Certificate basket={SPECIMEN} hero />
           </div>
         </div>
-        <div className="basket-grid">
-          {BASKETS.map((b) => (
-            <article className={`shelf-card shelf-${b.slug}`} key={b.slug}>
-              <div className="shelf-card-top">
-                <span>{b.thesis}</span>
-                <span className="mono">{b.character}</span>
-              </div>
-              <div className="shelf-title">
+        <div className="wrap hero-terms">
+          <span>5 thematic Baskets</span>
+          <span>Deposits in USDG</span>
+          <span>ERC-721 Basket, ERC-6551 account</span>
+          <span>0% to buy or withdraw</span>
+        </div>
+        <Microtext text="BANDA · A MANAGED PORTFOLIO YOU OWN AS A SINGLE TOKEN" className="hero-microtext" />
+      </section>
+
+      <section className="anatomy wrap" aria-labelledby="anatomy-title">
+        <div className="anatomy-copy">
+          <h2 id="anatomy-title">What the token holds.</h2>
+          <p>
+            Every Basket is an NFT with its own onchain account. The account
+            holds the positions, so the portfolio moves as one object: transfer
+            the NFT and the whole mix goes with it.
+          </p>
+          <dl className="anatomy-sleeves">
+            <div>
+              <dt><i className="category-0" aria-hidden="true" />Growth</dt>
+              <dd>Tokenized stocks and crypto chosen for the Basket’s thesis.</dd>
+            </div>
+            <div>
+              <dt><i className="category-2" aria-hidden="true" />Yield</dt>
+              <dd>A defined share placed in USDG DeFi positions.</dd>
+            </div>
+            <div>
+              <dt><i className="category-1" aria-hidden="true" />Liquidity</dt>
+              <dd>Discipline for rebalances and redemptions.</dd>
+            </div>
+          </dl>
+        </div>
+        <figure className="anatomy-diagram" aria-label={`How the ${SPECIMEN.name} Basket is held`}>
+          <div className="anatomy-node anatomy-owner">
+            <span className="anatomy-role">Your wallet owns</span>
+            <strong>Basket NFT No. {SPECIMEN.id}</strong>
+            <span className="mono">ERC-721</span>
+          </div>
+          <div className="anatomy-node anatomy-account">
+            <span className="anatomy-role">Which controls</span>
+            <strong>Basket account</strong>
+            <span className="mono">ERC-6551</span>
+          </div>
+          <ul className="anatomy-holdings">
+            {SPECIMEN.holdings.map((holding) => (
+              <li key={holding.ticker}>
+                <AssetLabel ticker={holding.ticker} compact />
+                <span className="mono">{holding.weight}%</span>
+              </li>
+            ))}
+          </ul>
+          <figcaption>
+            Redeem part of it and the NFT stays open. Redeem all of it and the
+            NFT is burned.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section className="ledger wrap" id="baskets" aria-labelledby="baskets-title">
+        <div className="ledger-heading">
+          <h2 id="baskets-title">Five mandates to choose from.</h2>
+          <p>Values are illustrative examples, not historical returns.</p>
+        </div>
+        <ol className="ledger-list">
+          {BASKETS.map((basket) => (
+            <li className="ledger-row" key={basket.slug}>
+              <div className="ledger-name">
+                <span className="ledger-serial mono">No. {basket.id}</span>
                 <h3>
-                  <Link href={`/basket/${b.slug}`}>{b.name}</Link>
+                  <Link href={`/basket/${basket.slug}`}>{basket.name}</Link>
                 </h3>
-                <span className="shelf-arrow" aria-hidden="true">
-                  ↗
+                <p>{basket.mandate}</p>
+              </div>
+              <div className="ledger-thesis">
+                <strong>{basket.thesis}</strong>
+                <span>{basket.character}</span>
+                <span className="ledger-logos" aria-label={`Holdings: ${basket.holdings.map((h) => h.ticker).join(", ")}`}>
+                  {basket.holdings.map((holding) => (
+                    <AssetLogo ticker={holding.ticker} key={holding.ticker} />
+                  ))}
                 </span>
               </div>
-              <p>{b.mandate}</p>
-              <div className="shelf-data">
-                <div>
-                  <span className="eyebrow">EXAMPLE PORTFOLIO VALUE</span>
-                  <strong className="mono">{money(b.nav)}</strong>
-                </div>
-                <div className="shelf-change">
-                  <span className="eyebrow">
-                    <span className="mono">30</span>D CHANGE
-                  </span>
-                  <span className="positive mono">+{b.change}%</span>
-                </div>
-                <Sparkline basket={b} />
+              <div className="ledger-value">
+                <span>Example value</span>
+                <strong className="mono">{money(basket.nav)}</strong>
+                <span className="positive mono">+{basket.change}% · 30d</span>
               </div>
-              <BasketFeatures basket={b} />
-              <div className="sleeve-summary">
-                <span className="eyebrow">YIELD SLEEVE</span>
-                <strong className="mono">{yieldWeight(b)}%</strong>
-                <p>
-                  DeFi yield exposure through {yieldAssets(b).join(" + ")}.
-                  Variable, illustrative and before Banda fees.
-                </p>
+              <Sparkline basket={basket} />
+              <div className="ledger-yield">
+                <strong className="mono">{yieldWeight(basket)}%</strong>
+                <span>yield sleeve via {yieldAssets(basket).join(" + ")}</span>
               </div>
-              <div className="ticker-row">
-                {b.holdings.map((h) => (
-                  <AssetLabel ticker={h.ticker} compact key={h.ticker} />
-                ))}
-              </div>
-            </article>
+              <span className="ledger-arrow" aria-hidden="true">→</span>
+            </li>
           ))}
-        </div>
-        <div className="shelf-bottom">
-          <span>All figures shown are examples, not historical returns.</span>
-        </div>
+        </ol>
       </section>
-      <section className="simple-how wrap" id="how-it-works">
-        <h2>One basket, visible work.</h2>
-        <div className="how-steps">
-          <div>
-            <span className="mono">01</span>
-            <h3>Choose a mandate.</h3>
-            <p>Compare its growth approach, yield sleeve, fees and risks.</p>
-          </div>
-          <div>
-            <span className="mono">02</span>
-            <h3>Fund one basket.</h3>
-            <p>Own the full mix through a single basket position.</p>
-          </div>
-          <div>
-            <span className="mono">03</span>
-            <h3>Follow the mandate.</h3>
-            <p>
-              See holdings, allocation and yield sources in one portfolio view.
-            </p>
-          </div>
-        </div>
-        <Link className="text-link" href="/docs">
-          Explore how Banda works →
-        </Link>
-      </section>
-      <section className="fees wrap" id="fees">
-        <div>
-          <h2>Simple, transparent fees.</h2>
-          <p>Management fees for the MVP.</p>
+
+      <section className="steps-section" id="how-it-works" aria-labelledby="steps-title">
+        <div className="wrap">
+          <h2 id="steps-title">From USDG to one token in three steps.</h2>
+          <ol className="steps">
+            <li>
+              <span className="step-number mono">1</span>
+              <h3>Choose a mandate</h3>
+              <p>Compare each Basket’s thesis, holdings, yield sleeve, fee and risks.</p>
+            </li>
+            <li>
+              <span className="step-number mono">2</span>
+              <h3>Deposit USDG</h3>
+              <p>Sign in with Privy or your own wallet. The deposit mints your Basket NFT.</p>
+            </li>
+            <li>
+              <span className="step-number mono">3</span>
+              <h3>Hold, transfer or redeem</h3>
+              <p>Track it in your portfolio. Redeem any share of it back to USDG at any time.</p>
+            </li>
+          </ol>
           <Link className="text-link" href="/docs">
-            Read the methodology ↗
+            Read how Banda works <span aria-hidden="true">→</span>
           </Link>
         </div>
-        <div>
+      </section>
+
+      <section className="terms wrap" id="fees" aria-labelledby="fees-title">
+        <div className="terms-copy">
+          <h2 id="fees-title">The terms, printed plainly.</h2>
+          <p>One annual management fee, reflected in the Basket’s value. Nothing charged to enter or leave.</p>
+          <Link className="text-link" href="/docs">
+            Read the methodology <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+        <div className="terms-sheet">
+          <WaveBand className="terms-wave" />
           <table className="fee-table">
-            <caption className="sr-only">MVP fees</caption>
+            <caption className="sr-only">Banda fees</caption>
             <tbody>
-              <tr>
-                <th>Diversified and defensive</th>
-                <td>
-                  <span className="mono">1%</span>
-                  <span className="muted"> / year</span>
-                </td>
-              </tr>
-              <tr>
-                <th>Thematic and active</th>
-                <td>
-                  <span className="mono">2%</span>
-                  <span className="muted"> / year</span>
-                </td>
-              </tr>
-              <tr>
-                <th>Performance</th>
-                <td>None</td>
-              </tr>
-              <tr>
-                <th>Buy</th>
-                <td className="mono">0%</td>
-              </tr>
-              <tr>
-                <th>Withdraw</th>
-                <td className="mono">0%</td>
-              </tr>
+              <tr><th>Diversified and defensive Baskets</th><td><span className="mono">1%</span><span className="muted"> a year</span></td></tr>
+              <tr><th>Thematic and active Baskets</th><td><span className="mono">2%</span><span className="muted"> a year</span></td></tr>
+              <tr><th>Performance fee</th><td>None</td></tr>
+              <tr><th>Buy</th><td className="mono">0%</td></tr>
+              <tr><th>Withdraw</th><td className="mono">0%</td></tr>
             </tbody>
           </table>
           <p className="fee-note">
-            Management fees are designed to be reflected in NAV without a second
-            charge on collection. Fee accrual is not implemented in this local
-            demo; portfolio values remain illustrative.
+            Fee accrual is not yet implemented on testnet. Values shown on this
+            page are illustrative, and testnet payouts use a mock NAV.
           </p>
         </div>
       </section>
-      <section className="closing wrap">
-        <div>
-          <span className="network-dot" />
-          <h2>One mandate. Many assets at work.</h2>
+
+      <section className="closing-note">
+        <Rosette className="closing-rosette" />
+        <div className="wrap closing">
+          <h2>One token. The whole portfolio.</h2>
+          <Link className="gold-button" href="#baskets">
+            Find your Basket <span aria-hidden="true">→</span>
+          </Link>
         </div>
-        <Link className="primary-button" href="#baskets">
-          Find your basket <span aria-hidden="true">↗</span>
-        </Link>
       </section>
     </main>
   );

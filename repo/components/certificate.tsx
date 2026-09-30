@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { animate, motion } from "motion/react";
 import { type Basket, money } from "@/constants/baskets";
 import { AssetLabel, AssetLogo } from "./asset-label";
+import { Microtext, Rosette, WaveBand } from "./guilloche";
 
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 // ponytail: motion's useReducedMotion snapshots the preference once and never
@@ -105,18 +106,21 @@ export function Certificate({
   }, [hero, reduced]);
   return (
     <div className={`certificate ${hero ? "hero-certificate" : ""}`}>
+      <WaveBand className="certificate-wave" />
       <div className="certificate-top">
-        <span className="eyebrow">Portfolio certificate</span>
+        <span className="certificate-kind">Basket certificate</span>
         <span className="example-tag">Illustrative</span>
       </div>
       <div className="certificate-title">
         <h3>{basket.name}</h3>
-        <span className="mono muted">#{basket.id}</span>
+        <span className="certificate-serial mono">No. {basket.id}</span>
       </div>
+      <p className="certificate-thesis">{basket.thesis} · {basket.character}</p>
       {hero && (
         <PortfolioAssembly basket={basket} animateIntro={intro && !reduced} />
       )}
       <div className="certificate-value">
+        <Rosette className="certificate-rosette" />
         <span className="eyebrow">Example portfolio value</span>
         <strong>
           <NavNumber value={basket.nav} />
@@ -138,6 +142,8 @@ export function Certificate({
           <AssetLabel key={h.ticker} ticker={h.ticker} compact />
         ))}
       </div>
+      <Microtext text={`BANDA ${basket.name} ONE TOKEN WHOLE PORTFOLIO`} />
+      <WaveBand className="certificate-wave" />
     </div>
   );
 }

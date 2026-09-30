@@ -3,12 +3,19 @@ import Link from "next/link";
 import { useWallet } from "@/components/wallet";
 import { LiveChainStatus } from "@/components/live-chain-status";
 import { RedeemPanel } from "@/components/redeem-panel";
+import { Rosette, WaveBand } from "@/components/guilloche";
 export default function Portfolio() {
   const wallet = useWallet();
   return (
-    <main className="portfolio wrap" id="main">
-      <span className="section-index">YOUR ACCOUNT</span>
-      <h1>Held together.</h1>
+    <main id="main">
+      <section className="detail-note">
+        <Rosette className="hero-rosette" />
+        <div className="wrap detail-hero">
+          <h1>Your Baskets.</h1>
+          <p>Every Basket NFT this wallet owns, read live from Robinhood Chain testnet.</p>
+        </div>
+      </section>
+      <div className="portfolio wrap">
       {!wallet.connected ? (
         <p>
           Connect your wallet to explore your portfolio.{" "}
@@ -64,7 +71,6 @@ export default function Portfolio() {
           </div>
           {wallet.positions.length === 0 ? (
             <div className="portfolio-empty">
-              <span className="eyebrow">LIVE TESTNET STATE</span>
               <h2>No active Baskets.</h2>
               <p>
                 This wallet currently owns no Banda Basket NFTs. Fully redeemed
@@ -77,8 +83,13 @@ export default function Portfolio() {
           ) : (
             <div className="portfolio-list">
               {wallet.positions.map((p) => (
-                <article className="portfolio-item" key={p.tokenId}>
-                  <span className="eyebrow">BASKET NFT #{p.tokenId}</span>
+                <article className="portfolio-item certificate" key={p.tokenId}>
+                  <WaveBand className="certificate-wave" />
+                  <div className="portfolio-item-body">
+                  <div className="portfolio-item-head">
+                    <span className="certificate-kind">Basket certificate</span>
+                    <span className="certificate-serial mono">No. {p.tokenId}</span>
+                  </div>
                   <h2>{p.name}</h2>
                   <p>
                     <span className="mono">{p.displayShares}</span> strategy
@@ -95,6 +106,7 @@ export default function Portfolio() {
                     <RedeemPanel position={p} />
                     </>
                   ) : null}
+                  </div>
                 </article>
               ))}
             </div>
@@ -107,6 +119,7 @@ export default function Portfolio() {
         your private key.
       </p>
       <LiveChainStatus />
+      </div>
     </main>
   );
 }

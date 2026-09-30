@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { Manrope, Geist_Mono } from "next/font/google";
+import { Archivo, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Header, Footer } from "@/components/shell";
 import "./globals.css";
-const sans = Manrope({ subsets: ["latin"], variable: "--font-sans" });
+const sans = Archivo({ subsets: ["latin"], axes: ["wdth"], variable: "--font-sans" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 export const metadata: Metadata = {
-  title: "Banda | Your DeFi portfolio. Simpler to manage.",
+  title: "Banda | A managed portfolio you own as a single token",
   description:
-    "A simpler way to own and manage a DeFi portfolio. Explore basket strategies, understand their costs and risks, and explore your portfolio in one place.",
+    "Choose a Basket of tokenized stocks, crypto, gold and DeFi yield. Deposit USDG on Robinhood Chain and hold the whole portfolio as one NFT.",
 };
 export default function RootLayout({
   children,

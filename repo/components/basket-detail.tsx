@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BASKETS, type Basket, money } from "@/constants/baskets";
 import { useWallet } from "./wallet";
 import { NavNumber } from "./certificate";
+import { Rosette, WaveBand } from "./guilloche";
 import { BasketExplorer } from "./basket-explorer";
 export function BasketDetail({ basket }: { basket: Basket }) {
   const wallet = useWallet();
@@ -12,42 +13,39 @@ export function BasketDetail({ basket }: { basket: Basket }) {
   const value = Number(amount);
   const valid = Number.isFinite(value) && value > 0 && value <= wallet.balance;
   return (
-    <main id="main" className="detail wrap">
-      <Link className="breadcrumb" href="/#baskets">
-        ← All baskets
-      </Link>
-      <div className="detail-intro">
-        <div>
-          <span className="eyebrow">
-            {basket.thesis} · {basket.character}
-          </span>
-          <h1>{basket.name}</h1>
-          <p>{basket.mandate}</p>
+    <main id="main">
+      <section className="detail-note">
+        <Rosette className="hero-rosette" />
+        <div className="wrap detail-hero">
+          <Link className="breadcrumb" href="/#baskets">
+            ← All Baskets
+          </Link>
+          <div className="detail-intro">
+            <div>
+              <span className="certificate-serial mono">No. {basket.id}</span>
+              <h1>{basket.name}</h1>
+              <p className="detail-thesis">{basket.thesis} · {basket.character}</p>
+              <p>{basket.mandate}</p>
+            </div>
+            <div className="detail-value">
+              <span>Example portfolio value</span>
+              <strong className="detail-nav">
+                <NavNumber value={basket.nav} />
+              </strong>
+              <details className="valuation-details">
+                <summary>About this value</summary>
+                <p>
+                  Illustrative value, not a live price. Example block{" "}
+                  <span className="mono">{basket.block.toLocaleString("en-US")}</span>.
+                </p>
+              </details>
+            </div>
+          </div>
         </div>
-        <span className="example-tag">Illustrative data</span>
-      </div>
+      </section>
+      <div className="detail wrap">
       <div className="detail-layout">
         <div className="detail-content">
-          <div className="detail-value-summary">
-            <div>
-              <span className="eyebrow">Example portfolio value</span>
-              <div className="detail-nav">
-                <NavNumber value={basket.nav} />
-              </div>
-            </div>
-            <details className="valuation-details">
-              <summary>About this value</summary>
-              <p>
-                Illustrative value, not a live price.
-                <br />
-                Example block{" "}
-                <span className="mono">
-                  {basket.block.toLocaleString("en-US")}
-                </span>
-                .
-              </p>
-            </details>
-          </div>
           <BasketExplorer basket={basket} />
         </div>
         <form
@@ -72,8 +70,10 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             }
           }}
         >
-          <h2>Your portfolio starts here.</h2>
-          <p>Choose an amount. See your allocation across this strategy.</p>
+          <WaveBand className="terms-wave" />
+          <span className="certificate-kind">Subscription</span>
+          <h2>Buy {basket.name}</h2>
+          <p>Choose an amount in USDG. You receive one Basket NFT that holds the whole mix.</p>
           <label htmlFor="amount">Amount in USDG</label>
           <input
             id="amount"
@@ -128,8 +128,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             <span className="mono">{basket.managementFee}% / year</span>
           </div>
           <p>
-            Management fee for this mandate. No performance fee in the MVP. Fee
-            accrual is not implemented in this local demonstration.
+            No performance fee. Fee accrual is not yet implemented on testnet.
           </p>
           <button
             className="primary-button"
@@ -147,7 +146,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
                   : wallet.transactionStatus === "success"
                     ? "Deposit confirmed"
                     : "Deposit now"}{" "}
-            <span aria-hidden="true">↗</span>
+            <span aria-hidden="true">→</span>
           </button>
           {wallet.connected && value > wallet.balance && (
             <p role="alert">Amount exceeds your available balance.</p>
@@ -168,6 +167,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             wallet confirmations: USDG approval, then the Basket deposit.
           </p>
         </form>
+      </div>
       </div>
     </main>
   );

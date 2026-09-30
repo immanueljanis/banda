@@ -35,7 +35,8 @@ export function Header() {
     localStorage.setItem("banda-theme", next ? "dark" : "light");
   }
   return (
-    <header className="header wrap">
+    <header className="site-header">
+      <div className="header wrap">
       <Link href="/" className="wordmark" aria-label="Banda home">
         <Mark />
         banda<span className="wordmark-dot">.</span>
@@ -75,6 +76,7 @@ export function Header() {
         )}
         {wallet.error ? <span className="wallet-error" role="status">{wallet.error}</span> : null}
       </div>
+      </div>
     </header>
   );
 }
@@ -86,7 +88,7 @@ export function Footer() {
           <Mark />
           banda.
         </Link>
-        <p>Your DeFi portfolio. Simpler to manage.</p>
+        <p>A managed portfolio you own as a single token.</p>
       </div>
       <div className="footer-links">
         <Link href="/#baskets">Explore baskets ↗</Link>
@@ -94,10 +96,11 @@ export function Footer() {
         <Link href="/#fees">Fee structure ↗</Link>
       </div>
       <div className="footer-note">
-        Simpler access to managed DeFi strategies.
+        Running on Robinhood Chain testnet.
         <p>
-          Prototype. Portfolio values are examples; historical comparisons are
-          simulations. No real funds are connected or transacted.
+          Test USDG has no value. Basket values shown on the site are
+          illustrative, historical comparisons are simulations, and testnet
+          payouts use a mock NAV.
         </p>
         <span className="mono">© 2026 Banda</span>
       </div>
