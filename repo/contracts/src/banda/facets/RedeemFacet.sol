@@ -4,12 +4,14 @@ pragma solidity 0.8.30;
 import {IERC20} from "../interfaces/IERC20.sol";
 import {IManagedStrategy} from "../interfaces/IManagedStrategy.sol";
 import {IBasketAccount} from "../interfaces/IBasketAccount.sol";
+import {IBasketHoldings} from "../interfaces/IBasketHoldings.sol";
 import {LibBandaStorage} from "../libraries/LibBandaStorage.sol";
 import {LibNavGuard} from "../libraries/LibNavGuard.sol";
 import {BasketNFTFacet} from "./BasketNFTFacet.sol";
 
 /// @notice Redeems a requested fraction of the basket's strategy shares.
-/// @dev Fees and multi-asset routes belong to their own facets; this is the validated single-strategy lifecycle.
+/// @dev Strategies implementing IBasketHoldings keep tokens in the basket account; their share of those tokens
+///      is moved from the account to the strategy before it redeems. Other strategies keep the original path.
 contract RedeemFacet is BasketNFTFacet {
     uint256 private constant FEE_DENOMINATOR = 365 days * 10_000;
 
@@ -36,6 +38,7 @@ contract RedeemFacet is BasketNFTFacet {
         uint256 fee = shares == b.shares ? b.feeLiability : uint256(b.feeLiability) * shares / b.shares;
         IERC20 settlement = IERC20(s.settlement);
         uint256 beforeBalance = settlement.balanceOf(address(this));
+        _moveHoldings(strategy, b.account, shares);
         IBasketAccount(b.account)
             .execute(strategy, 0, abi.encodeCall(IManagedStrategy.redeem, (shares, address(this), b.account)));
         assets = settlement.balanceOf(address(this)) - beforeBalance;
@@ -69,6 +72,20 @@ contract RedeemFacet is BasketNFTFacet {
         fee = shares == b.shares ? liability : liability * shares / b.shares;
         require(grossAssets >= fee, "Banda: fee exceeds proceeds");
         netAssets = grossAssets - fee;
+    }
+
+    function _moveHoldings(address strategy, address account, uint256 shares) private {
+        try IBasketHoldings(strategy).holdingsFor(account, shares) returns (
+            address[] memory tokens, uint256[] memory amounts
+        ) {
+            require(tokens.length == amounts.length, "Banda: holdings mismatch");
+            for (uint256 i; i < tokens.length; ++i) {
+                if (amounts[i] == 0) continue;
+                bytes memory result =
+                    IBasketAccount(account).execute(tokens[i], 0, abi.encodeCall(IERC20.transfer, (strategy, amounts[i])));
+                require(result.length == 0 || abi.decode(result, (bool)), "Banda: holding transfer failed");
+            }
+        } catch {}
     }
 
     function _checkpointFee(LibBandaStorage.Basket storage b, LibBandaStorage.StrategyConfig storage config) private {
