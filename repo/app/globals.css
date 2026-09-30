@@ -2271,6 +2271,28 @@ h1 > span {
   border: 1px solid color-mix(in oklch, var(--gold-ink) 40%, transparent);
   pointer-events: none;
 }
+.terms-seal {
+  display: block;
+  width: 132px;
+  margin-bottom: 28px;
+  color: var(--gold-ink);
+  font-family: var(--font-sans), sans-serif;
+  rotate: -10deg;
+}
+#fees-title {
+  font-size: clamp(34px, 4vw, 56px);
+}
+#fees-title span {
+  display: block;
+}
+.fee-table td {
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .terms-seal {
+    width: 104px;
+  }
+}
 .terms-wave {
   display: block;
   width: 100%;

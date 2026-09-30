@@ -81,8 +81,9 @@ export default function Docs() {
             diversified and defensive Baskets and{" "}
             <span className="mono">2%</span> for thematic and active Baskets,
             reflected in the Basket’s value. There is no performance fee, and
-            buying or withdrawing costs <span className="mono">0%</span>. Fee
-            accrual is not yet implemented on testnet.
+            buying or withdrawing costs <span className="mono">0%</span>. The
+            management fee accrues onchain by the second and is collected only
+            when you redeem, so the redemption preview always shows it first.
           </p>
         </section>
         <section>

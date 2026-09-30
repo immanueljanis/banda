@@ -64,6 +64,24 @@ export function WaveBand({ className }: { className?: string }) {
   );
 }
 
+/** Embossed stamp with a microprinted ring; `label` repeats around the edge, `value` sits in the centre. */
+export function Seal({ label, value, className }: { label: string; value: string; className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 160 160" aria-hidden="true">
+      <defs>
+        <path id="seal-ring" d="M80 80m-58 0a58 58 0 1 1 116 0a58 58 0 1 1-116 0" />
+      </defs>
+      <circle cx="80" cy="80" r="76" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="80" cy="80" r="70" fill="none" stroke="currentColor" strokeWidth="0.6" strokeDasharray="1.5 2.5" />
+      <circle cx="80" cy="80" r="46" fill="none" stroke="currentColor" strokeWidth="1" />
+      <text fontSize="9.5" fontWeight="700" letterSpacing="2.6" fill="currentColor">
+        <textPath href="#seal-ring">{`${label} · ${label} · `}</textPath>
+      </text>
+      <text x="80" y="92" textAnchor="middle" fontSize="36" fontWeight="700" fill="currentColor">{value}</text>
+    </svg>
+  );
+}
+
 /** Repeated microprint line; decorative, so hidden from assistive technology. */
 export function Microtext({ text, className }: { text: string; className?: string }) {
   return (

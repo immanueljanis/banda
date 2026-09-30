@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BASKETS, money } from "@/constants/baskets";
 import { AssetLabel, AssetLogo } from "@/components/asset-label";
 import { Certificate, Sparkline } from "@/components/certificate";
-import { Microtext, Rosette, WaveBand } from "@/components/guilloche";
+import { Microtext, Rosette, Seal, WaveBand } from "@/components/guilloche";
 import { yieldAssets, yieldWeight } from "@/lib/yields";
 
 const SPECIMEN = BASKETS[0];
@@ -162,8 +162,15 @@ export default function Home() {
 
       <section className="terms wrap" id="fees" aria-labelledby="fees-title">
         <div className="terms-copy">
-          <h2 id="fees-title">The terms, printed plainly.</h2>
-          <p>One annual management fee, reflected in the Basket’s value. Nothing charged to enter or leave.</p>
+          <Seal className="terms-seal" label="NO ENTRY FEE · NO EXIT FEE" value="0%" />
+          <h2 id="fees-title">
+            <span>0% to buy.</span> <span>0% to withdraw.</span>
+          </h2>
+          <p>
+            No entry fee, no exit fee and no performance fee. One management
+            fee of 1% or 2% a year accrues onchain by the second, and your
+            redemption preview shows it before you sign.
+          </p>
           <Link className="text-link" href="/docs">
             Read the methodology <span aria-hidden="true">→</span>
           </Link>
@@ -173,16 +180,17 @@ export default function Home() {
           <table className="fee-table">
             <caption className="sr-only">Banda fees</caption>
             <tbody>
-              <tr><th>Diversified and defensive Baskets</th><td><span className="mono">1%</span><span className="muted"> a year</span></td></tr>
-              <tr><th>Thematic and active Baskets</th><td><span className="mono">2%</span><span className="muted"> a year</span></td></tr>
-              <tr><th>Performance fee</th><td>None</td></tr>
               <tr><th>Buy</th><td className="mono">0%</td></tr>
               <tr><th>Withdraw</th><td className="mono">0%</td></tr>
+              <tr><th>Performance fee</th><td>None</td></tr>
+              <tr><th>Management, diversified and defensive Baskets</th><td><span className="mono">1%</span><span className="muted"> a year</span></td></tr>
+              <tr><th>Management, thematic and active Baskets</th><td><span className="mono">2%</span><span className="muted"> a year</span></td></tr>
             </tbody>
           </table>
           <p className="fee-note">
-            Fee accrual is not yet implemented on testnet. Values shown on this
-            page are illustrative, and testnet payouts use a mock NAV.
+            The management fee accrues per second and is collected only when you
+            redeem. Basket values on this page are illustrative, and testnet
+            payouts use a mock NAV.
           </p>
         </div>
       </section>

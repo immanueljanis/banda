@@ -117,7 +117,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             <span className="mono">{basket.managementFee}% / year</span>
           </div>
           <p>
-            No performance fee. Fee accrual is not yet implemented on testnet.
+            No entry, exit or performance fee. The management fee accrues by the second and appears in your redemption preview.
           </p>
           <button
             className="primary-button"
