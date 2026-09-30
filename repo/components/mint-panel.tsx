@@ -2,13 +2,10 @@
 import { useState } from "react";
 import { useWallet } from "./wallet";
 import { WaveBand } from "./guilloche";
-import { ROBINHOOD_TESTNET } from "@/lib/chain/config";
 
 export function MintPanel() {
   const wallet = useWallet();
   const [amount, setAmount] = useState("100");
-  const [hash, setHash] = useState("");
-  const [message, setMessage] = useState("");
   const busy = ["preparing", "signing", "confirming"].includes(wallet.transactionStatus);
   return (
     <form
@@ -19,15 +16,7 @@ export function MintPanel() {
           wallet.connect();
           return;
         }
-        setHash("");
-        setMessage("");
-        try {
-          const result = await wallet.mintTestUsdg(amount);
-          setHash(result);
-          setMessage(`Minted ${amount} test USDG.`);
-        } catch (reason) {
-          setMessage(reason instanceof Error ? reason.message : "Mint failed");
-        }
+        await wallet.mintTestUsdg(amount).catch(() => undefined);
       }}
     >
       <WaveBand className="terms-wave" />
@@ -45,7 +34,6 @@ export function MintPanel() {
         value={amount}
         onChange={(event) => {
           setAmount(event.target.value);
-          setMessage("");
         }}
         required
       />
@@ -73,17 +61,6 @@ export function MintPanel() {
                 : `Mint ${Number(amount || 0).toLocaleString("en-US")} test USDG`}{" "}
         <span aria-hidden="true">→</span>
       </button>
-      <div className="status" role="status">
-        {message}
-        {hash && (
-          <>
-            {" "}
-            <a className="empty-link" href={`${ROBINHOOD_TESTNET.explorer}/tx/${hash}`} target="_blank" rel="noreferrer">
-              View transaction ↗
-            </a>
-          </>
-        )}
-      </div>
     </form>
   );
 }

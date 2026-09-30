@@ -9,7 +9,6 @@ import { BasketExplorer } from "./basket-explorer";
 export function BasketDetail({ basket }: { basket: Basket }) {
   const wallet = useWallet();
   const [amount, setAmount] = useState("500");
-  const [message, setMessage] = useState("");
   const value = Number(amount);
   const valid = Number.isFinite(value) && value > 0 && value <= wallet.balance;
   return (
@@ -57,16 +56,8 @@ export function BasketDetail({ basket }: { basket: Basket }) {
               return;
             }
             if (valid) {
-              setMessage("Checking your balance and preparing the testnet quote…");
-              try {
-                const strategyId = BASKETS.findIndex((entry) => entry.slug === basket.slug) + 1;
-                const hash = await wallet.deposit(strategyId, amount);
-                setMessage(`Deposit confirmed: ${hash.slice(0, 10)}…`);
-              } catch (reason) {
-                setMessage(
-                  reason instanceof Error ? reason.message : "Deposit failed",
-                );
-              }
+              const strategyId = BASKETS.findIndex((entry) => entry.slug === basket.slug) + 1;
+              await wallet.deposit(strategyId, amount).catch(() => undefined);
             }
           }}
         >
@@ -84,7 +75,6 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             value={amount}
             onChange={(e) => {
               setAmount(e.target.value);
-              setMessage("");
             }}
             required
           />
@@ -95,7 +85,6 @@ export function BasketDetail({ basket }: { basket: Basket }) {
                 key={n}
                 onClick={() => {
                   setAmount(String(n));
-                  setMessage("");
                 }}
               >
                 ${n}
@@ -151,17 +140,6 @@ export function BasketDetail({ basket }: { basket: Basket }) {
           {wallet.connected && value > wallet.balance && (
             <p role="alert">Amount exceeds your available balance.</p>
           )}
-          <div className="status" role="status">
-            {message}
-            {message && (
-              <>
-                <br />
-                <Link className="empty-link" href="/portfolio">
-                  View portfolio →
-                </Link>
-              </>
-            )}
-          </div>
           <p>
             Balance and transactions use Robinhood testnet. Deposit requires two
             wallet confirmations: USDG approval, then the Basket deposit.

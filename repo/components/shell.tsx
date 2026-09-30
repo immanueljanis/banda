@@ -74,7 +74,6 @@ export function Header() {
             {wallet.connecting ? "Opening login…" : "Connect wallet"} <span aria-hidden="true">↗</span>
           </button>
         )}
-        {wallet.error ? <span className="wallet-error" role="status">{wallet.error}</span> : null}
       </div>
       </div>
     </header>

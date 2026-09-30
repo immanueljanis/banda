@@ -8,7 +8,7 @@
     "build": "next build",
     "assets:logos": "node scripts/fetch-asset-logos.mjs",
     "start": "next start --hostname 0.0.0.0",
-    "check": "node --test scripts/validation/nav.test.mjs scripts/validation/market-registry.test.mjs scripts/validation/nav-updater.test.mjs scripts/validation/nav-demand.test.mjs && forge test --root contracts --match-contract Banda && tsc --noEmit && next build",
+    "check": "node --test scripts/validation/nav.test.mjs scripts/validation/market-registry.test.mjs scripts/validation/nav-updater.test.mjs scripts/validation/nav-demand.test.mjs scripts/validation/friendly-error.test.mjs && forge test --root contracts --match-contract Banda && tsc --noEmit && next build",
     "nav:check": "node scripts/nav-updater.mjs --once",
     "nav:worker": "node scripts/nav-updater.mjs --broadcast",
     "validate:identity": "python scripts/validation/research-network.py",

@@ -23,6 +23,8 @@ import {
 } from "viem";
 import { BASKETS } from "@/constants/baskets";
 import { ROBINHOOD_TESTNET } from "@/lib/chain/config";
+import { CANCELLED, friendlyError } from "@/lib/friendly-error";
+import { useToast } from "./toast";
 
 export type WalletPosition = {
   tokenId: string;
@@ -133,6 +135,15 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     useState<Wallet["portfolioStatus"]>("idle");
   const [transactionStatus, setTransactionStatus] =
     useState<Wallet["transactionStatus"]>("idle");
+  const toast = useToast();
+  const explorerAction = (hash: Hash) => ({ label: "View transaction", href: `${ROBINHOOD_TESTNET.explorer}/tx/${hash}`, external: true });
+  const fail = (title: string, reason: unknown) => {
+    const message = friendlyError(reason);
+    setTransactionStatus("error");
+    setError(message);
+    toast(message === CANCELLED ? { tone: "info", title: "Cancelled", description: message } : { tone: "error", title, description: message });
+    return new Error(message);
+  };
 
   const activeWallet = useMemo(() => {
     const external = wallets
@@ -153,7 +164,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       cache: "no-store",
       signal: AbortSignal.timeout(180_000),
     });
-    const result = await response.json();
+    const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.message || "Quote preparation is unavailable. Please retry later.");
   }, [getAccessToken]);
 
@@ -196,9 +207,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         if (reason instanceof DOMException && reason.name === "AbortError") return;
         setPortfolio(undefined);
         setPortfolioStatus("error");
-        setError(
-          reason instanceof Error ? reason.message : "Live portfolio unavailable",
-        );
+        setError(friendlyError(reason, "Live portfolio unavailable. Please try again."));
       }
     },
     [address, authenticated],
@@ -240,9 +249,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     try {
       await login();
     } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : "Wallet login failed",
-      );
+      const message = friendlyError(reason, "Sign-in did not complete. Please try again.");
+      setError(message);
+      toast({ tone: "error", title: "Sign-in did not complete", description: message });
     } finally {
       setConnecting(false);
     }
@@ -308,13 +317,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const depositReceipt = await receiptClient.waitForTransactionReceipt({ hash: depositHash });
       if (depositReceipt.status !== "success") throw new Error("Deposit reverted. No Basket was created.");
       setTransactionStatus("success");
+      toast({ tone: "success", title: "Basket deposit confirmed", description: `${amount} USDG is now held in your Basket.`, action: { label: "View portfolio", href: "/portfolio" } });
       await loadPortfolio();
       return depositHash;
     } catch (reason) {
-      setTransactionStatus("error");
-      const message = reason instanceof Error ? reason.message : "Transaction failed";
-      setError(message);
-      throw new Error(message);
+      throw fail("Deposit didn’t go through", reason);
     } finally {
       transactionLock.current = false;
     }
@@ -366,13 +373,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const receipt = await receiptClient.waitForTransactionReceipt({ hash });
       if (receipt.status !== "success") throw new Error("Redemption reverted. Your Basket was not redeemed.");
       setTransactionStatus("success");
+      toast({ tone: "success", title: "Redemption confirmed", description: "USDG was sent to your wallet.", action: explorerAction(hash) });
       await loadPortfolio();
       return hash;
     } catch (reason) {
-      setTransactionStatus("error");
-      const message = reason instanceof Error ? reason.message : "Redemption failed";
-      setError(message);
-      throw new Error(message);
+      throw fail("Redemption didn’t go through", reason);
     } finally {
       transactionLock.current = false;
     }
@@ -401,13 +406,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const receipt = await receiptClient.waitForTransactionReceipt({ hash });
       if (receipt.status !== "success") throw new Error("Mint reverted. No test USDG was created.");
       setTransactionStatus("success");
+      toast({ tone: "success", title: `${Number(amount).toLocaleString("en-US")} test USDG minted`, description: "It is ready to deposit.", action: explorerAction(hash) });
       await loadPortfolio();
       return hash;
     } catch (reason) {
-      setTransactionStatus("error");
-      const message = reason instanceof Error ? reason.message : "Mint failed";
-      setError(message);
-      throw new Error(message);
+      throw fail("Mint didn’t go through", reason);
     } finally {
       transactionLock.current = false;
     }
