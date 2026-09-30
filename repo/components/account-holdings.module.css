@@ -1,0 +1,56 @@
+.holdings {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.head a {
+  color: var(--accent);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.list li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding-block: 9px;
+  border-bottom: 1px dashed var(--rule-strong);
+}
+.list li :global(.asset-logo) {
+  width: 26px;
+  height: 26px;
+}
+.name strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.name small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.canonical {
+  color: var(--accent) !important;
+}
+.amount {
+  font-size: 14px;
+}
+.note {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}

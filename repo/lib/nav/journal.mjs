@@ -29,7 +29,7 @@ export async function withJournal(directory, run, now = Date.now) {
       state = { attempts: [], pending: null };
     }
     if (!Array.isArray(state.attempts) || state.attempts.some(item =>
-      !Number.isSafeInteger(item.at) || item.at > now() || !Number.isInteger(item.strategyId) || item.strategyId < 1 || item.strategyId > 5)) {
+      !Number.isSafeInteger(item.at) || item.at > now() || !Number.isInteger(item.strategyId) || item.strategyId < 1 || item.strategyId > 10)) {
       throw new NavError("JOURNAL_INVALID", "Quote update history needs operator review.");
     }
     if (state.pending) {

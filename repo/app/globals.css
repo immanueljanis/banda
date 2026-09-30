@@ -295,15 +295,6 @@ input[inputmode="decimal"] {
   padding: 0;
 }
 
-.network-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex: none;
-}
-
 h1 {
   font-size: clamp(38px, 4.6vw, 64px);
   line-height: 1.04;
@@ -472,14 +463,14 @@ h1 > span {
 .portfolio-assembly {
   position: relative;
   border-bottom: 1px solid var(--rule);
-  margin-bottom: 20px;
+  margin: 10px 0 14px;
 }
 .assembly-scene {
-  width: 300px;
+  width: 260px;
   max-width: 100%;
-  height: 180px;
+  height: 150px;
   position: relative;
-  margin: 0 auto 15px;
+  margin: 0 auto 10px;
 }
 .assembly-paths {
   position: absolute;
@@ -491,9 +482,9 @@ h1 > span {
   position: absolute;
   top: 50%;
   left: 50%;
-  margin: -30px 0 0 -38px;
-  width: 76px;
-  height: 60px;
+  margin: -26px 0 0 -34px;
+  width: 68px;
+  height: 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -509,9 +500,9 @@ h1 > span {
 }
 .assembly-asset {
   position: absolute;
-  margin: -22px 0 0 -29px;
-  width: 58px;
-  height: 44px;
+  margin: -19px 0 0 -27px;
+  width: 54px;
+  height: 38px;
   display: flex;
   gap: 5px;
   align-items: center;
@@ -521,8 +512,8 @@ h1 > span {
   border-radius: 4px;
 }
 .assembly-asset .asset-logo {
-  width: 25px;
-  height: 25px;
+  width: 21px;
+  height: 21px;
 }
 .assembly-asset span {
   font-size: 11px;
@@ -1799,40 +1790,19 @@ h1 > span {
 }
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: clamp(40px, 6vw, 96px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+  gap: clamp(40px, 5vw, 80px);
   align-items: center;
-  padding-block: clamp(40px, 5vw, 72px) clamp(36px, 4vw, 56px);
+  padding-block: clamp(36px, 4.5vw, 64px) clamp(32px, 3.5vw, 48px);
 }
 .hero h1 {
   max-width: 15ch;
   color: var(--on-note);
   animation: rise 0.9s var(--ease-out) 0.05s both;
 }
-.hero-network {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 30px;
-  padding: 7px 14px;
-  border: 1px solid color-mix(in oklch, var(--on-note) 26%, transparent);
-  border-radius: 999px;
-  color: var(--on-note-muted);
-  font-size: 14px;
-  animation: rise 0.9s var(--ease-out) both;
-}
-.network-dot {
-  display: inline-block;
-  flex: none;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: oklch(0.82 0.16 150);
-  box-shadow: 0 0 0 4px color-mix(in oklch, oklch(0.82 0.16 150) 22%, transparent);
-}
 .hero-lede {
   max-width: 44ch;
-  margin-top: 30px;
+  margin-top: 24px;
   color: var(--on-note-muted);
   font-size: clamp(17px, 1.35vw, 20px);
   line-height: 1.6;
@@ -1843,8 +1813,62 @@ h1 > span {
   flex-wrap: wrap;
   align-items: center;
   gap: 18px 30px;
-  margin-top: 40px;
+  margin-top: 32px;
   animation: rise 0.9s var(--ease-out) 0.25s both;
+}
+.hero-engines {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 600px;
+  margin: 28px 0 0;
+  border: 1px solid color-mix(in oklch, var(--on-note) 22%, transparent);
+  animation: rise 0.9s var(--ease-out) 0.2s both;
+}
+.hero-engines > div {
+  position: relative;
+  padding: 16px 20px 18px;
+}
+.hero-engines > div + div {
+  border-left: 1px solid color-mix(in oklch, var(--on-note) 22%, transparent);
+}
+.hero-engines > div + div::before {
+  content: "+";
+  position: absolute;
+  top: 50%;
+  left: -12px;
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  translate: 0 -50%;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  background: var(--note);
+  color: var(--gold);
+  font-size: 15px;
+  line-height: 1;
+}
+.hero-engines dt {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--on-note);
+  font-size: 13px;
+  font-weight: 700;
+  font-stretch: 125%;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.hero-engines dt i {
+  width: 9px;
+  height: 9px;
+  border-radius: 1px;
+}
+.hero-engines dd {
+  margin: 8px 0 0;
+  color: var(--on-note-muted);
+  font-size: 15px;
+  line-height: 1.5;
 }
 .hero-actions .text-link {
   color: var(--on-note);
@@ -1854,7 +1878,7 @@ h1 > span {
 }
 .hero-object {
   justify-self: end;
-  width: min(100%, 500px);
+  width: min(100%, 400px);
   animation: settle 1.2s var(--ease-out) 0.2s both;
 }
 .hero-terms {
@@ -1900,6 +1924,67 @@ h1 > span {
 }
 .hero-certificate:hover {
   rotate: 0deg;
+}
+.hero-certificate .certificate-wave {
+  height: 12px;
+  margin-top: 11px;
+}
+.hero-certificate > .certificate-wave:last-child {
+  margin-bottom: 11px;
+}
+.hero-certificate .certificate-top {
+  padding: 10px 22px;
+}
+.hero-certificate .certificate-title {
+  padding: 12px 22px 0;
+}
+.hero-certificate .certificate-title h3 {
+  font-size: 28px;
+}
+.hero-certificate .certificate-thesis {
+  padding-inline: 22px;
+  font-size: 13px;
+}
+.hero-certificate .certificate-value {
+  padding: 0 22px;
+}
+.hero-certificate .certificate-value > strong {
+  font-size: 30px;
+  line-height: 1.25;
+}
+.hero-certificate .certificate-rosette {
+  width: 104px;
+}
+.hero-certificate .certificate-allocation {
+  padding: 10px 22px 12px;
+}
+.hero-certificate .allocation {
+  margin: 10px 0 11px;
+}
+.hero-certificate .allocation-legend {
+  gap: 6px;
+}
+.hero-certificate .allocation-legend > div {
+  font-size: 10.5px;
+}
+.hero-certificate .allocation-legend b {
+  font-size: 12px;
+}
+.hero-certificate .microtext {
+  margin-inline: 22px;
+  padding: 6px 0;
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+  .hero-certificate .certificate-allocation > .eyebrow,
+  .hero-certificate .microtext {
+    display: none;
+  }
+}
+.hero-certificate .portfolio-assembly {
+  margin: 6px 0 10px;
+}
+.hero-certificate .assembly-scene {
+  margin-bottom: 4px;
 }
 .certificate-wave {
   display: block;
@@ -2422,6 +2507,18 @@ h1 > span {
   .hero-certificate {
     rotate: 0deg;
   }
+  .hero-engines {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero-engines > div + div {
+    border-left: 0;
+    border-top: 1px solid color-mix(in oklch, var(--on-note) 22%, transparent);
+  }
+  .hero-engines > div + div::before {
+    top: -12px;
+    left: 20px;
+    translate: none;
+  }
   .certificate-title h3 {
     font-size: 28px;
   }
@@ -2634,6 +2731,27 @@ h1 > span {
   position: relative;
   top: auto;
   max-width: 520px;
+}
+.mint-steps {
+  margin: 18px 0 8px;
+  padding-left: 20px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.mint-steps .mono {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+}
+.mint-panel .primary-button {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
+}
+.mint-secondary {
+  display: inline-flex;
+  margin-top: 18px;
 }
 .quick-chips button[aria-pressed="true"] {
   border-color: var(--accent);

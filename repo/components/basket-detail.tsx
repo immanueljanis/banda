@@ -6,6 +6,7 @@ import { useWallet } from "./wallet";
 import { NavNumber } from "./certificate";
 import { Rosette, WaveBand } from "./guilloche";
 import { BasketExplorer } from "./basket-explorer";
+import { STRATEGY_IDS } from "@/lib/chain/config";
 export function BasketDetail({ basket }: { basket: Basket }) {
   const wallet = useWallet();
   const [amount, setAmount] = useState("500");
@@ -56,7 +57,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
               return;
             }
             if (valid) {
-              const strategyId = BASKETS.findIndex((entry) => entry.slug === basket.slug) + 1;
+              const strategyId = STRATEGY_IDS[BASKETS.findIndex((entry) => entry.slug === basket.slug)];
               await wallet.deposit(strategyId, amount).catch(() => undefined);
             }
           }}
@@ -139,8 +140,11 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             <p role="alert">Amount exceeds your available balance.</p>
           )}
           <p>
-            Balance and transactions use Robinhood testnet. Deposit requires two
-            wallet confirmations: USDG approval, then the Basket deposit.
+            Balance and transactions use Robinhood testnet and Paxos testnet USDG.
+            Deposit takes two wallet confirmations: USDG approval, then the Basket
+            deposit. Every holding lands in your Basket’s own account; AMD, TSLA and
+            WETH are canonical testnet tokens, the rest are testnet mocks at fixed
+            snapshot prices.
           </p>
         </form>
       </div>

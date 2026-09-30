@@ -1,9 +1,11 @@
 import { NavError } from "./errors.mjs";
 
+/** Live holding-in-account Baskets. Legacy strategies 1-5 are closed to deposits and hold no positions. */
+export const STRATEGY_IDS = [6, 7, 8, 9, 10];
+
 export function strategyInput(value) {
   if (!value || typeof value !== "object" || Array.isArray(value) ||
-      Object.keys(value).length !== 1 || !Number.isInteger(value.strategyId) ||
-      value.strategyId < 1 || value.strategyId > 5) {
+      Object.keys(value).length !== 1 || !STRATEGY_IDS.includes(value.strategyId)) {
     throw new NavError("BAD_REQUEST", "Select a supported Basket strategy.", 400);
   }
   return value.strategyId;

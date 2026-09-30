@@ -22,9 +22,14 @@ export default function Docs() {
           <h2>What you own</h2>
           <p>
             A Basket is an <span className="mono">ERC-721</span> NFT with its
-            own <span className="mono">ERC-6551</span> account. The account
-            holds the strategy shares for the Basket’s holdings. Transferring
-            the NFT transfers the whole portfolio without selling each holding.
+            own <span className="mono">ERC-6551</span> account, and that account
+            holds every position as a token you can inspect onchain: stocks,
+            crypto, gold and the USDG yield sleeve. Transferring the NFT
+            transfers the whole portfolio without selling each holding. On
+            testnet, AMD, TSLA and WETH are canonical tokens; assets that do not
+            exist on testnet yet are clearly labelled mocks bought at fixed
+            snapshot prices, standing in for the issuer-bridged assets a
+            mainnet gateway would use.
           </p>
         </section>
         <section>
@@ -77,10 +82,9 @@ export default function Docs() {
         <section>
           <h2>Fees</h2>
           <p>
-            Annual management fees are <span className="mono">1%</span> for
-            diversified and defensive Baskets and{" "}
-            <span className="mono">2%</span> for thematic and active Baskets,
-            reflected in the Basket’s value. There is no performance fee, and
+            Every Basket has one annual management fee of{" "}
+            <span className="mono">0.25%</span>, fixed onchain for the life of
+            the Basket and reflected in the Basket’s value. There is no performance fee, and
             buying or withdrawing costs <span className="mono">0%</span>. The
             management fee accrues onchain by the second and is collected only
             when you redeem, so the redemption preview always shows it first.

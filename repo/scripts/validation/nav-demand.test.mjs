@@ -117,10 +117,10 @@ test("a failed request does not poison the signer queue", async () => {
 });
 
 test("request schema rejects arbitrary addresses, prices and invalid strategy IDs", () => {
-  for (const value of [null, [], { strategyId: 0 }, { strategyId: 6 }, { strategyId: "1" }, { strategyId: 1.5 }, { strategyId: 1, price: "1" }]) {
+  for (const value of [null, [], { strategyId: 0 }, { strategyId: 5 }, { strategyId: 11 }, { strategyId: "6" }, { strategyId: 6.5 }, { strategyId: 6, price: "1" }]) {
     assert.throws(() => strategyInput(value), { code: "BAD_REQUEST" });
   }
-  assert.equal(strategyInput({ strategyId: 5 }), 5);
+  assert.equal(strategyInput({ strategyId: 10 }), 10);
 });
 
 test("per-user and global limits expire without an unbounded identity map", () => {
@@ -210,21 +210,21 @@ test("authenticated endpoint executes the lifecycle and redacts unexpected trans
   const deniedPreflight = await preflight("https://evil.test");
   assert.equal(deniedPreflight.status, 403);
   assert.equal(deniedPreflight.headers.get("access-control-allow-origin"), null);
-  const evil = await handler(request('{"strategyId":1}', "https://evil.test"));
+  const evil = await handler(request('{"strategyId":6}', "https://evil.test"));
   assert.equal(evil.status, 403);
   assert.equal(evil.headers.get("access-control-allow-origin"), null);
-  const unauthorized = await handler(request('{"strategyId":1}', "https://banda.test", "Bearer invalid"));
+  const unauthorized = await handler(request('{"strategyId":6}', "https://banda.test", "Bearer invalid"));
   assert.equal(unauthorized.headers.get("access-control-allow-origin"), "https://banda.test");
-  assert.equal((await handler(request('{"strategyId":1}', "https://banda.test", "Bearer invalid"))).status, 401);
-  assert.equal((await handler(request('{"strategyId":1,"price":1}'))).status, 400);
+  assert.equal((await handler(request('{"strategyId":6}', "https://banda.test", "Bearer invalid"))).status, 401);
+  assert.equal((await handler(request('{"strategyId":6,"price":1}'))).status, 400);
   assert.equal((await handler(request(" ".repeat(257)))).status, 413);
   assert.equal(f.events.length, 0);
-  const response = await handler(request('{"strategyId":1}'));
+  const response = await handler(request('{"strategyId":6}'));
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("access-control-allow-origin"), "https://banda.test");
   assert.equal((await response.json()).status, "refreshed");
   f.chain.chainId = async () => { throw Error("https://private.rpc/credential"); };
-  const failed = await handler(request('{"strategyId":1}'));
+  const failed = await handler(request('{"strategyId":6}'));
   assert.equal(failed.status, 503);
   assert.doesNotMatch(await failed.text(), /credential|private.rpc/);
 });

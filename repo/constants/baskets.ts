@@ -77,7 +77,7 @@ export const BASKETS: Basket[] = [
     nav: 12_480.36,
     change: 8.74,
     block: 63_794_454,
-    managementFee: 2,
+    managementFee: 0.25,
     holdings: [
       {
         ticker: "NVDA",
@@ -133,7 +133,7 @@ export const BASKETS: Basket[] = [
     nav: 10_842.18,
     change: 6.38,
     block: 63_794_454,
-    managementFee: 2,
+    managementFee: 0.25,
     holdings: [
       {
         ticker: "COIN",
@@ -196,7 +196,7 @@ export const BASKETS: Basket[] = [
     nav: 11_294.72,
     change: 4.26,
     block: 63_794_454,
-    managementFee: 1,
+    managementFee: 0.25,
     holdings: [
       {
         ticker: "BTC",
@@ -246,7 +246,7 @@ export const BASKETS: Basket[] = [
     nav: 9_836.54,
     change: 7.92,
     block: 63_794_454,
-    managementFee: 2,
+    managementFee: 0.25,
     holdings: [
       {
         ticker: "QQQ",
@@ -316,7 +316,7 @@ export const BASKETS: Basket[] = [
     nav: 10_618.9,
     change: 3.18,
     block: 63_794_454,
-    managementFee: 1,
+    managementFee: 0.25,
     holdings: [
       {
         ticker: "GLD",

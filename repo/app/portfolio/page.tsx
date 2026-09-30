@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useWallet } from "@/components/wallet";
 import { LiveChainStatus } from "@/components/live-chain-status";
 import { RedeemPanel } from "@/components/redeem-panel";
+import { AccountHoldings } from "@/components/account-holdings";
 import { Rosette, WaveBand } from "@/components/guilloche";
 export default function Portfolio() {
   const wallet = useWallet();
@@ -103,6 +104,7 @@ export default function Portfolio() {
                     <Link className="primary-button" href={`/basket/${p.slug}`}>
                       View Basket ↗
                     </Link>
+                    <AccountHoldings account={p.account} strategyId={p.strategyId} refreshKey={`${p.shares}-${wallet.portfolioBlock ?? ""}`} />
                     <RedeemPanel position={p} />
                     </>
                   ) : null}

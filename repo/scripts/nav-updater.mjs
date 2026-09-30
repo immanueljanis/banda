@@ -48,7 +48,7 @@ async function cycle() {
   const operator = await read(adapter, "updater");
   const owner = await read(adapter, "owner");
   if (account && (account.address.toLowerCase() !== operator.toLowerCase() || account.address.toLowerCase() === owner.toLowerCase())) throw new Error("Use the dedicated operator, never the admin");
-  for (let id = 1; id <= 5 && !stopping; id++) {
+  for (let id = 6; id <= 10 && !stopping; id++) {
     // Never use the L2 RPC number as observedBlock. Pin reads to this same header.
     const header = await publicClient.request({method: "eth_getBlockByNumber", params: ["latest", false]});
     const head = metadata(header);

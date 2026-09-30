@@ -19,7 +19,8 @@ test("wallet rejection becomes a short cancellation without calldata", () => {
 test("contract reverts map to actionable sentences", () => {
   const revert = (reason) => wrapped(new ContractFunctionRevertedError({ abi, functionName: "approve", message: reason }));
   assert.match(friendlyError(revert("Banda: stale NAV")), /price quote expired/);
-  assert.match(friendlyError(revert("ERC20: balance")), /Not enough test USDG/);
+  assert.match(friendlyError(revert("ERC20: balance")), /Not enough USDG.*Paxos faucet/);
+  assert.match(friendlyError(revert("Pool: inventory exhausted")), /out of inventory/);
   assert.match(friendlyError(revert("Banda: minimum payout")), /0\.5%/);
 });
 

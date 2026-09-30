@@ -19,7 +19,8 @@ const REVERTS: [RegExp, string][] = [
   [/basket missing|token missing/, "That Basket no longer exists. It may have been fully redeemed."],
   [/invalid shares|empty redeem/, "Choose an amount of shares to redeem."],
   [/fee exceeds proceeds|fee insolvent/, "That redemption is too small to cover its fee."],
-  [/ERC20: balance/, "Not enough test USDG in this wallet."],
+  [/inventory exhausted/, "One of this Basket’s testnet assets is out of inventory. Try a smaller amount or another Basket."],
+  [/ERC20: balance|transfer amount exceeds balance|insufficient balance/i, "Not enough USDG in this wallet. Get test USDG from the Paxos faucet."],
   [/ERC20: allowance/, "USDG spending was not approved. Please try again and approve the deposit."],
   [/recipient rejected|payout failed|transfer failed/, "The token transfer was rejected. Nothing was changed."],
 ];
