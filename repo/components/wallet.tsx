@@ -117,6 +117,40 @@ const redeemAbi = [
     outputs: [{ name: "assets", type: "uint256" }],
   },
 ] as const;
+const holdingsAbi = parseAbi([
+  "function basket(uint256) view returns (uint32,address,uint128)",
+  "function strategy(uint32) view returns (address,uint96,uint16,address,bool)",
+  "function settlementAsset() view returns (address)",
+  "function holdingsFor(address,uint256) view returns (address[],uint256[])",
+  "function pool() view returns (address)",
+  "function quoteSell(address,uint256) view returns (uint256)",
+]);
+
+type ReadClient = { readContract: (args: never) => Promise<unknown> };
+
+/**
+ * Previews a redemption at market value: the Basket's share of each token its account holds, priced by the
+ * pool it would be sold into, less the onchain management fee. Strategies without account holdings fall back
+ * to the Diamond preview.
+ */
+async function marketPreview(client: ReadClient, tokenId: bigint, shares: bigint): Promise<readonly [bigint, bigint, bigint]> {
+  const read = <T,>(address: Address, functionName: string, args: readonly unknown[] = []) =>
+    client.readContract({ address, abi: [...holdingsAbi, ...redeemAbi], functionName, args } as never) as Promise<T>;
+  const diamond = ROBINHOOD_TESTNET.diamond;
+  const onchain = await read<readonly [bigint, bigint, bigint]>(diamond, "previewRedeem", [tokenId, shares]);
+  const [strategyId, account] = await read<readonly [number, Address, bigint]>(diamond, "basket", [tokenId]);
+  const [strategy] = await read<readonly [Address]>(diamond, "strategy", [strategyId]);
+  const holdings = await read<readonly [readonly Address[], readonly bigint[]]>(strategy, "holdingsFor", [account, shares]).catch(() => null);
+  if (!holdings) return onchain;
+  const [settlement, pool] = await Promise.all([read<Address>(diamond, "settlementAsset"), read<Address>(strategy, "pool")]);
+  const values = await Promise.all(holdings[0].map((token, i) =>
+    token.toLowerCase() === settlement.toLowerCase() || holdings[1][i] === BigInt(0)
+      ? Promise.resolve(holdings[1][i])
+      : read<bigint>(pool, "quoteSell", [token, holdings[1][i]])));
+  const gross = values.reduce((sum, value) => sum + value, BigInt(0));
+  const fee = onchain[1] > gross ? gross : onchain[1];
+  return [gross, fee, gross - fee] as const;
+}
 
 export function FallbackWalletProvider({ children }: { children: ReactNode }) {
   return <Context.Provider value={fallbackValue}>{children}</Context.Provider>;
@@ -330,7 +364,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     const provider = await activeWallet.getEthereumProvider();
     const client = createWalletClient({chain: ROBINHOOD_TESTNET, transport: custom(provider)}).extend(publicActions);
     if (await client.getChainId() !== ROBINHOOD_TESTNET.id) throw new Error("Switch your wallet to Robinhood Chain Testnet to preview.");
-    return client.readContract({address: ROBINHOOD_TESTNET.diamond, abi: redeemAbi, functionName: "previewRedeem", args: [BigInt(tokenId), parseUnits(shares, 6)]});
+    return marketPreview(client, BigInt(tokenId), parseUnits(shares, 6));
   }, [activeWallet]);
 
   async function redeem(tokenId: string, shares: string): Promise<Hash> {
@@ -351,12 +385,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       });
       const receiptClient = client.extend(publicActions);
       await prepareRedemption(tokenId);
-      const preview = await receiptClient.readContract({
-        address: ROBINHOOD_TESTNET.diamond,
-        abi: redeemAbi,
-        functionName: "previewRedeem",
-        args: [BigInt(tokenId), sharesUnits],
-      });
+      const preview = await marketPreview(receiptClient, BigInt(tokenId), sharesUnits);
       const minAssetsOut = (preview[2] * BigInt(995)) / BigInt(1000);
       if (minAssetsOut <= BigInt(0)) throw new Error("Payout is too small");
       await receiptClient.simulateContract({address: ROBINHOOD_TESTNET.diamond, abi: redeemAbi, functionName: "redeem", args: [BigInt(tokenId), sharesUnits, minAssetsOut], account: address as Address});

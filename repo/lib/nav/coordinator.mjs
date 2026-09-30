@@ -1,7 +1,7 @@
 import { NavError } from "./errors.mjs";
 
-/** Live holding-in-account Baskets. Legacy strategies 1-5 are closed to deposits and hold no positions. */
-export const STRATEGY_IDS = [6, 7, 8, 9, 10];
+/** Holding-in-account Baskets: 6-10 at snapshot prices and 11-15 at published market prices. */
+export const STRATEGY_IDS = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
 export function strategyInput(value) {
   if (!value || typeof value !== "object" || Array.isArray(value) ||

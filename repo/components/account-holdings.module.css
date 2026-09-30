@@ -47,7 +47,27 @@
   color: var(--accent) !important;
 }
 .amount {
+  display: grid;
+  justify-items: end;
   font-size: 14px;
+}
+.amount small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.total strong {
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 500;
 }
 .note {
   margin-top: 16px;

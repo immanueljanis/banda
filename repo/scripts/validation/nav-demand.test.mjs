@@ -8,7 +8,7 @@ import { createAuthVerifier } from "../../lib/nav/auth.mjs";
 import { createCoordinator, createLimiter, strategyInput } from "../../lib/nav/coordinator.mjs";
 import { createHandler } from "../../lib/nav/handler.mjs";
 import { withJournal } from "../../lib/nav/journal.mjs";
-import { prepareQuote, ADAPTER } from "../../lib/nav/prepare.mjs";
+import { prepareQuote, preparePrices, ADAPTER } from "../../lib/nav/prepare.mjs";
 
 function fixture(fresh = false) {
   const events = [];
@@ -117,10 +117,10 @@ test("a failed request does not poison the signer queue", async () => {
 });
 
 test("request schema rejects arbitrary addresses, prices and invalid strategy IDs", () => {
-  for (const value of [null, [], { strategyId: 0 }, { strategyId: 5 }, { strategyId: 11 }, { strategyId: "6" }, { strategyId: 6.5 }, { strategyId: 6, price: "1" }]) {
+  for (const value of [null, [], { strategyId: 0 }, { strategyId: 5 }, { strategyId: 16 }, { strategyId: "6" }, { strategyId: 6.5 }, { strategyId: 6, price: "1" }]) {
     assert.throws(() => strategyInput(value), { code: "BAD_REQUEST" });
   }
-  assert.equal(strategyInput({ strategyId: 10 }), 10);
+  assert.equal(strategyInput({ strategyId: 15 }), 15);
 });
 
 test("per-user and global limits expire without an unbounded identity map", () => {
@@ -157,7 +157,8 @@ test("durable cooldown and rolling daily limit survive coordinator restarts", as
   const run = () => withJournal(path, async journal => { await journal.reserve(1); await journal.submitted("0xtx"); await journal.settled(); }, () => now);
   await run();
   await assert.rejects(run(), { code: "COOLDOWN" });
-  for (let n = 1; n < 30; n++) { now += 60_001; await run(); }
+  await withJournal(path, async journal => { await journal.reserve(1, { kind: "prices" }); await journal.settled(); }, () => now);
+  for (let n = 1; n < 119; n++) { now += 60_001; await run(); }
   now += 60_001;
   await assert.rejects(run(), { code: "DAILY_LIMIT" });
   now += 86_400_001;
@@ -227,4 +228,65 @@ test("authenticated endpoint executes the lifecycle and redacts unexpected trans
   const failed = await handler(request('{"strategyId":6}'));
   assert.equal(failed.status, 503);
   assert.doesNotMatch(await failed.text(), /credential|private.rpc/);
+});
+
+function pricedFixture(age = 600n) {
+  const events = [];
+  const legs = () => [
+    { token: "0xnvda", symbol: "NVDA", price: 180_000_000n, updatedAt: 10_000n - age },
+    { token: "0xamd", symbol: "AMD", price: 150_000_000n, updatedAt: 10_000n },
+  ];
+  const state = { legs: legs() };
+  const chain = {
+    signer: "0xoperator",
+    priceSnapshot: async () => ({ updater: "0xoperator", maxAge: 900n, maxDeviationBps: 2_000n, now: 10_000n, legs: state.legs }),
+    simulatePrices: async args => events.push(["simulate", args]),
+    pricesFees: async () => ({ gas: 80_000n, gasPrice: 10_000_000n, balance: 10n ** 18n, pending: 3, mined: 3 }),
+    sendPrices: async (args, fees) => {
+      events.push(["send", args, fees]);
+      state.legs = state.legs.map(leg => ({ ...leg, updatedAt: 10_000n }));
+      return "0xprices";
+    },
+    receipt: async () => ({ status: "success" }),
+  };
+  const journal = {
+    reserve: async (id, details) => events.push(["reserve", id, details.kind]),
+    submitted: async hash => events.push(["submitted", hash]),
+    settled: async () => events.push(["settled"]),
+  };
+  return { chain, journal, events, state };
+}
+
+test("fresh market prices are not republished", async () => {
+  const f = pricedFixture(100n);
+  const fetchPrices = async () => { throw new Error("must not fetch"); };
+  assert.equal((await preparePrices(11, f.chain, f.journal, fetchPrices)).status, "fresh");
+  assert.deepEqual(f.events, []);
+});
+
+test("aging legs are republished once with server-fetched prices only", async () => {
+  const f = pricedFixture();
+  const result = await preparePrices(11, f.chain, f.journal, async symbols => new Map(symbols.map(symbol => [symbol, 186_000_000n])));
+  assert.equal(result.status, "refreshed");
+  assert.deepEqual(f.events.map(event => event[0]), ["simulate", "reserve", "send", "submitted", "settled"]);
+  assert.deepEqual(f.events[2][1], [["0xnvda"], [186_000_000n]]);
+  assert.equal(f.events[1][2], "prices");
+});
+
+test("missing, jumping or unauthorized prices fail before any broadcast", async () => {
+  for (const scenario of ["missing", "jump", "signer"]) {
+    const f = pricedFixture();
+    if (scenario === "signer") f.chain.signer = "0xadmin";
+    const price = scenario === "jump" ? 240_000_000n : 186_000_000n;
+    const fetchPrices = async symbols => new Map(scenario === "missing" ? [] : symbols.map(symbol => [symbol, price]));
+    await assert.rejects(preparePrices(11, f.chain, f.journal, fetchPrices), { code: { missing: "PRICE_UNAVAILABLE", jump: "PRICE_JUMP", signer: "WRONG_SIGNER" }[scenario] });
+    assert.deepEqual(f.events, [], scenario);
+  }
+});
+
+test("snapshot-priced pools are left untouched", async () => {
+  const f = pricedFixture();
+  f.chain.priceSnapshot = async () => null;
+  assert.equal((await preparePrices(6, f.chain, f.journal, async () => new Map())).status, "fixed");
+  assert.deepEqual(f.events, []);
 });

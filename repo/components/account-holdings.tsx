@@ -6,7 +6,7 @@ import { ASSETS } from "@/constants/baskets";
 import { AssetLogo } from "./asset-label";
 import styles from "./account-holdings.module.css";
 
-type Holding = { ticker: string; amount: string };
+type Holding = { ticker: string; amount: string; value?: bigint };
 
 const client = createPublicClient({ chain: ROBINHOOD_TESTNET, transport: http() });
 const abi = parseAbi([
@@ -15,7 +15,11 @@ const abi = parseAbi([
   "function symbol() view returns (string)",
   "function decimals() view returns (uint8)",
   "function balanceOf(address) view returns (uint256)",
+  "function pool() view returns (address)",
+  "function settlementAsset() view returns (address)",
+  "function quoteSell(address,uint256) view returns (uint256)",
 ]);
+const usd = (value: bigint) => Number(formatUnits(value, 6)).toLocaleString("en-US", { style: "currency", currency: "USD" });
 const tickerOf = (symbol: string) => (symbol === "WETH" ? "ETH" : symbol);
 
 /** Reads the tokens a Basket's ERC-6551 account actually holds, straight from the chain. */
@@ -27,6 +31,10 @@ export function AccountHoldings({ account, strategyId, refreshKey }: { account: 
     (async () => {
       const [strategy] = await client.readContract({ address: ROBINHOOD_TESTNET.diamond, abi, functionName: "strategy", args: [strategyId] });
       const [tokens] = await client.readContract({ address: strategy, abi, functionName: "legs" }).catch(() => [[] as readonly Address[]]);
+      const [pool, settlement] = await Promise.all([
+        client.readContract({ address: strategy, abi, functionName: "pool" }).catch(() => undefined),
+        client.readContract({ address: ROBINHOOD_TESTNET.diamond, abi, functionName: "settlementAsset" }),
+      ]);
       const rows = await Promise.all(tokens.map(async (token) => {
         const [symbol, decimals, balance] = await Promise.all([
           client.readContract({ address: token, abi, functionName: "symbol" }),
@@ -34,7 +42,12 @@ export function AccountHoldings({ account, strategyId, refreshKey }: { account: 
           client.readContract({ address: token, abi, functionName: "balanceOf", args: [account as Address] }),
         ]);
         const ticker = tickerOf(symbol);
-        return { ticker, amount: Number(formatUnits(balance, decimals)).toLocaleString("en-US", { maximumSignificantDigits: 6 }) };
+        const value = token.toLowerCase() === settlement.toLowerCase()
+          ? balance
+          : pool && balance > BigInt(0)
+            ? await client.readContract({ address: pool, abi, functionName: "quoteSell", args: [token, balance] }).catch(() => undefined)
+            : BigInt(0);
+        return { ticker, value, amount: Number(formatUnits(balance, decimals)).toLocaleString("en-US", { maximumSignificantDigits: 6 }) };
       }));
       if (!cancelled) setHoldings(rows);
     })().catch(() => { if (!cancelled) setFailed(true); });
@@ -43,6 +56,8 @@ export function AccountHoldings({ account, strategyId, refreshKey }: { account: 
   if (failed) return <p className={styles.note}>Holdings could not be read right now.</p>;
   if (!holdings) return <p className={styles.note}>Reading holdings from the Basket account…</p>;
   if (holdings.length === 0) return null;
+  const priced = holdings.every((holding) => holding.value !== undefined);
+  const total = holdings.reduce((sum, holding) => sum + (holding.value ?? BigInt(0)), BigInt(0));
   return (
     <div className={styles.holdings}>
       <div className={styles.head}>
@@ -59,10 +74,17 @@ export function AccountHoldings({ account, strategyId, refreshKey }: { account: 
                 ? <small className={styles.canonical}>Canonical testnet token</small>
                 : <small>Testnet mock</small>}
             </span>
-            <span className={`mono ${styles.amount}`}>{holding.amount}</span>
+            <span className={styles.amount}>
+              <span className="mono">{holding.amount}</span>
+              <small className="mono">{holding.value === undefined ? "price refreshing" : usd(holding.value)}</small>
+            </span>
           </li>
         ))}
       </ul>
+      <div className={styles.total}>
+        <span>{priced ? "Market value at pool prices" : "Market value (some prices are refreshing)"}</span>
+        <strong className="mono">{usd(total)}</strong>
+      </div>
     </div>
   );
 }

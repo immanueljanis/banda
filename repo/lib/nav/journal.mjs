@@ -29,7 +29,8 @@ export async function withJournal(directory, run, now = Date.now) {
       state = { attempts: [], pending: null };
     }
     if (!Array.isArray(state.attempts) || state.attempts.some(item =>
-      !Number.isSafeInteger(item.at) || item.at > now() || !Number.isInteger(item.strategyId) || item.strategyId < 1 || item.strategyId > 10)) {
+      !Number.isSafeInteger(item.at) || item.at > now() || !Number.isInteger(item.strategyId) || item.strategyId < 1 || item.strategyId > 20 ||
+      (item.kind !== undefined && item.kind !== "nav" && item.kind !== "prices"))) {
       throw new NavError("JOURNAL_INVALID", "Quote update history needs operator review.");
     }
     if (state.pending) {
@@ -45,11 +46,12 @@ export async function withJournal(directory, run, now = Date.now) {
     return await run({
       async reserve(strategyId, details = {}) {
         state.attempts = state.attempts.filter(item => item.at > now() - 86_400_000);
-        if (state.attempts.length >= 30) throw new NavError("DAILY_LIMIT", "Today's demo quote-update limit has been reached. Please try again later.", 429);
-        if (state.attempts.some(item => item.strategyId === strategyId && item.at > now() - 60_000)) {
+        if (state.attempts.length >= 120) throw new NavError("DAILY_LIMIT", "Today's demo quote-update limit has been reached. Please try again later.", 429);
+        const kind = details.kind ?? "nav";
+        if (state.attempts.some(item => item.strategyId === strategyId && (item.kind ?? "nav") === kind && item.at > now() - 60_000)) {
           throw new NavError("COOLDOWN", "This Basket was refreshed recently. Please wait a minute.", 429);
         }
-        state.attempts.push({ at: now(), strategyId });
+        state.attempts.push({ at: now(), strategyId, kind });
         state.pending = { strategyId, at: now(), hash: null, ...details };
         retainLock = true;
         await save();

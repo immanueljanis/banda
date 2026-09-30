@@ -10,6 +10,15 @@ const abi = parseAbi([
   "function owner() view returns (address)",
   "function quotes(address) view returns (uint256,uint256,uint256,bool)",
   "function setQuote(address,uint256,uint256,uint256,bool)",
+  "function settlementAsset() view returns (address)",
+  "function pool() view returns (address)",
+  "function legs() view returns (address[],uint16[])",
+  "function updater() view returns (address)",
+  "function maxAge() view returns (uint64)",
+  "function maxDeviationBps() view returns (uint16)",
+  "function listings(address) view returns (uint128,uint64,uint64,bool,bool)",
+  "function symbol() view returns (string)",
+  "function setPrices(address[],uint128[])",
 ]);
 
 export function createTransport(rpc, key) {
@@ -18,6 +27,7 @@ export function createTransport(rpc, key) {
   const client = createPublicClient({ chain, transport: http(rpc, { retryCount: 1, timeout: 10_000 }) });
   const wallet = createWalletClient({ account, chain, transport: http(rpc, { retryCount: 0, timeout: 15_000 }) });
   let updateArgs;
+  let pricePool;
   return {
     signer: account.address,
     chainId: () => client.getChainId(),
@@ -44,6 +54,36 @@ export function createTransport(rpc, key) {
       ]);
       return { gas, gasPrice, balance, pending, mined };
     },
+    async priceSnapshot(strategyId) {
+      const header = await client.request({ method: "eth_getBlockByNumber", params: ["latest", false] });
+      const read = (address, functionName, args) => client.readContract({ address, abi, functionName, args, blockNumber: BigInt(header.number) });
+      const [[strategy], settlement] = await Promise.all([read(DIAMOND, "strategy", [strategyId]), read(DIAMOND, "settlementAsset")]);
+      const pool = await read(strategy, "pool").catch(() => null);
+      if (!pool) return null;
+      const updater = await read(pool, "updater").catch(() => null);
+      if (!updater) return null;
+      const [maxAge, maxDeviationBps, [tokens]] = await Promise.all([read(pool, "maxAge"), read(pool, "maxDeviationBps"), read(strategy, "legs")]);
+      const priced = tokens.filter(token => token.toLowerCase() !== settlement.toLowerCase());
+      const legs = await Promise.all(priced.map(async token => {
+        const [symbol, [price, updatedAt]] = await Promise.all([read(token, "symbol"), read(pool, "listings", [token])]);
+        return { token, symbol: symbol === "WETH" ? "ETH" : symbol, price, updatedAt: BigInt(updatedAt) };
+      }));
+      pricePool = pool;
+      return { pool, updater, maxAge: BigInt(maxAge), maxDeviationBps: BigInt(maxDeviationBps), now: BigInt(header.timestamp), legs };
+    },
+    async simulatePrices(args) {
+      await client.simulateContract({ address: pricePool, abi, functionName: "setPrices", args, account });
+    },
+    async pricesFees(args) {
+      const [gas, gasPrice, balance, pending, mined] = await Promise.all([
+        client.estimateContractGas({ address: pricePool, abi, functionName: "setPrices", args, account }),
+        client.getGasPrice(), client.getBalance({ address: account.address }),
+        client.getTransactionCount({ address: account.address, blockTag: "pending" }),
+        client.getTransactionCount({ address: account.address, blockTag: "latest" }),
+      ]);
+      return { gas, gasPrice, balance, pending, mined };
+    },
+    sendPrices: (args, fees) => wallet.writeContract({ address: pricePool, abi, functionName: "setPrices", args, ...fees, type: "legacy" }),
     send: (args, fees) => wallet.writeContract({ address: ADAPTER, abi, functionName: "setQuote", args, ...fees, type: "legacy" }),
     receipt: hash => client.waitForTransactionReceipt({ hash, confirmations: 2, timeout: 90_000, pollingInterval: 2_000 }),
   };
