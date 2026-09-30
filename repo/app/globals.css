@@ -2560,6 +2560,12 @@ h1 > span {
 }
 .buy-panel input {
   font-size: 44px;
+  appearance: textfield;
+}
+.buy-panel input::-webkit-inner-spin-button,
+.buy-panel input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
 }
 .portfolio {
   padding-top: clamp(32px, 4vw, 48px);

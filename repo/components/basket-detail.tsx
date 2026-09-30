@@ -132,9 +132,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
                 ? "Confirm in wallet…"
                 : wallet.transactionStatus === "confirming"
                   ? "Confirming…"
-                  : wallet.transactionStatus === "success"
-                    ? "Deposit confirmed"
-                    : "Deposit now"}{" "}
+                  : "Deposit now"}{" "}
             <span aria-hidden="true">→</span>
           </button>
           {wallet.connected && value > wallet.balance && (

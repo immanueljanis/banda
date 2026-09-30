@@ -70,7 +70,7 @@ type Wallet = {
   redeem: (tokenId: string, shares: string) => Promise<Hash>;
   mintTestUsdg: (amount: string) => Promise<Hash>;
   previewRedemption: (tokenId: string, shares: string) => Promise<readonly [bigint, bigint, bigint]>;
-  transactionStatus: "idle" | "preparing" | "signing" | "confirming" | "success" | "error";
+  transactionStatus: "idle" | "preparing" | "signing" | "confirming";
 };
 
 const Context = createContext<Wallet | null>(null);
@@ -139,7 +139,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const explorerAction = (hash: Hash) => ({ label: "View transaction", href: `${ROBINHOOD_TESTNET.explorer}/tx/${hash}`, external: true });
   const fail = (title: string, reason: unknown) => {
     const message = friendlyError(reason);
-    setTransactionStatus("error");
+    setTransactionStatus("idle");
     setError(message);
     toast(message === CANCELLED ? { tone: "info", title: "Cancelled", description: message } : { tone: "error", title, description: message });
     return new Error(message);
@@ -316,7 +316,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setTransactionStatus("confirming");
       const depositReceipt = await receiptClient.waitForTransactionReceipt({ hash: depositHash });
       if (depositReceipt.status !== "success") throw new Error("Deposit reverted. No Basket was created.");
-      setTransactionStatus("success");
+      setTransactionStatus("idle");
       toast({ tone: "success", title: "Basket deposit confirmed", description: `${amount} USDG is now held in your Basket.`, action: { label: "View portfolio", href: "/portfolio" } });
       await loadPortfolio();
       return depositHash;
@@ -372,7 +372,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setTransactionStatus("confirming");
       const receipt = await receiptClient.waitForTransactionReceipt({ hash });
       if (receipt.status !== "success") throw new Error("Redemption reverted. Your Basket was not redeemed.");
-      setTransactionStatus("success");
+      setTransactionStatus("idle");
       toast({ tone: "success", title: "Redemption confirmed", description: "USDG was sent to your wallet.", action: explorerAction(hash) });
       await loadPortfolio();
       return hash;
@@ -405,7 +405,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setTransactionStatus("confirming");
       const receipt = await receiptClient.waitForTransactionReceipt({ hash });
       if (receipt.status !== "success") throw new Error("Mint reverted. No test USDG was created.");
-      setTransactionStatus("success");
+      setTransactionStatus("idle");
       toast({ tone: "success", title: `${Number(amount).toLocaleString("en-US")} test USDG minted`, description: "It is ready to deposit.", action: explorerAction(hash) });
       await loadPortfolio();
       return hash;
