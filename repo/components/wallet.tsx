@@ -66,7 +66,6 @@ type Wallet = {
   refreshPortfolio: () => void;
   deposit: (strategyId: number, amount: string) => Promise<Hash>;
   redeem: (tokenId: string, shares: string) => Promise<Hash>;
-  prepareRedemption: (tokenId: string) => Promise<void>;
   previewRedemption: (tokenId: string, shares: string) => Promise<readonly [bigint, bigint, bigint]>;
   transactionStatus: "idle" | "preparing" | "signing" | "confirming" | "success" | "error";
 };
@@ -86,7 +85,6 @@ const fallbackValue: Wallet = {
   refreshPortfolio: () => undefined,
   deposit: async () => { throw new Error("Wallet provider is not available"); },
   redeem: async () => { throw new Error("Wallet provider is not available"); },
-  prepareRedemption: async () => { throw new Error("Connect a wallet first"); },
   previewRedemption: async () => { throw new Error("Connect a wallet first"); },
   transactionStatus: "idle",
 };
@@ -402,7 +400,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         },
         deposit,
         redeem,
-        prepareRedemption,
         previewRedemption,
         transactionStatus,
       }}
