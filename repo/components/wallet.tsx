@@ -66,6 +66,7 @@ type Wallet = {
   refreshPortfolio: () => void;
   deposit: (strategyId: number, amount: string) => Promise<Hash>;
   redeem: (tokenId: string, shares: string) => Promise<Hash>;
+  mintTestUsdg: (amount: string) => Promise<Hash>;
   previewRedemption: (tokenId: string, shares: string) => Promise<readonly [bigint, bigint, bigint]>;
   transactionStatus: "idle" | "preparing" | "signing" | "confirming" | "success" | "error";
 };
@@ -85,6 +86,7 @@ const fallbackValue: Wallet = {
   refreshPortfolio: () => undefined,
   deposit: async () => { throw new Error("Wallet provider is not available"); },
   redeem: async () => { throw new Error("Wallet provider is not available"); },
+  mintTestUsdg: async () => { throw new Error("Wallet provider is not available"); },
   previewRedemption: async () => { throw new Error("Connect a wallet first"); },
   transactionStatus: "idle",
 };
@@ -376,6 +378,41 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function mintTestUsdg(amount: string): Promise<Hash> {
+    if (!activeWallet || !address) throw new Error("Connect a wallet first");
+    if (!/^\d+(\.\d{1,6})?$/.test(amount)) throw new Error("Use up to six decimal places");
+    const amountUnits = parseUnits(amount, 6);
+    if (amountUnits <= BigInt(0) || amountUnits > parseUnits("10000", 6)) throw new Error("Mint between 0.000001 and 10,000 test USDG at a time");
+    if (transactionLock.current) throw new Error("A transaction is already in progress");
+    transactionLock.current = true;
+    setTransactionStatus("preparing");
+    setError(undefined);
+    try {
+      await activeWallet.switchChain(ROBINHOOD_TESTNET.id);
+      const provider = await activeWallet.getEthereumProvider();
+      const client = createWalletClient({ account: address as Address, chain: ROBINHOOD_TESTNET, transport: custom(provider) });
+      const receiptClient = client.extend(publicActions);
+      const mintAbi = parseAbi(["function mint(address to, uint256 amount)"]);
+      const request = { address: ROBINHOOD_TESTNET.settlementAsset, abi: mintAbi, functionName: "mint", args: [address as Address, amountUnits] } as const;
+      await receiptClient.simulateContract({ ...request, account: address as Address });
+      setTransactionStatus("signing");
+      const hash = await client.writeContract(request);
+      setTransactionStatus("confirming");
+      const receipt = await receiptClient.waitForTransactionReceipt({ hash });
+      if (receipt.status !== "success") throw new Error("Mint reverted. No test USDG was created.");
+      setTransactionStatus("success");
+      await loadPortfolio();
+      return hash;
+    } catch (reason) {
+      setTransactionStatus("error");
+      const message = reason instanceof Error ? reason.message : "Mint failed";
+      setError(message);
+      throw new Error(message);
+    } finally {
+      transactionLock.current = false;
+    }
+  }
+
   return (
     <Context.Provider
       value={{
@@ -400,6 +437,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         },
         deposit,
         redeem,
+        mintTestUsdg,
         previewRedemption,
         transactionStatus,
       }}

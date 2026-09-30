@@ -2599,6 +2599,19 @@ h1 > span {
   font-size: 17px;
   line-height: 1.7;
 }
+.mint {
+  padding-block: clamp(32px, 4vw, 56px) clamp(64px, 8vw, 104px);
+}
+.mint-panel {
+  position: relative;
+  top: auto;
+  max-width: 520px;
+}
+.quick-chips button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--button-text);
+}
 @media (max-width: 760px) {
   .detail-note .detail-intro {
     align-items: start;
