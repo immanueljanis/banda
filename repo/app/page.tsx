@@ -195,8 +195,8 @@ export default function Home() {
           </table>
           <p className="fee-note">
             The management fee accrues per second and is collected only when you
-            redeem. Basket values on this page are illustrative, and testnet
-            payouts use a mock NAV.
+            redeem. Testnet holdings are mock tokens bought and redeemed at live
+            market prices.
           </p>
         </div>
       </section>

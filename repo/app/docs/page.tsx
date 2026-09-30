@@ -26,10 +26,9 @@ export default function Docs() {
             holds every position as a token you can inspect onchain: stocks,
             crypto, gold and the USDG yield sleeve. Transferring the NFT
             transfers the whole portfolio without selling each holding. On
-            testnet, AMD, TSLA and WETH are canonical tokens; assets that do not
-            exist on testnet yet are clearly labelled mocks bought at fixed
-            snapshot prices, standing in for the issuer-bridged assets a
-            mainnet gateway would use.
+            testnet, each holding is a clearly labelled mock token standing in
+            for the issuer-bridged asset a mainnet gateway would use, and it is
+            bought and sold at live market prices.
           </p>
         </section>
         <section>
@@ -62,11 +61,14 @@ export default function Docs() {
         <section>
           <h2>Valuation on testnet</h2>
           <p>
-            Testnet payouts use a mock NAV, not market prices. Before your
-            transaction, Banda refreshes the Basket’s quote if it is close to
-            expiring; the contract rejects quotes older than 15 minutes or 20
-            blocks. A market-linked NAV built from verified price feeds is the
-            next milestone.
+            Holdings are bought and redeemed at live market prices: Chainlink on
+            Robinhood Chain mainnet for stocks, ETFs, ETH, BTC and LINK
+            (normalized through USDG/USD), and CoinGecko for SOL, TAO, NEAR and
+            RENDER. Just before your transaction, Banda republishes any price
+            older than half its 15-minute limit and refreshes the Basket’s NAV
+            guard; the contracts reject stale prices and quotes. The testnet pool
+            is the counterparty, and the management fee accrues on the amount you
+            deposited.
           </p>
         </section>
         <section>

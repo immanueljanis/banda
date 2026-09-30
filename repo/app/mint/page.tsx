@@ -14,7 +14,7 @@ export default function Mint() {
         <Rosette className="hero-rosette" />
         <div className="wrap detail-hero">
           <h1>Test USDG faucet.</h1>
-          <p>Get Paxos testnet USDG to try deposits and redemptions on Robinhood Chain testnet.</p>
+          <p>Mint test USDG on Robinhood Chain testnet to try deposits and redemptions. It has no value.</p>
         </div>
       </section>
       <div className="wrap mint">

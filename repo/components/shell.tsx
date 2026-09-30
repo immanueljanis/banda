@@ -97,9 +97,9 @@ export function Footer() {
       <div className="footer-note">
         Running on Robinhood Chain testnet.
         <p>
-          Test USDG has no value. Basket values shown on the site are
-          illustrative, historical comparisons are simulations, and testnet
-          payouts use a mock NAV.
+          Test USDG has no value. Holdings are testnet mock tokens bought and
+          redeemed at live market prices, and historical comparisons are
+          hypothetical backtests on real prices.
         </p>
         <span className="mono">© 2026 Banda</span>
       </div>

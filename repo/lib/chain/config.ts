@@ -10,13 +10,12 @@ export const ROBINHOOD_TESTNET = {
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
   rpcUrls: { default: { http: [walletRpcUrl] }, public: { http: [walletRpcUrl] } },
   diamond: "0xB1dD20D06fc0741237c812Ca904bD8dc3f7DE4e7" as Address,
-  settlementAsset: "0x7E955252E15c84f5768B83c41a71F9eba181802F" as Address,
-  usdgFaucet: "https://faucet.paxos.com/?network=robinhood",
+  settlementAsset: "0xB42Df4e64356cAFbAEB63f572Ec95CC3BAE75dba" as Address,
   explorer: "https://explorer.testnet.chain.robinhood.com",
 } as const;
 
-/** Contract strategy ids for BASKETS, in the same order. Legacy ids 1-5 are closed to deposits. */
-export const STRATEGY_IDS = [6, 7, 8, 9, 10] as const;
+/** Contract strategy ids for BASKETS, in the same order: market-priced, test-USDG Baskets. Ids 1-15 are closed. */
+export const STRATEGY_IDS = [16, 17, 18, 19, 20] as const;
 
-/** Tokens issued natively on Robinhood Chain testnet; every other Basket holding is a testnet mock. */
-export const CANONICAL_TESTNET_TICKERS = ["AMD", "TSLA", "ETH", "USDG"] as const;
+/** Every live Basket leg is a pool-minted testnet mock priced at live market prices; none is a canonical token. */
+export const CANONICAL_TESTNET_TICKERS = [] as const;

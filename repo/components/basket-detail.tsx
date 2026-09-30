@@ -140,11 +140,10 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             <p role="alert">Amount exceeds your available balance.</p>
           )}
           <p>
-            Balance and transactions use Robinhood testnet and Paxos testnet USDG.
-            Deposit takes two wallet confirmations: USDG approval, then the Basket
-            deposit. Every holding lands in your Basket’s own account; AMD, TSLA and
-            WETH are canonical testnet tokens, the rest are testnet mocks at fixed
-            snapshot prices.
+            Balance and transactions use Robinhood testnet and test USDG. Deposit takes
+            two wallet confirmations: USDG approval, then the Basket deposit. Every
+            holding lands in your Basket’s own account as a testnet mock token, bought
+            and sold at live market prices from Chainlink and CoinGecko.
           </p>
         </form>
       </div>

@@ -1,7 +1,7 @@
 import { NavError } from "./errors.mjs";
 
-/** Holding-in-account Baskets: 6-10 at snapshot prices and 11-15 at published market prices. */
-export const STRATEGY_IDS = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+/** Live market-priced Baskets on test USDG. Strategies 1-15 are closed to deposits and hold no positions. */
+export const STRATEGY_IDS = [16, 17, 18, 19, 20];
 
 export function strategyInput(value) {
   if (!value || typeof value !== "object" || Array.isArray(value) ||

@@ -46,6 +46,6 @@ export function RedeemPanel({ position }: { position: WalletPosition }) {
       setRevision(value => value + 1);
     }}>{busy ? wallet.transactionStatus === "preparing" ? "Preparing quote…" : wallet.transactionStatus === "signing" ? "Confirm in wallet…" : "Confirming…" : percentage === 100 ? "Redeem entire Basket" : `Redeem ${percentage}%`}</button>
     <p role="status" className="redemption-note">{quote ? "Payout goes to the Basket owner’s wallet." : "Payout is quoted when you redeem; the testnet quote refreshes first if needed."}</p>
-    <p className="redemption-note">Testnet payout uses a mock NAV, not market pricing.</p>
+    <p className="redemption-note">Payout is your holdings at live market prices, in test USDG.</p>
   </section>;
 }
