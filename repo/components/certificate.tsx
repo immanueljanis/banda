@@ -48,7 +48,7 @@ export function Sparkline({ basket }: { basket: Basket }) {
       className="sparkline"
       viewBox="0 0 250 65"
       role="img"
-      aria-label={`${basket.change}% increase over thirty days, illustrative`}
+      aria-label={`Hypothetical $10,000 Basket, ${basket.change.toFixed(2)}% over thirty days on real prices`}
     >
       <path className="spark-baseline" d="M0 60H250" />
       <polyline
@@ -56,7 +56,7 @@ export function Sparkline({ basket }: { basket: Basket }) {
         points={values
           .map(
             (v, i) =>
-              `${(i * 250) / 29},${57 - ((v - min) / (max - min)) * 48}`,
+              `${(i * 250) / (values.length - 1)},${max === min ? 33 : 57 - ((v - min) / (max - min)) * 48}`,
           )
           .join(" ")}
       />
@@ -121,14 +121,17 @@ export function Certificate({
       )}
       <div className="certificate-value">
         <Rosette className="certificate-rosette" />
-        <span className="eyebrow">Example portfolio value</span>
+        <span className="eyebrow">Hypothetical $10,000 Basket</span>
         <strong>
           <NavNumber value={basket.nav} />
         </strong>
         <div className="performance">
-          <span className="positive mono">↗ +{basket.change.toFixed(2)}%</span>
+          <span className={`${basket.change >= 0 ? "positive" : "negative"} mono`}>
+            {basket.change >= 0 ? "↗ +" : "↘ "}
+            {basket.change.toFixed(2)}%
+          </span>
           <span className="muted">
-            <span className="mono">30</span> days
+            <span className="mono">30</span>d, real prices
           </span>
         </div>
       </div>

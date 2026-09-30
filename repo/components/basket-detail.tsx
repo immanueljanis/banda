@@ -28,15 +28,17 @@ export function BasketDetail({ basket }: { basket: Basket }) {
               <p>{basket.mandate}</p>
             </div>
             <div className="detail-value">
-              <span>Example portfolio value</span>
+              <span>Hypothetical $10,000 Basket, 30 days</span>
               <strong className="detail-nav">
                 <NavNumber value={basket.nav} />
               </strong>
               <details className="valuation-details">
                 <summary>About this value</summary>
                 <p>
-                  Illustrative value, not a live price. Example block{" "}
-                  <span className="mono">{basket.block.toLocaleString("en-US")}</span>.
+                  What $10,000 placed in this Basket 30 days before the last close
+                  would be worth now, at its current weights and real daily closes
+                  (Yahoo Finance and CoinGecko, cross-checked against live Chainlink).
+                  Not a live position.
                 </p>
               </details>
             </div>

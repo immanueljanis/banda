@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   PieChart,
@@ -15,11 +15,14 @@ import {
 } from "recharts";
 import { ASSETS, type Basket, money } from "@/constants/baskets";
 import {
+  PERIODS,
+  assetSource,
   backtest,
+  dataPeriod,
   historicalAsset,
   maxDrawdown,
   type Period,
-} from "@/lib/backtest";
+} from "@/lib/market/history";
 import { AssetLabel } from "./asset-label";
 import { AssetFacts, BasketFeatures } from "./asset-facts";
 const TABS = [
@@ -30,13 +33,30 @@ const TABS = [
   "Resources",
 ] as const;
 type Tab = (typeof TABS)[number];
+type LivePrice = { price: number; updatedAt: string; source: string };
 const percent = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
+const longDate = (date: string) =>
+  new Date(`${date}T00:00:00Z`).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 export function BasketExplorer({ basket }: { basket: Basket }) {
   const [tab, setTab] = useState<Tab>("About");
   const [period, setPeriod] = useState<Period>("3M");
   const [selected, setSelected] = useState<string | null>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const history = backtest(basket, period);
+  const [live, setLive] = useState<Record<string, LivePrice>>({});
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/market", { signal: controller.signal })
+      .then((response) => (response.ok ? response.json() : { prices: {} }))
+      .then((body) => setLive(body.prices ?? {}))
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
+  const history = backtest(basket.holdings, period);
   const end = history.at(-1)!;
   const active = basket.holdings.find((h) => h.ticker === selected);
   return (
@@ -157,7 +177,8 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             <div className="holdings-heading">
               <h3>The assets</h3>
               <span>
-                Price snapshot · <span className="mono">11 Sep 2025</span>
+                Daily close ·{" "}
+                <span className="mono">{longDate(dataPeriod.end)}</span>
               </span>
             </div>
             <div className="asset-card-grid">
@@ -166,18 +187,46 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                 const values = asset.points.map((p) => p.close),
                   min = Math.min(...values),
                   max = Math.max(...values);
-                const up = asset.change >= 0;
+                const quote = live[h.ticker];
+                const change = quote
+                  ? (quote.price / asset.price - 1) * 100
+                  : asset.change;
+                const up = change >= 0;
                 return (
                   <article className="asset-card" key={h.ticker}>
                     <AssetLabel ticker={h.ticker} />
                     <AssetFacts ticker={h.ticker} />
                     <div className="asset-card-price">
-                      <strong className="mono">{money(asset.price)}</strong>
+                      <strong className="mono">
+                        {money(quote?.price ?? asset.price)}
+                      </strong>
                       <span className={`mono ${up ? "positive" : "negative"}`}>
-                        {percent(asset.change)}
-                        <small> daily close</small>
+                        {percent(change)}
+                        <small>
+                          {quote
+                            ? ` vs ${longDate(asset.date)} close`
+                            : " daily close"}
+                        </small>
                       </span>
                     </div>
+                    {h.ticker !== "USDG" && (
+                      <small className="asset-proxy-note">
+                        {quote ? (
+                          <>
+                            Live · {quote.source} ·{" "}
+                            <span className="mono">
+                              {longDate(quote.updatedAt.slice(0, 10))}{" "}
+                              {quote.updatedAt.slice(11, 16)} UTC
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            {assetSource(h.ticker)} close ·{" "}
+                            <span className="mono">{longDate(asset.date)}</span>
+                          </>
+                        )}
+                      </small>
+                    )}
                     <svg
                       className={`asset-history ${up ? "positive" : "negative"}`}
                       viewBox="0 0 250 54"
@@ -218,7 +267,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             <div className="panel-heading">
               <h2>Historical comparison</h2>
               <div className="periods">
-                {(["1W", "1M", "3M"] as Period[]).map((p) => (
+                {PERIODS.map((p) => (
                   <button
                     key={p}
                     aria-pressed={period === p}
@@ -230,8 +279,8 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
               </div>
             </div>
             <p className="chart-intro">
-              What a <span className="mono">$10,000</span> investment would have
-              done.
+              What a hypothetical <span className="mono">$10,000</span> Basket
+              would have done on real historical prices.
             </p>
             <div className="comparison-summary">
               <div>
@@ -340,33 +389,41 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
               </ResponsiveContainer>
             </div>
             <p className="historical-dates mono">
-              {history[0].date} — {end.date}
+              {history[0].date} to {end.date}
             </p>
             <p className="backtest-disclaimer">
-              Hypothetical portfolio using real historical prices. This is not
-              Banda’s live performance.
+              Hypothetical backtest on real historical closing prices, using
+              today’s weights, before fees. This is not Banda’s live
+              performance and does not predict future results.
             </p>
             <details className="methodology">
               <summary>Methodology &amp; data sources</summary>
               <p>
                 Each selected window starts at{" "}
-                <span className="mono">$10,000</span>, using the displayed
-                allocation and holding fixed quantities without rebalancing.
-                Changing the window starts a fresh simulation.
+                <span className="mono">$10,000</span> at the first close of the
+                window, split by the Basket’s current weights, then holds fixed
+                quantities without rebalancing. Changing the window starts a
+                fresh simulation. Data runs from{" "}
+                <span className="mono">{dataPeriod.start}</span> to{" "}
+                <span className="mono">{dataPeriod.end}</span>, fetched{" "}
+                <span className="mono">{dataPeriod.fetchedAt.slice(0, 10)}</span>.
               </p>
               <p>
-                Daily closing prices from Yahoo Finance, matched on S&amp;P{" "}
-                <span className="mono">500</span> trading dates. Crypto and
-                equity closes occur at different times. The benchmark is the
-                S&amp;P <span className="mono">500</span> price index (^GSPC),
+                Daily closes matched on S&amp;P <span className="mono">500</span>{" "}
+                trading dates; a missing close carries the previous close
+                forward. Crypto closes at midnight UTC, equities at the US
+                market close. The benchmark is the S&amp;P{" "}
+                <span className="mono">500</span> price index (^GSPC),
                 excluding dividends.
               </p>
               <p>
-                Listed equities and ETFs use their underlying Yahoo Finance
-                closes. Crypto uses the corresponding spot-price series. USDG is
-                held at <span className="mono">$1</span> without yield. Prices
-                reflect market behavior, not a verified strategy execution or
-                Robinhood Stock Token liquidity.
+                Equities, ETFs, ETH, BTC and LINK use Yahoo Finance closes of
+                the markets their Robinhood Chain Chainlink feeds track; SOL,
+                TAO, NEAR and RENDER use CoinGecko, the same source Banda’s price
+                publisher uses for them. USDG is held at{" "}
+                <span className="mono">$1</span> without yield. Prices reflect
+                market behavior, not a verified strategy execution or Robinhood
+                Stock Token liquidity.
               </p>
               <p>
                 The {basket.managementFee}% annual management fee, trading
@@ -429,10 +486,10 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             </p>
             <div className="risk-observation">
               <span>
-                Largest decline from a peak in the three-month simulation
+                Largest decline from a peak in the six-month simulation
               </span>
               <strong className="mono negative">
-                {maxDrawdown(backtest(basket, "3M")).toFixed(2)}%
+                {maxDrawdown(backtest(basket.holdings, "6M")).toFixed(2)}%
               </strong>
               <small>
                 Historical model, before fees. Future losses can be larger.

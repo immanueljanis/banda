@@ -1,3 +1,5 @@
+import { backtest, historicalAsset } from "@/lib/market/history";
+
 export type BasketCategory =
   "Tokenized markets" | "Crypto" | "Real assets" | "DeFi yield";
 
@@ -38,17 +40,12 @@ export type AssetDefinition = {
   url: string;
 };
 
-const history = (nav: number, growth: number) =>
-  Array.from({ length: 30 }, (_, index) => ({
-    day: `Aug ${index + 1}`,
-    value: Math.round(
-      nav *
-        (1 -
-          growth / 100 +
-          ((growth / 100) * index) / 29 +
-          (index === 29 ? 0 : Math.sin(index * 1.8) * 0.006)),
-    ),
-  }));
+const shortDate = (date: string) =>
+  new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
 
 const allocationFor = (holdings: Holding[]): BasketAllocation[] =>
   (["Tokenized markets", "Crypto", "Real assets", "DeFi yield"] as const)
@@ -60,11 +57,31 @@ const allocationFor = (holdings: Holding[]): BasketAllocation[] =>
     }))
     .filter((allocation) => allocation.weight > 0);
 
-const basket = (config: Omit<Basket, "allocation" | "history">): Basket => ({
-  ...config,
-  allocation: allocationFor(config.holdings),
-  history: history(config.nav, config.change),
-});
+/**
+ * Completes a Basket from its weights. `nav`, `change` and `history` are a hypothetical $10,000 Basket
+ * bought at the close 30 days before the last close in lib/data/market-history.json, on real prices;
+ * each holding's `change` is its latest real daily change.
+ */
+const basket = (
+  config: Omit<Basket, "allocation" | "history" | "nav" | "change" | "holdings"> & {
+    holdings: Omit<Holding, "change">[];
+  },
+): Basket => {
+  const month = backtest(config.holdings, "1M");
+  const holdings = config.holdings.map((h) => ({
+    ...h,
+    change: historicalAsset(h.ticker).change,
+  }));
+  return {
+    ...config,
+    holdings,
+    nav: month.at(-1)!.basket,
+    change:
+      Math.round((month.at(-1)!.basket / month[0].basket - 1) * 10_000) / 100,
+    allocation: allocationFor(holdings),
+    history: month.map((p) => ({ day: shortDate(p.date), value: p.basket })),
+  };
+};
 
 export const BASKETS: Basket[] = [
   basket({
@@ -74,8 +91,6 @@ export const BASKETS: Basket[] = [
     character: "Aggressive growth",
     id: 1101,
     mandate: "Own the intelligence stack, from silicon to decentralized AI.",
-    nav: 12_480.36,
-    change: 8.74,
     block: 63_794_454,
     managementFee: 0.25,
     holdings: [
@@ -84,42 +99,36 @@ export const BASKETS: Basket[] = [
         name: "Tokenized NVIDIA",
         category: "Tokenized markets",
         weight: 30,
-        change: 2.18,
       },
       {
         ticker: "TAO",
         name: "Bittensor",
         category: "Crypto",
         weight: 20,
-        change: 1.64,
       },
       {
         ticker: "GOOGL",
         name: "Tokenized Alphabet",
         category: "Tokenized markets",
         weight: 15,
-        change: 0.82,
       },
       {
         ticker: "NEAR",
         name: "NEAR",
         category: "Crypto",
         weight: 10,
-        change: -0.44,
       },
       {
         ticker: "GLD",
         name: "Tokenized gold ETF",
         category: "Real assets",
         weight: 10,
-        change: 0.31,
       },
       {
         ticker: "USDG",
         name: "USDG DeFi Yield",
         category: "DeFi yield",
         weight: 15,
-        change: 0.01,
       },
     ],
   }),
@@ -130,8 +139,6 @@ export const BASKETS: Basket[] = [
     character: "Crypto growth",
     id: 1202,
     mandate: "Own the infrastructure powering the internet of money.",
-    nav: 10_842.18,
-    change: 6.38,
     block: 63_794_454,
     managementFee: 0.25,
     holdings: [
@@ -140,49 +147,42 @@ export const BASKETS: Basket[] = [
         name: "Coinbase Stock Token",
         category: "Tokenized markets",
         weight: 20,
-        change: 1.93,
       },
       {
         ticker: "CRCL",
         name: "Circle Stock Token",
         category: "Tokenized markets",
         weight: 15,
-        change: 1.27,
       },
       {
         ticker: "ETH",
         name: "Ether",
         category: "Crypto",
         weight: 20,
-        change: 1.15,
       },
       {
         ticker: "SOL",
         name: "Solana",
         category: "Crypto",
         weight: 15,
-        change: 2.21,
       },
       {
         ticker: "LINK",
         name: "Chainlink",
         category: "Crypto",
         weight: 10,
-        change: 0.74,
       },
       {
         ticker: "GLD",
         name: "Tokenized gold ETF",
         category: "Real assets",
         weight: 5,
-        change: 0.31,
       },
       {
         ticker: "USDG",
         name: "USDG DeFi Yield",
         category: "DeFi yield",
         weight: 15,
-        change: 0.01,
       },
     ],
   }),
@@ -193,8 +193,6 @@ export const BASKETS: Basket[] = [
     character: "Balanced",
     id: 1303,
     mandate: "Growth, scarcity and yield, built for every market regime.",
-    nav: 11_294.72,
-    change: 4.26,
     block: 63_794_454,
     managementFee: 0.25,
     holdings: [
@@ -203,35 +201,30 @@ export const BASKETS: Basket[] = [
         name: "Bitcoin",
         category: "Crypto",
         weight: 30,
-        change: 1.24,
       },
       {
         ticker: "SPY",
         name: "Tokenized S&P 500 ETF",
         category: "Tokenized markets",
         weight: 25,
-        change: 0.56,
       },
       {
         ticker: "GLD",
         name: "Tokenized gold ETF",
         category: "Real assets",
         weight: 20,
-        change: 0.31,
       },
       {
         ticker: "ETH",
         name: "Ether",
         category: "Crypto",
         weight: 10,
-        change: 1.15,
       },
       {
         ticker: "USDG",
         name: "USDG DeFi Yield",
         category: "DeFi yield",
         weight: 15,
-        change: 0.01,
       },
     ],
   }),
@@ -243,8 +236,6 @@ export const BASKETS: Basket[] = [
     id: 1404,
     mandate:
       "A basket for the technologies rewriting how we compute, move and transact.",
-    nav: 9_836.54,
-    change: 7.92,
     block: 63_794_454,
     managementFee: 0.25,
     holdings: [
@@ -253,56 +244,48 @@ export const BASKETS: Basket[] = [
         name: "Tokenized Nasdaq-100 ETF",
         category: "Tokenized markets",
         weight: 25,
-        change: 0.91,
       },
       {
         ticker: "AMD",
         name: "Tokenized AMD",
         category: "Tokenized markets",
         weight: 15,
-        change: 1.42,
       },
       {
         ticker: "TSLA",
         name: "Tokenized Tesla",
         category: "Tokenized markets",
         weight: 15,
-        change: -0.67,
       },
       {
         ticker: "RENDER",
         name: "Render",
         category: "Crypto",
         weight: 15,
-        change: 2.35,
       },
       {
         ticker: "SOL",
         name: "Solana",
         category: "Crypto",
         weight: 10,
-        change: 2.21,
       },
       {
         ticker: "GLD",
         name: "Tokenized gold ETF",
         category: "Real assets",
         weight: 5,
-        change: 0.31,
       },
       {
         ticker: "USO",
         name: "Tokenized oil ETF",
         category: "Real assets",
         weight: 5,
-        change: -0.28,
       },
       {
         ticker: "USDG",
         name: "USDG DeFi Yield",
         category: "DeFi yield",
         weight: 10,
-        change: 0.01,
       },
     ],
   }),
@@ -313,8 +296,6 @@ export const BASKETS: Basket[] = [
     character: "Defensive",
     id: 1505,
     mandate: "Built to preserve capital while keeping it productive.",
-    nav: 10_618.9,
-    change: 3.18,
     block: 63_794_454,
     managementFee: 0.25,
     holdings: [
@@ -323,35 +304,30 @@ export const BASKETS: Basket[] = [
         name: "Tokenized gold ETF",
         category: "Real assets",
         weight: 30,
-        change: 0.31,
       },
       {
         ticker: "SPY",
         name: "Tokenized S&P 500 ETF",
         category: "Tokenized markets",
         weight: 20,
-        change: 0.56,
       },
       {
         ticker: "BTC",
         name: "Bitcoin",
         category: "Crypto",
         weight: 15,
-        change: 1.24,
       },
       {
         ticker: "ETH",
         name: "Ether",
         category: "Crypto",
         weight: 10,
-        change: 1.15,
       },
       {
         ticker: "USDG",
         name: "USDG DeFi Yield",
         category: "DeFi yield",
         weight: 25,
-        change: 0.01,
       },
     ],
   }),

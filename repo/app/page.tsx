@@ -126,9 +126,11 @@ export default function Home() {
                 </span>
               </div>
               <div className="ledger-value">
-                <span>Example value</span>
+                <span>Hypothetical $10,000 · 30d</span>
                 <strong className="mono">{money(basket.nav)}</strong>
-                <span className="positive mono">+{basket.change}% · 30d</span>
+                <span className={`mono ${basket.change >= 0 ? "positive" : "negative"}`}>
+                  {basket.change >= 0 ? "+" : "−"}{Math.abs(basket.change).toFixed(2)}% · real prices
+                </span>
               </div>
               <Sparkline basket={basket} />
               <div className="ledger-yield">
