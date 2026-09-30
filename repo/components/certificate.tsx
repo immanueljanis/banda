@@ -132,16 +132,18 @@ export function Certificate({
           </span>
         </div>
       </div>
-      <Sparkline basket={basket} />
+      {!hero && <Sparkline basket={basket} />}
       <div className="certificate-allocation">
         <span className="eyebrow">One basket. Multiple asset classes.</span>
         <Allocation basket={basket} />
       </div>
-      <div className="certificate-footer certificate-assets">
-        {basket.holdings.map((h) => (
-          <AssetLabel key={h.ticker} ticker={h.ticker} compact />
-        ))}
-      </div>
+      {!hero && (
+        <div className="certificate-footer certificate-assets">
+          {basket.holdings.map((h) => (
+            <AssetLabel key={h.ticker} ticker={h.ticker} compact />
+          ))}
+        </div>
+      )}
       <Microtext text={`BANDA ${basket.name} ONE TOKEN WHOLE PORTFOLIO`} />
       <WaveBand className="certificate-wave" />
     </div>
@@ -160,7 +162,7 @@ function PortfolioAssembly({
   const moving = !reduced && (animateIntro || replay > 0);
   const positions = basket.holdings.map((_, index) => {
     const angle = (Math.PI * 2 * index) / basket.holdings.length - Math.PI / 2;
-    return [Math.cos(angle) * 108, Math.sin(angle) * 60];
+    return [Math.cos(angle) * 92, Math.sin(angle) * 50];
   });
   return (
     <div className="portfolio-assembly">
@@ -169,19 +171,19 @@ function PortfolioAssembly({
         aria-hidden="true"
         key={`${animateIntro}-${replay}`}
       >
-        <svg className="assembly-paths" viewBox="0 0 300 180" fill="none">
+        <svg className="assembly-paths" viewBox="0 0 260 150" fill="none">
           <ellipse
-            cx="150"
-            cy="90"
-            rx="116"
-            ry="65"
+            cx="130"
+            cy="75"
+            rx="100"
+            ry="55"
             stroke="var(--rule)"
             strokeDasharray="2 6"
           />
           {basket.holdings.map((h, i) => (
             <motion.path
               key={h.ticker}
-              d={`M${150 + positions[i][0]} ${90 + positions[i][1]} Q150 ${90 + positions[i][1]} 150 90`}
+              d={`M${130 + positions[i][0]} ${75 + positions[i][1]} Q130 ${75 + positions[i][1]} 130 75`}
               stroke="var(--accent)"
               strokeWidth="1"
               initial={moving ? { pathLength: 0, opacity: 0 } : false}
@@ -196,7 +198,7 @@ function PortfolioAssembly({
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
         >
-          <img src="/icon.svg" width="26" height="26" alt="" />
+          <img src="/icon.svg" width="22" height="22" alt="" />
           <span>One basket</span>
         </motion.div>
         {basket.holdings.map((h, i) => (

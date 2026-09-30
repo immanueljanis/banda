@@ -14,15 +14,22 @@ export default function Home() {
         <Rosette className="hero-rosette" />
         <div className="wrap hero">
           <div className="hero-copy">
-            <p className="hero-network">
-              <span className="network-dot" aria-hidden="true" /> Live on Robinhood Chain testnet
-            </p>
             <h1>A managed portfolio you own as a single token.</h1>
             <p className="hero-lede">
-              Pick a Basket of tokenized stocks, crypto, gold and DeFi yield.
-              Deposit USDG and receive one NFT that holds the whole mix, with
-              its mandate, fees and risks on record.
+              Deposit USDG and receive one NFT whose own onchain account holds
+              the whole Basket. It is built to earn in two ways, so you are not
+              relying on prices alone.
             </p>
+            <dl className="hero-engines">
+              <div>
+                <dt><i className="category-0" aria-hidden="true" />Growth</dt>
+                <dd>Tokenized stocks, crypto and gold, chosen for the Basket’s thesis.</dd>
+              </div>
+              <div>
+                <dt><i className="category-2" aria-hidden="true" />Income</dt>
+                <dd>10 to 25% sits in USDG DeFi positions that pay yield. Rates vary and are not guaranteed.</dd>
+              </div>
+            </dl>
             <div className="hero-actions">
               <Link className="gold-button" href="#baskets">
                 Browse Baskets <span aria-hidden="true">→</span>
@@ -38,9 +45,9 @@ export default function Home() {
         </div>
         <div className="wrap hero-terms">
           <span>5 thematic Baskets</span>
-          <span>Deposits in USDG</span>
+          <span>0.25% a year, nothing to enter or leave</span>
           <span>ERC-721 Basket, ERC-6551 account</span>
-          <span>0% to buy or withdraw</span>
+          <span>Robinhood Chain testnet, illustrative values</span>
         </div>
         <Microtext text="BANDA · A MANAGED PORTFOLIO YOU OWN AS A SINGLE TOKEN" className="hero-microtext" />
       </section>
@@ -56,11 +63,11 @@ export default function Home() {
           <dl className="anatomy-sleeves">
             <div>
               <dt><i className="category-0" aria-hidden="true" />Growth</dt>
-              <dd>Tokenized stocks and crypto chosen for the Basket’s thesis.</dd>
+              <dd>Tokenized stocks, crypto and gold chosen for the Basket’s thesis.</dd>
             </div>
             <div>
               <dt><i className="category-2" aria-hidden="true" />Yield</dt>
-              <dd>A defined share placed in USDG DeFi positions.</dd>
+              <dd>10 to 25% placed in USDG DeFi positions that earn a variable rate, so the Basket has income as well as price exposure.</dd>
             </div>
             <div>
               <dt><i className="category-1" aria-hidden="true" />Liquidity</dt>
@@ -168,7 +175,7 @@ export default function Home() {
           </h2>
           <p>
             No entry fee, no exit fee and no performance fee. One management
-            fee of 1% or 2% a year accrues onchain by the second, and your
+            fee of 0.25% a year accrues onchain by the second, and your
             redemption preview shows it before you sign.
           </p>
           <Link className="text-link" href="/docs">
@@ -183,8 +190,7 @@ export default function Home() {
               <tr><th>Buy</th><td className="mono">0%</td></tr>
               <tr><th>Withdraw</th><td className="mono">0%</td></tr>
               <tr><th>Performance fee</th><td>None</td></tr>
-              <tr><th>Management, diversified and defensive Baskets</th><td><span className="mono">1%</span><span className="muted"> a year</span></td></tr>
-              <tr><th>Management, thematic and active Baskets</th><td><span className="mono">2%</span><span className="muted"> a year</span></td></tr>
+              <tr><th>Management fee, every Basket</th><td><span className="mono">0.25%</span><span className="muted"> a year</span></td></tr>
             </tbody>
           </table>
           <p className="fee-note">
