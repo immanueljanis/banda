@@ -3,10 +3,39 @@ import Link from "next/link";
 import { useWallet } from "@/components/wallet";
 import { LiveChainStatus } from "@/components/live-chain-status";
 import { RedeemPanel } from "@/components/redeem-panel";
-import { AccountHoldings } from "@/components/account-holdings";
+import { useEffect, useState } from "react";
+import type { Address } from "viem";
+import { AccountHoldings, pnl, usd } from "@/components/account-holdings";
+import { valueBasket, type BasketValuation } from "@/lib/chain/valuation";
+import type { WalletPosition } from "@/components/wallet";
 import { Rosette, WaveBand } from "@/components/guilloche";
+/** Values every open Basket once per portfolio refresh; `null` marks a Basket that could not be read. */
+function useValuations(positions: WalletPosition[], refreshKey: string) {
+  const [valuations, setValuations] = useState<Record<string, BasketValuation | null>>({});
+  useEffect(() => {
+    let cancelled = false;
+    setValuations({});
+    for (const position of positions) {
+      valueBasket(position.strategyId, position.account as Address, BigInt(position.shares))
+        .then((valuation) => { if (!cancelled) setValuations((current) => ({ ...current, [position.tokenId]: valuation })); })
+        .catch(() => { if (!cancelled) setValuations((current) => ({ ...current, [position.tokenId]: null })); });
+    }
+    return () => { cancelled = true; };
+  }, [positions, refreshKey]);
+  return valuations;
+}
+
 export default function Portfolio() {
   const wallet = useWallet();
+  const valuations = useValuations(wallet.positions, `${wallet.portfolioBlock ?? ""}`);
+  const ready = wallet.positions.length > 0 && wallet.positions.every((position) => valuations[position.tokenId]);
+  const totals = ready
+    ? wallet.positions.reduce((sum, position) => {
+        const valuation = valuations[position.tokenId] as BasketValuation;
+        return { value: sum.value + valuation.value, costBasis: sum.costBasis + valuation.costBasis };
+      }, { value: BigInt(0), costBasis: BigInt(0) })
+    : undefined;
+  const loading = <span className="value-skeleton" aria-label="Loading" />;
   return (
     <main id="main">
       <section className="detail-note">
@@ -70,6 +99,21 @@ export default function Portfolio() {
               ) : null}
             </div>
           </div>
+          {wallet.positions.length > 0 ? (
+            <dl className="portfolio-performance">
+              <div><dt>Invested</dt><dd className="mono">{totals ? usd(totals.costBasis) : loading}</dd></div>
+              <div><dt>Market value</dt><dd className="mono">{totals ? usd(totals.value) : loading}</dd></div>
+              <div>
+                <dt>Unrealized P&amp;L</dt>
+                <dd className={`mono ${totals && totals.value < totals.costBasis ? "negative" : "positive"}`}>{totals ? pnl(totals).label : loading}</dd>
+              </div>
+              <div>
+                <dt>Yield &amp; dividends earned</dt>
+                <dd className="mono">$0.00</dd>
+                <small>None on testnet: the USDG sleeve holds test USDG and mock tokens pay no dividends.</small>
+              </div>
+            </dl>
+          ) : null}
           {wallet.positions.length === 0 ? (
             <div className="portfolio-empty">
               <h2>No active Baskets.</h2>
@@ -104,8 +148,8 @@ export default function Portfolio() {
                     <Link className="primary-button" href={`/basket/${p.slug}`}>
                       View Basket ↗
                     </Link>
-                    <AccountHoldings account={p.account} strategyId={p.strategyId} refreshKey={`${p.shares}-${wallet.portfolioBlock ?? ""}`} />
-                    <RedeemPanel position={p} />
+                    <AccountHoldings account={p.account} valuation={valuations[p.tokenId]} />
+                    <RedeemPanel position={p} valuation={valuations[p.tokenId] ?? undefined} />
                     </>
                   ) : null}
                   </div>

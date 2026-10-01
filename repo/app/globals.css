@@ -2885,6 +2885,31 @@ h1 > span {
     background-position: -200% 0;
   }
 }
+.portfolio-performance {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px 28px;
+  margin: 28px 0 0;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.portfolio-performance dt {
+  color: var(--muted);
+  font-size: 13px;
+}
+.portfolio-performance dd {
+  margin: 4px 0 0;
+  font-size: 24px;
+  font-weight: 500;
+}
+.portfolio-performance small {
+  display: block;
+  max-width: 34ch;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

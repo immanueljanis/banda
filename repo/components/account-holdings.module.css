@@ -80,3 +80,23 @@
   height: 34px;
   margin-top: 10px;
 }
+.pnl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.pnl dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.pnl dd {
+  margin: 2px 0 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 560px) {
+  .pnl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
