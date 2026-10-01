@@ -6,7 +6,7 @@ import { ASSETS } from "@/constants/baskets";
 import { AssetLogo } from "./asset-label";
 import styles from "./account-holdings.module.css";
 
-type Holding = { ticker: string; amount: string; value?: bigint };
+type Holding = { ticker: string; amount: string; value?: bigint; pricedAt?: number };
 
 const client = createPublicClient({ chain: ROBINHOOD_TESTNET, transport: http() });
 const abi = parseAbi([
@@ -18,6 +18,7 @@ const abi = parseAbi([
   "function pool() view returns (address)",
   "function settlementAsset() view returns (address)",
   "function quoteSell(address,uint256) view returns (uint256)",
+  "function listings(address) view returns (uint128,uint64,uint64,bool,bool)",
 ]);
 const usd = (value: bigint) => Number(formatUnits(value, 6)).toLocaleString("en-US", { style: "currency", currency: "USD" });
 const tickerOf = (symbol: string) => (symbol === "WETH" ? "ETH" : symbol);
@@ -42,21 +43,31 @@ export function AccountHoldings({ account, strategyId, refreshKey }: { account: 
           client.readContract({ address: token, abi, functionName: "balanceOf", args: [account as Address] }),
         ]);
         const ticker = tickerOf(symbol);
+        const listing = token.toLowerCase() === settlement.toLowerCase() || !pool
+          ? undefined
+          : await client.readContract({ address: pool, abi, functionName: "listings", args: [token] }).catch(() => undefined);
         const value = token.toLowerCase() === settlement.toLowerCase()
           ? balance
-          : pool && balance > BigInt(0)
-            ? await client.readContract({ address: pool, abi, functionName: "quoteSell", args: [token, balance] }).catch(() => undefined)
-            : BigInt(0);
-        return { ticker, value, amount: Number(formatUnits(balance, decimals)).toLocaleString("en-US", { maximumSignificantDigits: 6 }) };
+          : listing
+            ? balance * listing[0] / BigInt(listing[2])
+            : undefined;
+        return { ticker, value, pricedAt: listing ? Number(listing[1]) : undefined, amount: Number(formatUnits(balance, decimals)).toLocaleString("en-US", { maximumSignificantDigits: 6 }) };
       }));
       if (!cancelled) setHoldings(rows);
     })().catch(() => { if (!cancelled) setFailed(true); });
     return () => { cancelled = true; };
   }, [account, strategyId, refreshKey]);
   if (failed) return <p className={styles.note}>Holdings could not be read right now.</p>;
-  if (!holdings) return <p className={styles.note}>Reading holdings from the Basket account…</p>;
+  if (!holdings) {
+    return (
+      <div className={styles.holdings} aria-busy="true" aria-label="Reading holdings from the Basket account">
+        {[0, 1, 2].map((row) => <span key={row} className={`value-skeleton ${styles.skeletonRow}`} />)}
+      </div>
+    );
+  }
   if (holdings.length === 0) return null;
   const priced = holdings.every((holding) => holding.value !== undefined);
+  const pricedAt = Math.min(...holdings.map((holding) => holding.pricedAt ?? Infinity));
   const total = holdings.reduce((sum, holding) => sum + (holding.value ?? BigInt(0)), BigInt(0));
   return (
     <div className={styles.holdings}>
@@ -76,13 +87,16 @@ export function AccountHoldings({ account, strategyId, refreshKey }: { account: 
             </span>
             <span className={styles.amount}>
               <span className="mono">{holding.amount}</span>
-              <small className="mono">{holding.value === undefined ? "price refreshing" : usd(holding.value)}</small>
+              <small className="mono">{holding.value === undefined ? <span className="value-skeleton" aria-label="Loading" /> : usd(holding.value)}</small>
             </span>
           </li>
         ))}
       </ul>
       <div className={styles.total}>
-        <span>{priced ? "Market value at pool prices" : "Market value (some prices are refreshing)"}</span>
+        <span>
+          {priced ? "Market value at the last published prices" : "Market value (some prices unavailable)"}
+          {Number.isFinite(pricedAt) ? ` · ${new Date(pricedAt * 1000).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : ""}
+        </span>
         <strong className="mono">{usd(total)}</strong>
       </div>
     </div>

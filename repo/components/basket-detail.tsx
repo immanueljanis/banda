@@ -12,6 +12,8 @@ export function BasketDetail({ basket }: { basket: Basket }) {
   const [amount, setAmount] = useState("500");
   const value = Number(amount);
   const valid = Number.isFinite(value) && value > 0 && value <= wallet.balance;
+  const strategyId = STRATEGY_IDS[BASKETS.findIndex((entry) => entry.slug === basket.slug)];
+  const warm = () => { if (wallet.connected) wallet.warmUp(strategyId); };
   return (
     <main id="main">
       <section className="detail-note">
@@ -59,7 +61,6 @@ export function BasketDetail({ basket }: { basket: Basket }) {
               return;
             }
             if (valid) {
-              const strategyId = STRATEGY_IDS[BASKETS.findIndex((entry) => entry.slug === basket.slug)];
               await wallet.deposit(strategyId, amount).catch(() => undefined);
             }
           }}
@@ -76,7 +77,9 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             min="0.000001"
             step="any"
             value={amount}
+            onFocus={warm}
             onChange={(e) => {
+              warm();
               setAmount(e.target.value);
             }}
             required
@@ -87,6 +90,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
                 type="button"
                 key={n}
                 onClick={() => {
+                  warm();
                   setAmount(String(n));
                 }}
               >

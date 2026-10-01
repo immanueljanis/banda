@@ -18,6 +18,7 @@ import {
   parseUnits,
   publicActions,
   parseAbi,
+  maxUint256,
   type Address,
   type Hash,
 } from "viem";
@@ -69,6 +70,8 @@ type Wallet = {
   deposit: (strategyId: number, amount: string) => Promise<Hash>;
   redeem: (tokenId: string, shares: string) => Promise<Hash>;
   mintTestUsdg: (amount: string) => Promise<Hash>;
+  warmUp: (strategyId: number) => void;
+  warmRedemption: (tokenId: string) => Promise<void>;
   previewRedemption: (tokenId: string, shares: string) => Promise<readonly [bigint, bigint, bigint]>;
   transactionStatus: "idle" | "preparing" | "signing" | "confirming";
 };
@@ -89,6 +92,8 @@ const fallbackValue: Wallet = {
   deposit: async () => { throw new Error("Wallet provider is not available"); },
   redeem: async () => { throw new Error("Wallet provider is not available"); },
   mintTestUsdg: async () => { throw new Error("Wallet provider is not available"); },
+  warmUp: () => undefined,
+  warmRedemption: async () => undefined,
   previewRedemption: async () => { throw new Error("Connect a wallet first"); },
   transactionStatus: "idle",
 };
@@ -201,6 +206,15 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.message || "Quote preparation is unavailable. Please retry later.");
   }, [getAccessToken]);
+
+  const warmed = useRef(new Map<string, number>());
+  /** Prepares quotes and prices once the user shows intent, at most every two minutes per Basket; failures stay silent. */
+  const warm = useCallback((key: string, run: () => Promise<void>) => {
+    const last = warmed.current.get(key) ?? 0;
+    if (!authenticated || Date.now() - last < 120_000) return Promise.resolve();
+    warmed.current.set(key, Date.now());
+    return run().catch(() => { warmed.current.delete(key); });
+  }, [authenticated]);
 
   const prepareRedemption = useCallback(async (tokenId: string) => {
     if (!activeWallet) throw new Error("Connect a wallet first");
@@ -320,25 +334,25 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const tokenAbi = parseAbi(["function balanceOf(address) view returns (uint256)", "function allowance(address,address) view returns (uint256)"]);
       const balance = await receiptClient.readContract({address: ROBINHOOD_TESTNET.settlementAsset, abi: tokenAbi, functionName: "balanceOf", args: [address as Address]});
       if (balance < amountUnits) throw new Error("Insufficient USDG balance");
-      await prepareNav(strategyId);
-      await receiptClient.readContract({address: ROBINHOOD_TESTNET.diamond, abi: guardAbi, functionName: "previewNav", args: [strategy, amountUnits]});
+      const prepared = prepareNav(strategyId).then(() => null, (reason: unknown) => reason);
       const allowance = await receiptClient.readContract({address: ROBINHOOD_TESTNET.settlementAsset, abi: tokenAbi, functionName: "allowance", args: [address as Address, ROBINHOOD_TESTNET.diamond]});
       if (allowance < amountUnits) {
-      setTransactionStatus("signing");
-      await receiptClient.simulateContract({address: ROBINHOOD_TESTNET.settlementAsset, abi: erc20Abi, functionName: "approve", args: [ROBINHOOD_TESTNET.diamond, amountUnits], account: address as Address});
-      const approvalHash = await client.writeContract({
-        address: ROBINHOOD_TESTNET.settlementAsset,
-        abi: erc20Abi,
-        functionName: "approve",
-        args: [ROBINHOOD_TESTNET.diamond, amountUnits],
-      });
-      setTransactionStatus("confirming");
-      const approval = await receiptClient.waitForTransactionReceipt({ hash: approvalHash });
-      if (approval.status !== "success") throw new Error("Approval reverted. Deposit was not sent.");
-      // Approval/signing may take longer than the NAV validity window.
-      setTransactionStatus("preparing");
-      await prepareNav(strategyId);
+        setTransactionStatus("signing");
+        await receiptClient.simulateContract({address: ROBINHOOD_TESTNET.settlementAsset, abi: erc20Abi, functionName: "approve", args: [ROBINHOOD_TESTNET.diamond, maxUint256], account: address as Address});
+        const approvalHash = await client.writeContract({
+          address: ROBINHOOD_TESTNET.settlementAsset,
+          abi: erc20Abi,
+          functionName: "approve",
+          args: [ROBINHOOD_TESTNET.diamond, maxUint256],
+        });
+        setTransactionStatus("confirming");
+        const approval = await receiptClient.waitForTransactionReceipt({ hash: approvalHash });
+        if (approval.status !== "success") throw new Error("Approval reverted. Deposit was not sent.");
+        setTransactionStatus("preparing");
       }
+      const preparation = await prepared;
+      if (preparation) throw preparation;
+      await receiptClient.readContract({address: ROBINHOOD_TESTNET.diamond, abi: guardAbi, functionName: "previewNav", args: [strategy, amountUnits]});
       setTransactionStatus("signing");
       await receiptClient.simulateContract({address: ROBINHOOD_TESTNET.diamond, abi: diamondAbi, functionName: "deposit", args: [strategyId, amountUnits], account: address as Address});
       const depositHash = await client.writeContract({
@@ -352,7 +366,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       if (depositReceipt.status !== "success") throw new Error("Deposit reverted. No Basket was created.");
       setTransactionStatus("idle");
       toast({ tone: "success", title: "Basket deposit confirmed", description: `${amount} USDG is now held in your Basket.`, action: { label: "View portfolio", href: "/portfolio" } });
-      await loadPortfolio();
+      void loadPortfolio();
       return depositHash;
     } catch (reason) {
       throw fail("Deposit didn’t go through", reason);
@@ -403,7 +417,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       if (receipt.status !== "success") throw new Error("Redemption reverted. Your Basket was not redeemed.");
       setTransactionStatus("idle");
       toast({ tone: "success", title: "Redemption confirmed", description: "USDG was sent to your wallet.", action: explorerAction(hash) });
-      await loadPortfolio();
+      void loadPortfolio();
       return hash;
     } catch (reason) {
       throw fail("Redemption didn’t go through", reason);
@@ -436,7 +450,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       if (receipt.status !== "success") throw new Error("Mint reverted. No test USDG was created.");
       setTransactionStatus("idle");
       toast({ tone: "success", title: `${Number(amount).toLocaleString("en-US")} test USDG minted`, description: "It is ready to deposit.", action: explorerAction(hash) });
-      await loadPortfolio();
+      void loadPortfolio();
       return hash;
     } catch (reason) {
       throw fail("Mint didn’t go through", reason);
@@ -470,6 +484,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         deposit,
         redeem,
         mintTestUsdg,
+        warmUp: (strategyId: number) => { void warm(`s${strategyId}`, () => prepareNav(strategyId)); },
+        warmRedemption: (tokenId: string) => warm(`t${tokenId}`, () => prepareRedemption(tokenId)),
         previewRedemption,
         transactionStatus,
       }}

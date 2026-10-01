@@ -59,7 +59,7 @@ export function Header() {
         {wallet.connected ? (
           <>
             <Link className="wallet-balance" href="/portfolio" aria-label={`${wallet.balanceLabel} test USDG available`}>
-              <span className="wallet-balance-value">{wallet.portfolioStatus === "ready" ? wallet.balanceLabel : "—"}</span>
+              <span className="wallet-balance-value">{wallet.portfolioStatus === "ready" ? wallet.balanceLabel : <span className="value-skeleton" aria-label="Loading balance" />}</span>
               <span className="wallet-balance-label">USDG</span>
             </Link>
             <Link className="wallet-button" href="/portfolio">

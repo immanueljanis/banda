@@ -85,6 +85,6 @@ export function createTransport(rpc, key) {
     },
     sendPrices: (args, fees) => wallet.writeContract({ address: pricePool, abi, functionName: "setPrices", args, ...fees, type: "legacy" }),
     send: (args, fees) => wallet.writeContract({ address: ADAPTER, abi, functionName: "setQuote", args, ...fees, type: "legacy" }),
-    receipt: hash => client.waitForTransactionReceipt({ hash, confirmations: 2, timeout: 90_000, pollingInterval: 2_000 }),
+    receipt: hash => client.waitForTransactionReceipt({ hash, confirmations: 1, timeout: 90_000, pollingInterval: 400 }),
   };
 }
