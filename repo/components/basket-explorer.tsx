@@ -50,7 +50,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
   const [live, setLive] = useState<Record<string, LivePrice>>({});
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/market", { signal: controller.signal })
+    fetch("/api/market", { signal: controller.signal, cache: "no-store" })
       .then((response) => (response.ok ? response.json() : { prices: {} }))
       .then((body) => setLive(body.prices ?? {}))
       .catch(() => {});
