@@ -2922,15 +2922,6 @@ h1 > span {
     background-position: -200% 0;
   }
 }
-.sim-tag {
-  margin-left: 6px;
-  padding: 1px 6px;
-  border: 1px solid var(--rule-strong);
-  border-radius: 2px;
-  color: var(--muted);
-  font-size: 11px;
-  vertical-align: 1px;
-}
 .portfolio-performance {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

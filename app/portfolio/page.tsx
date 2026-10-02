@@ -171,7 +171,7 @@ export default function Portfolio() {
                 <dd className={`mono ${totals ? pnlTone(pnl(totals).direction) : ""}`}>{totals ? pnl(totals).label : loading}</dd>
               </div>
               <div>
-                <dt>Income earned <span className="sim-tag">Simulated</span></dt>
+                <dt>Income earned</dt>
                 <dd className="mono positive">{income ? `+${smallUsd(income.earned)}` : loading}</dd>
                 {income && apy ? <small>{apy.toFixed(2)}% a year on your income portion · about {smallUsd(income.yearly)} a year</small> : null}
               </div>
