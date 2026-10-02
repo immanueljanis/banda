@@ -166,6 +166,17 @@ test("durable cooldown and rolling daily limit survive coordinator restarts", as
   await run();
 });
 
+test("journal history accepts live strategy ids after a settled update", async t => {
+  const path = await directory(t);
+  let now = 1_000_000;
+  const run = id => withJournal(path, async journal => { await journal.reserve(id); await journal.settled(); }, () => now);
+  await run(21);
+  now += 60_001;
+  await run(25);
+  const state = JSON.parse(await readFile(join(path, "nav-state.json"), "utf8"));
+  assert.deepEqual(state.attempts.map(item => item.strategyId), [21, 25]);
+});
+
 const pair = await generateKeyPair("ES256", { extractable: true });
 const publicKey = await exportSPKI(pair.publicKey);
 const verify = createAuthVerifier("banda-app", publicKey);
