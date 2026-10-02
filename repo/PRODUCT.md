@@ -10,7 +10,7 @@ Investors who want diversified on-chain exposure without selecting and monitorin
 
 ## Product Purpose
 
-Banda makes a managed DeFi portfolio easier to understand and operate. Users compare transparent Basket mandates, deposit USDG, own an ERC-721 Basket backed by an ERC-6551 account, monitor its position, and redeem partially or fully. Success means the live contract state, costs, risks, provenance, and transaction lifecycle remain understandable without overstating liquidity, performance, or production readiness.
+Banda is a composable ETF platform: one token holds every asset inside. Users compare transparent Baskets, deposit USDG, own an ERC-721 Basket backed by an ERC-6551 account, monitor its position, and redeem partially or fully. Success means the live contract state, costs, risks, provenance, and transaction lifecycle remain understandable without overstating liquidity, performance, or production readiness.
 
 ## Brand Personality
 

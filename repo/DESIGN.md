@@ -1,6 +1,6 @@
 # Banda visual system
 
-This document records the frontend visual baseline; current product decisions are in the [Open House brief](../openhouse/README.md). One-liner: "A managed portfolio you own as a single token."
+This document records the frontend visual baseline. One-liner: "Composable ETFs onchain. One token, every asset inside."
 
 The lane is a security-printed certificate: banknote green drenched across the hero, inner-page bands and closing note, foil gold for guilloche and the primary call to action, and a near-neutral security-paper body tinted toward the brand green, never cream. All colors are OKLCH tokens in `app/globals.css`, with separately defined dark-mode values.
 

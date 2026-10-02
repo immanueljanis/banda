@@ -62,7 +62,7 @@ period, so it cannot stand in for a same-transaction USDG payout.
 | WBTC | Issuer/OFT or canonical bridge mapping, with one selected L2 address | An OFT bridge example is not proof of a canonical contract, active pool, sufficient depth, or exit. |
 | SOL, LINK, NEAR, TAO, RENDER | Issuer-approved representation or bridge mapping | No canonical Robinhood Chain address, NAV feed, or executable USDG route accepted yet. Keep disabled. |
 
-The planned weights below are product targets from `openhouse/README.md`, not
+The planned weights below are product targets from `constants/baskets.ts`, not
 approved maximum exposures. The maximum is **unset for every asset** pending
 liquidity and risk review; no smart-contract admission/configuration may infer
 it from a target weight.
