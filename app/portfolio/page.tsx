@@ -6,7 +6,7 @@ import { RedeemPanel } from "@/components/redeem-panel";
 import { useEffect, useState } from "react";
 import { BASKETS } from "@/constants/baskets";
 import type { Address } from "viem";
-import { AccountHoldings, pnl, pnlTone, usd, useIncomeRate, useNow } from "@/components/account-holdings";
+import { AccountHoldings, atLivePrices, pnl, pnlTone, usd, useIncomeRate, useLivePrices, useNow } from "@/components/account-holdings";
 import { incomeEarned, incomePerYear, smallUsd } from "@/lib/chain/income.mjs";
 import { valueBasket, type BasketValuation } from "@/lib/chain/valuation";
 import type { WalletPosition } from "@/components/wallet";
@@ -46,7 +46,17 @@ function sumValuations(items: WalletPosition[], valuations: Record<string, Baske
   }, { value: BigInt(0), costBasis: BigInt(0) });
 }
 
-function ValueCells({ summary, loading }: { summary?: { value: bigint; costBasis: bigint }; loading: React.ReactNode }) {
+/** Simulated income for a set of Baskets once every one of them has been valued and the rate is known. */
+function sumIncome(items: WalletPosition[], valuations: Record<string, BasketValuation | null>, apy: number | undefined, now: number) {
+  if (!apy || !items.every((item) => valuations[item.tokenId])) return undefined;
+  return items.reduce((sum, item) => {
+    const valuation = valuations[item.tokenId] as BasketValuation;
+    const income = valuation.holdings.find((holding) => holding.ticker === "USDG")?.value ?? BigInt(0);
+    return sum + incomeEarned(income, apy, valuation.since, now);
+  }, 0);
+}
+
+function ValueCells({ summary, income, loading }: { summary?: { value: bigint; costBasis: bigint }; income?: number; loading: React.ReactNode }) {
   return (
     <>
       <span className="mono" data-label="Invested">{summary ? usd(summary.costBasis) : loading}</span>
@@ -54,6 +64,7 @@ function ValueCells({ summary, loading }: { summary?: { value: bigint; costBasis
       <span className={`mono ${summary ? pnlTone(pnl(summary).direction) : ""}`} data-label="Profit / loss">
         {summary ? pnl(summary).label : loading}
       </span>
+      <span className="mono positive" data-label="Income">{income === undefined ? loading : `+${smallUsd(income)}`}</span>
     </>
   );
 }
@@ -81,7 +92,10 @@ function PositionBody({ position, valuation, apy, now }: { position: WalletPosit
 
 export default function Portfolio() {
   const wallet = useWallet();
-  const valuations = useValuations(wallet.positions, `${wallet.portfolioBlock ?? ""}`);
+  const onchain = useValuations(wallet.positions, `${wallet.portfolioBlock ?? ""}`);
+  const live = useLivePrices();
+  const valuations: Record<string, BasketValuation | null> = {};
+  for (const [tokenId, valuation] of Object.entries(onchain)) valuations[tokenId] = valuation ? atLivePrices(valuation, live) : valuation;
   const ready = wallet.positions.length > 0 && wallet.positions.every((position) => valuations[position.tokenId]);
   const totals = ready
     ? wallet.positions.reduce((sum, position) => {
@@ -191,7 +205,7 @@ export default function Portfolio() {
           ) : (
             <div className="positions">
               <div className="position-columns" aria-hidden="true">
-                <span>Basket</span><span>Invested</span><span>Worth now</span><span>Profit / loss</span>
+                <span>Basket</span><span>Invested</span><span>Worth now</span><span>Profit / loss</span><span>Income</span>
               </div>
               {groupByTheme(wallet.positions).map((group) => {
                 const summary = sumValuations(group.items, valuations);
@@ -202,7 +216,7 @@ export default function Portfolio() {
                         <strong>{group.name}</strong>
                         <small>{group.items.length === 1 ? `Basket No. ${group.items[0].tokenId}` : `${group.items.length} Baskets`} · {group.theme}</small>
                       </span>
-                      <ValueCells summary={summary} loading={loading} />
+                      <ValueCells summary={summary} income={sumIncome(group.items, valuations, apy, now)} loading={loading} />
                       <span className="position-chevron" aria-hidden="true" />
                     </summary>
                     <div className="position-items">
@@ -212,7 +226,7 @@ export default function Portfolio() {
                         <details className="position-item" key={p.tokenId}>
                           <summary className="position-row position-subrow">
                             <span className="position-name"><strong>Basket No. {p.tokenId}</strong></span>
-                            <ValueCells summary={sumValuations([p], valuations)} loading={loading} />
+                            <ValueCells summary={sumValuations([p], valuations)} income={sumIncome([p], valuations, apy, now)} loading={loading} />
                             <span className="position-chevron" aria-hidden="true" />
                           </summary>
                           <PositionBody position={p} valuation={valuations[p.tokenId]} apy={apy} now={now} />

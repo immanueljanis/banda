@@ -25,3 +25,11 @@ test("simulated income accrues simple interest on the USDG portion since the las
   assert.equal(smallUsd(0.1835), "$0.18");
   assert.equal(smallUsd(0), "$0.00");
 });
+
+test("market value converts a token balance at a live USD price into USDG units", async () => {
+  const { marketValue } = await import("../../lib/chain/pnl.mjs");
+  assert.equal(marketValue(16_622_500_000_000_000n, 18, 752.0), 12_500_120n);
+  assert.equal(marketValue(5_000_000n, 6, 1), 5_000_000n);
+  assert.equal(marketValue(1n, 18, undefined), undefined);
+  assert.equal(marketValue(1n, 18, 0), undefined);
+});

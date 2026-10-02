@@ -6,7 +6,7 @@ import type { BasketValuation } from "@/lib/chain/valuation";
 import { ASSETS } from "@/constants/baskets";
 import { AssetLogo } from "./asset-label";
 import styles from "./account-holdings.module.css";
-import { pnl, pnlTone, usd } from "@/lib/chain/pnl.mjs";
+import { marketValue, pnl, pnlTone, usd } from "@/lib/chain/pnl.mjs";
 import { incomeEarned, smallUsd } from "@/lib/chain/income.mjs";
 
 export { pnl, pnlTone, usd };
@@ -20,6 +20,37 @@ export function useIncomeRate() {
     return () => { cancelled = true; };
   }, []);
   return apy;
+}
+
+type LivePrices = { asOf: number; prices: Record<string, number> };
+
+/** Live USD prices from /api/market (Chainlink on Robinhood Chain mainnet and CoinGecko), refreshed every minute. */
+export function useLivePrices() {
+  const [live, setLive] = useState<LivePrices>();
+  useEffect(() => {
+    let cancelled = false;
+    const load = () => fetch("/api/market", { cache: "no-store" }).then((response) => response.json()).then((body) => {
+      if (cancelled || !body?.prices) return;
+      const prices: Record<string, number> = {};
+      for (const [ticker, entry] of Object.entries(body.prices as Record<string, { price: number }>)) prices[ticker] = entry.price;
+      setLive({ asOf: Math.floor(Date.parse(body.asOf) / 1000), prices });
+    }).catch(() => undefined);
+    void load();
+    const timer = setInterval(load, 60_000);
+    return () => { cancelled = true; clearInterval(timer); };
+  }, []);
+  return live;
+}
+
+/** Re-prices a Basket's holdings at live market prices; holdings without a live price keep the pool's last price. */
+export function atLivePrices(valuation: BasketValuation, live?: LivePrices): BasketValuation {
+  if (!live) return valuation;
+  const holdings = valuation.holdings.map((holding) => {
+    if (holding.ticker === "USDG") return holding;
+    const value = marketValue(holding.amount, holding.decimals, live.prices[holding.ticker]);
+    return value === undefined ? holding : { ...holding, value, pricedAt: live.asOf };
+  });
+  return { ...valuation, holdings, value: holdings.reduce((sum, holding) => sum + (holding.value ?? BigInt(0)), BigInt(0)), pricedAt: live.asOf };
 }
 
 /** Current Unix time in seconds, refreshed every second so accruing income visibly ticks. */
