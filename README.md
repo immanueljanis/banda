@@ -25,7 +25,7 @@ Banda is a composable ETF platform on Robinhood Chain. Deposit USDG and you rece
 - **Settlement migrations:** `SettlementMigrationInit` switches the settlement asset and refuses to run while any Basket is open. Every live migration was rehearsed on a fork of live state first.
 - **App:** Privy sign-in by email, Google or wallet; buy, partial and full withdrawal; P&L per Basket; backtests on real closing prices; a storage-based indexer that needs no database.
 - **Robinhood Chain integration:** all contracts are deployed on Robinhood Chain testnet (chain 46630), and prices are read from Chainlink on Robinhood Chain mainnet (chain 4663).
-- **Tests:** 191 automated tests (115 Foundry + 76 Node), plus type checking and a production build, in one `bun run check`.
+- **Tests:** 192 automated tests (115 Foundry + 77 Node), plus type checking and a production build, in one `bun run check`.
 
 ## Architecture
 
