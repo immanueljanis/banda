@@ -57,16 +57,23 @@ function ValueCells({ summary, loading }: { summary?: { value: bigint; costBasis
   );
 }
 
+/** A Basket's holdings, with the withdrawal panel opened on demand so the assets stay the first thing read. */
 function PositionBody({ position, valuation }: { position: WalletPosition; valuation: BasketValuation | null | undefined }) {
+  const [withdrawing, setWithdrawing] = useState(false);
   return (
     <div className="position-body">
-      <div className="position-body-grid">
-        <AccountHoldings account={position.account} valuation={valuation} showSummary={false} />
-        <RedeemPanel position={position} valuation={valuation ?? undefined} />
+      <div className={withdrawing ? "position-body-grid" : undefined}>
+        <AccountHoldings account={position.account} valuation={valuation} />
+        {withdrawing ? <RedeemPanel position={position} valuation={valuation ?? undefined} /> : null}
       </div>
-      <Link className="text-link" href={`/basket/${position.slug}`}>
-        View {position.name} details <span aria-hidden="true">→</span>
-      </Link>
+      <div className="position-actions">
+        <button type="button" className="secondary-button" aria-expanded={withdrawing} onClick={() => setWithdrawing((open) => !open)}>
+          {withdrawing ? "Hide withdrawal" : "Withdraw"}
+        </button>
+        <Link className="text-link" href={`/basket/${position.slug}`}>
+          View {position.name} details <span aria-hidden="true">→</span>
+        </Link>
+      </div>
     </div>
   );
 }
@@ -156,7 +163,7 @@ export default function Portfolio() {
               <div>
                 <dt>Income earned</dt>
                 <dd className="mono">$0.00</dd>
-                <small>None on this test version: the income portion holds USDG without interest, and practice versions pay no dividends.</small>
+                <small>None yet on this test version.</small>
               </div>
             </dl>
           ) : null}

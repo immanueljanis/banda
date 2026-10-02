@@ -1,6 +1,6 @@
 "use client";
 import { formatUnits } from "viem";
-import { CANONICAL_TESTNET_TICKERS, ROBINHOOD_TESTNET } from "@/lib/chain/config";
+import { ROBINHOOD_TESTNET } from "@/lib/chain/config";
 import type { BasketValuation } from "@/lib/chain/valuation";
 import { ASSETS } from "@/constants/baskets";
 import { AssetLogo } from "./asset-label";
@@ -9,8 +9,11 @@ import { pnl, pnlTone, usd } from "@/lib/chain/pnl.mjs";
 
 export { pnl, pnlTone, usd };
 
-/** Shows the tokens a Basket's ERC-6551 account holds, their market value and the position's P&L. */
-export function AccountHoldings({ account, valuation, showSummary = true }: { account: string; valuation: BasketValuation | null | undefined; showSummary?: boolean }) {
+const amountLabel = (amount: bigint, decimals: number) =>
+  Number(formatUnits(amount, decimals)).toLocaleString("en-US", { maximumSignificantDigits: 4 });
+
+/** Shows what a Basket's ERC-6551 vault holds: one line per asset, largest value first, with its share of the Basket. */
+export function AccountHoldings({ account, valuation }: { account: string; valuation: BasketValuation | null | undefined }) {
   if (valuation === null) return <p className={styles.note}>Holdings could not be read right now.</p>;
   if (!valuation) {
     return (
@@ -19,42 +22,37 @@ export function AccountHoldings({ account, valuation, showSummary = true }: { ac
       </div>
     );
   }
-  const result = pnl(valuation);
+  const total = valuation.value;
+  const share = (value?: bigint) => value === undefined || total === BigInt(0) ? 0 : Number(value * BigInt(10_000) / total) / 100;
+  const holdings = [...valuation.holdings].sort((a, b) => share(b.value) - share(a.value));
   return (
     <div className={styles.holdings}>
-      {showSummary ? <dl className={styles.pnl}>
-        <div><dt>Invested</dt><dd className="mono">{usd(valuation.costBasis)}</dd></div>
-        <div><dt>Worth now</dt><dd className="mono">{usd(valuation.value)}</dd></div>
-        <div><dt>Profit / loss so far</dt><dd className={`mono ${pnlTone(result.direction)}`}>{result.label}</dd></div>
-      </dl> : null}
-      <div className={styles.head}>
-        <span>Held in this Basket’s vault</span>
-        <a href={`${ROBINHOOD_TESTNET.explorer}/address/${account}`} target="_blank" rel="noreferrer">See it on the blockchain ↗</a>
+      <h4 className={styles.title}>What you own</h4>
+      <div className={styles.bar} aria-hidden="true">
+        {holdings.map((holding) => (
+          <span key={holding.token} style={{ flexGrow: share(holding.value), background: ASSETS[holding.ticker]?.color ?? "var(--muted)" }} />
+        ))}
       </div>
       <ul className={styles.list}>
-        {valuation.holdings.map((holding) => (
+        {holdings.map((holding) => (
           <li key={holding.token}>
             {ASSETS[holding.ticker] ? <AssetLogo ticker={holding.ticker} /> : <span className="asset-logo" aria-hidden="true" />}
             <span className={styles.name}>
               <strong>{holding.ticker}</strong>
-              {holding.ticker === "USDG"
-                ? <small className={styles.canonical}>Income portion · USDG</small>
-                : (CANONICAL_TESTNET_TICKERS as readonly string[]).includes(holding.ticker)
-                  ? <small className={styles.canonical}>Official test token</small>
-                  : <small>Practice version</small>}
+              <small>{holding.ticker === "USDG" ? "Income portion" : ASSETS[holding.ticker]?.name}</small>
             </span>
-            <span className={styles.amount}>
-              <span className="mono">{Number(formatUnits(holding.amount, holding.decimals)).toLocaleString("en-US", { maximumSignificantDigits: 6 })}</span>
-              <small className="mono">{holding.value === undefined ? "No price yet" : usd(holding.value)}</small>
-            </span>
+            <span className={`mono ${styles.units}`}>{amountLabel(holding.amount, holding.decimals)}</span>
+            <span className={`mono ${styles.weight}`}>{share(holding.value).toFixed(0)}%</span>
+            <strong className={`mono ${styles.value}`}>{holding.value === undefined ? "No price" : usd(holding.value)}</strong>
           </li>
         ))}
       </ul>
-      <p className={styles.total}>
+      <p className={styles.footnote}>
         <span>
-          Valued at the latest prices
+          Practice versions at live market prices
           {valuation.pricedAt ? ` · ${new Date(valuation.pricedAt * 1000).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : ""}
         </span>
+        <a href={`${ROBINHOOD_TESTNET.explorer}/address/${account}`} target="_blank" rel="noreferrer">View vault onchain ↗</a>
       </p>
     </div>
   );
