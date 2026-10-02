@@ -6,7 +6,7 @@ import { RedeemPanel } from "@/components/redeem-panel";
 import { useEffect, useState } from "react";
 import { BASKETS } from "@/constants/baskets";
 import type { Address } from "viem";
-import { AccountHoldings, pnl, usd } from "@/components/account-holdings";
+import { AccountHoldings, pnl, pnlTone, usd } from "@/components/account-holdings";
 import { valueBasket, type BasketValuation } from "@/lib/chain/valuation";
 import type { WalletPosition } from "@/components/wallet";
 import { Rosette } from "@/components/guilloche";
@@ -50,7 +50,7 @@ function ValueCells({ summary, loading }: { summary?: { value: bigint; costBasis
     <>
       <span className="mono" data-label="Invested">{summary ? usd(summary.costBasis) : loading}</span>
       <span className="mono" data-label="Worth now">{summary ? usd(summary.value) : loading}</span>
-      <span className={`mono ${summary && summary.value < summary.costBasis ? "negative" : "positive"}`} data-label="Profit / loss">
+      <span className={`mono ${summary ? pnlTone(pnl(summary).direction) : ""}`} data-label="Profit / loss">
         {summary ? pnl(summary).label : loading}
       </span>
     </>
@@ -151,7 +151,7 @@ export default function Portfolio() {
               <div><dt>Worth now</dt><dd className="mono">{totals ? usd(totals.value) : loading}</dd></div>
               <div>
                 <dt>Profit / loss so far</dt>
-                <dd className={`mono ${totals && totals.value < totals.costBasis ? "negative" : "positive"}`}>{totals ? pnl(totals).label : loading}</dd>
+                <dd className={`mono ${totals ? pnlTone(pnl(totals).direction) : ""}`}>{totals ? pnl(totals).label : loading}</dd>
               </div>
               <div>
                 <dt>Income earned</dt>
