@@ -103,6 +103,14 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
       >
         {tab === "About" && (
           <>
+            <div className="basket-why">
+              <h2>Why this Basket</h2>
+              <dl>
+                <div><dt>The idea</dt><dd>{basket.why.idea}</dd></div>
+                <div><dt>Why this mix</dt><dd>{basket.why.mix}</dd></div>
+                <div><dt>Who it suits</dt><dd>{basket.why.fit}</dd></div>
+              </dl>
+            </div>
             <div className="panel-heading">
               <h2>What’s inside</h2>
               <span className="muted">

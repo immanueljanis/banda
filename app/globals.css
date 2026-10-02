@@ -1239,6 +1239,39 @@ h1 > span {
   padding-top: 32px;
   min-height: 470px;
 }
+.basket-why {
+  margin-bottom: 36px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--rule);
+}
+.basket-why h2 {
+  font-size: 23px;
+  letter-spacing: -0.7px;
+}
+.basket-why dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  margin: 18px 0 0;
+}
+.basket-why dt {
+  margin-bottom: 8px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+.basket-why dd {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+@media (max-width: 760px) {
+  .basket-why dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+}
 .panel-heading {
   display: flex;
   align-items: center;

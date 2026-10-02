@@ -21,6 +21,8 @@ export type Basket = {
   name: string;
   thesis: string;
   character: string;
+  /** Plain-language thesis: the idea, why these assets in these weights, and who it suits. */
+  why: { idea: string; mix: string; fit: string };
   id: number;
   mandate: string;
   nav: number;
@@ -89,6 +91,11 @@ export const BASKETS: Basket[] = [
     name: "NEURAL",
     thesis: "Artificial Intelligence",
     character: "Aggressive growth",
+    why: {
+      idea: "AI runs on chips, data and software. This Basket owns the companies that build them and the open networks that run AI outside big tech.",
+      mix: "NVIDIA (30%) and Alphabet (15%) are the established leaders. Bittensor (20%) and NEAR (10%) are crypto networks for open AI. Gold (10%) and the USDG income portion (15%) soften the swings.",
+      fit: "For someone who believes in AI for the long run and can sit through big drops. It is the most aggressive Basket: almost a third is in two volatile crypto networks.",
+    },
     id: 1101,
     mandate: "Own the companies and networks behind AI, from chips to open AI networks.",
     block: 63_794_454,
@@ -137,6 +144,11 @@ export const BASKETS: Basket[] = [
     name: "RAILS",
     thesis: "Digital Finance",
     character: "Crypto growth",
+    why: {
+      idea: "Money is moving onto the internet: stablecoins, crypto exchanges and blockchains that settle payments. This Basket owns the businesses and the networks that carry it.",
+      mix: "Coinbase (20%) and Circle (15%), the company behind USDC, are the listed businesses. Ethereum (20%), Solana (15%) and Chainlink (10%) are the networks payments run on. Gold (5%) and USDG income (15%) add ballast.",
+      fit: "For someone who expects onchain finance to grow and accepts crypto-sized swings. About 45% is in crypto networks, and the two stocks tend to move with crypto prices too.",
+    },
     id: 1202,
     mandate: "Own the companies and networks that move money online.",
     block: 63_794_454,
@@ -191,6 +203,11 @@ export const BASKETS: Basket[] = [
     name: "RESERVE",
     thesis: "Diversified Core",
     character: "Balanced",
+    why: {
+      idea: "One core holding for most markets: growth from US stocks and bitcoin, protection from gold, and a steady income portion.",
+      mix: "Bitcoin (30%) and the S&P 500 (25%) drive growth. Gold (20%) has tended to hold up when stocks fall. Ethereum (10%) adds a second crypto, and USDG income (15%) keeps part of the Basket stable.",
+      fit: "For someone who wants one Basket to start with and keep. Balanced does not mean safe: bitcoin is the largest position and can fall sharply.",
+    },
     id: 1303,
     mandate: "Stocks, bitcoin, gold and income in one balanced mix, for good and bad markets.",
     block: 63_794_454,
@@ -233,6 +250,11 @@ export const BASKETS: Basket[] = [
     name: "FRONTIER",
     thesis: "Future Technology",
     character: "Growth",
+    why: {
+      idea: "A bet on the technology that comes next: faster chips, electric cars, shared computing power and fast blockchains.",
+      mix: "The Nasdaq-100 (25%) gives broad tech exposure. AMD (15%) and Tesla (15%) are focused bets. Render (15%) and Solana (10%) are crypto networks. Gold (5%), oil (5%) and USDG income (10%) balance the mix.",
+      fit: "For someone with a long horizon who wants growth beyond a single theme. Expect large swings: it has the smallest income portion of the five Baskets.",
+    },
     id: 1404,
     mandate:
       "A Basket for the technologies changing how we compute, travel and pay.",
@@ -294,6 +316,11 @@ export const BASKETS: Basket[] = [
     name: "FORTRESS",
     thesis: "Hard Assets & Income",
     character: "Defensive",
+    why: {
+      idea: "Built for rough markets: assets that have tended to keep their value when growth stocks fall, plus the largest income portion.",
+      mix: "Gold (30%) is the anchor. The S&P 500 (20%) keeps some growth. Bitcoin (15%) and Ethereum (10%) are a small hedge against weaker currencies. USDG income (25%) is the largest of any Basket.",
+      fit: "For someone who cares more about protecting value than chasing returns. It can still lose money: gold and crypto both have falling years.",
+    },
     id: 1505,
     mandate: "Aims to hold up in rough markets while still earning some income.",
     block: 63_794_454,
