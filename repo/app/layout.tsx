@@ -6,7 +6,7 @@ import "./globals.css";
 const sans = Archivo({ subsets: ["latin"], axes: ["wdth"], variable: "--font-sans" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 export const metadata: Metadata = {
-  title: "Banda | A managed portfolio you own as a single token",
+  title: "Banda | Composable ETFs onchain",
   description:
     "Choose a Basket of stocks, crypto, gold and an income portion. Deposit USDG, a digital dollar, and own the whole portfolio as a single token. This is a test version with test money.",
 };

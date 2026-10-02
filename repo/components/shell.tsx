@@ -87,7 +87,7 @@ export function Footer() {
           <Mark />
           banda.
         </Link>
-        <p>A managed portfolio you own as a single token.</p>
+        <p>Composable ETFs onchain. One token, every asset inside.</p>
       </div>
       <div className="footer-links">
         <Link href="/#baskets">Explore Baskets ↗</Link>

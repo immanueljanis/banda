@@ -462,7 +462,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             <div className="plain-note">
               <h3>How changes to the mix work</h3>
               <p>
-                The manager adjusts the mix from time to time to keep the Basket
+                Banda adjusts the mix from time to time to keep the Basket
                 on its theme. The past comparison assumes the mix never changed;
                 it is not a record of real trades.
               </p>
@@ -509,8 +509,8 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                 "Thin trading or missing market prices can delay a sale. A withdrawal does not guarantee you get cash instantly.",
               ],
               [
-                "Portfolio management",
-                "The manager can only take a set list of actions on the portfolio. Who runs it and how it is secured will be settled before launch.",
+                "Who curates the Basket",
+                "Banda curates Baskets today and can only take a set list of actions on them. Who runs it and how it is secured will be settled before launch.",
               ],
             ].map(([title, description]) => (
               <div className="risk-row" key={title}>

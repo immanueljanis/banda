@@ -14,10 +14,11 @@ export default function Home() {
         <Rosette className="hero-rosette" />
         <div className="wrap hero">
           <div className="hero-copy">
-            <h1>A managed portfolio you own as a single token.</h1>
+            <h1>Composable ETFs onchain. <span>One token, every asset inside.</span></h1>
             <p className="hero-lede">
-              Deposit USDG, a digital dollar, and get one Basket: a token you
-              own, with its own vault that holds the whole portfolio. It is
+              Banda turns a mix of stocks, crypto and gold into one token you
+              own. Deposit USDG, a digital dollar, and your Basket’s own vault
+              holds every asset inside. It is
               built to earn in two ways, so you are not relying on prices alone.
             </p>
             <dl className="hero-engines">
@@ -44,12 +45,12 @@ export default function Home() {
           </div>
         </div>
         <div className="wrap hero-terms">
-          <span>5 themed Baskets</span>
+          <span>5 live demo Baskets</span>
           <span>0.25% a year, nothing to buy or withdraw</span>
           <span>Your Basket, your vault</span>
           <span>Test version with test money</span>
         </div>
-        <Microtext text="BANDA · A MANAGED PORTFOLIO YOU OWN AS A SINGLE TOKEN" className="hero-microtext" />
+        <Microtext text="BANDA · COMPOSABLE ETFS ONCHAIN · ONE TOKEN, EVERY ASSET INSIDE" className="hero-microtext" />
       </section>
 
       <section className="anatomy wrap" aria-labelledby="anatomy-title">
@@ -103,7 +104,7 @@ export default function Home() {
 
       <section className="ledger wrap" id="baskets" aria-labelledby="baskets-title">
         <div className="ledger-heading">
-          <h2 id="baskets-title">Five themes to choose from.</h2>
+          <h2 id="baskets-title">Five demo Baskets, live now.</h2>
           <p>Values are examples based on real past prices. They are not a forecast.</p>
         </div>
         <ol className="ledger-list">
@@ -206,7 +207,7 @@ export default function Home() {
       <section className="closing-note">
         <Rosette className="closing-rosette" />
         <div className="wrap closing">
-          <h2>One token. The whole portfolio.</h2>
+          <h2>One token. Every asset inside.</h2>
           <Link className="gold-button" href="#baskets">
             Find your Basket <span aria-hidden="true">→</span>
           </Link>

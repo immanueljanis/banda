@@ -1796,9 +1796,13 @@ h1 > span {
   padding-block: clamp(36px, 4.5vw, 64px) clamp(32px, 3.5vw, 48px);
 }
 .hero h1 {
-  max-width: 15ch;
+  max-width: 18ch;
+  font-size: clamp(36px, 4vw, 56px);
   color: var(--on-note);
   animation: rise 0.9s var(--ease-out) 0.05s both;
+}
+.hero h1 > span {
+  color: var(--gold);
 }
 .hero-lede {
   max-width: 44ch;

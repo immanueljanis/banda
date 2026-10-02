@@ -12,7 +12,7 @@ export default function Docs() {
           </Link>
           <h1>How Banda works.</h1>
           <p>
-            A managed portfolio you own as a single token. This is a test
+            Composable ETFs onchain: one token, every asset inside. This is a test
             version of Banda with test money. Nothing here has real value.
             Simple access does not remove investment risk.
           </p>
@@ -40,7 +40,7 @@ export default function Docs() {
           </p>
         </section>
         <section>
-          <h2>The five Baskets</h2>
+          <h2>The five demo Baskets</h2>
           <p>
             NEURAL follows artificial intelligence, RAILS digital finance,
             RESERVE a balanced core, FRONTIER future technology and FORTRESS
@@ -70,9 +70,9 @@ export default function Docs() {
           </p>
         </section>
         <section>
-          <h2>Management and risks</h2>
+          <h2>Curation and risks</h2>
           <p>
-            The manager can only make a short list of changes to a Basket,
+            Banda curates the Baskets today and can only make a short list of changes to one,
             within published limits. On this test version, admin control is not
             yet shared between several people or delayed by a waiting period.
             Prices can fall, and you may get back less than you put in. Software
