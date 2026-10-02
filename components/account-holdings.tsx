@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import { ROBINHOOD_TESTNET } from "@/lib/chain/config";
 import type { BasketValuation } from "@/lib/chain/valuation";
@@ -6,14 +7,36 @@ import { ASSETS } from "@/constants/baskets";
 import { AssetLogo } from "./asset-label";
 import styles from "./account-holdings.module.css";
 import { pnl, pnlTone, usd } from "@/lib/chain/pnl.mjs";
+import { incomeEarned, smallUsd } from "@/lib/chain/income.mjs";
 
 export { pnl, pnlTone, usd };
+
+/** Yearly rate (percent) the income portion is simulated at, read once from /api/yield. */
+export function useIncomeRate() {
+  const [apy, setApy] = useState<number>();
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/yield").then((response) => response.json()).then((body) => { if (!cancelled && body.apy > 0) setApy(body.apy); }).catch(() => undefined);
+    return () => { cancelled = true; };
+  }, []);
+  return apy;
+}
+
+/** Current Unix time in seconds, refreshed every second so accruing income visibly ticks. */
+export function useNow() {
+  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  return now;
+}
 
 const amountLabel = (amount: bigint, decimals: number) =>
   Number(formatUnits(amount, decimals)).toLocaleString("en-US", { maximumSignificantDigits: 4 });
 
 /** Shows what a Basket's ERC-6551 vault holds: one line per asset, largest value first, with its share of the Basket. */
-export function AccountHoldings({ account, valuation }: { account: string; valuation: BasketValuation | null | undefined }) {
+export function AccountHoldings({ account, valuation, apy, now }: { account: string; valuation: BasketValuation | null | undefined; apy?: number; now: number }) {
   if (valuation === null) return <p className={styles.note}>Holdings could not be read right now.</p>;
   if (!valuation) {
     return (
@@ -39,9 +62,11 @@ export function AccountHoldings({ account, valuation }: { account: string; valua
             {ASSETS[holding.ticker] ? <AssetLogo ticker={holding.ticker} /> : <span className="asset-logo" aria-hidden="true" />}
             <span className={styles.name}>
               <strong>{holding.ticker}</strong>
-              <small>{holding.ticker === "USDG" ? "Income portion" : ASSETS[holding.ticker]?.name}</small>
+              <small>{holding.ticker === "USDG" ? `Income · ${apy ? `${apy.toFixed(2)}% a year` : "earning interest"}` : ASSETS[holding.ticker]?.name}</small>
             </span>
-            <span className={`mono ${styles.units}`}>{amountLabel(holding.amount, holding.decimals)}</span>
+            {holding.ticker === "USDG" && apy
+              ? <span className={`mono ${styles.earned}`}>+{smallUsd(incomeEarned(holding.value, apy, valuation.since, now))} earned</span>
+              : <span className={`mono ${styles.units}`}>{amountLabel(holding.amount, holding.decimals)}</span>}
             <span className={`mono ${styles.weight}`}>{share(holding.value).toFixed(0)}%</span>
             <strong className={`mono ${styles.value}`}>{holding.value === undefined ? "No price" : usd(holding.value)}</strong>
           </li>

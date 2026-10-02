@@ -32,7 +32,7 @@ export function AssetFacts({ ticker }: { ticker: string }) {
                   </p>
                   <p>
                     Rate as of {yieldDate(estimate.asOf)}. It changes, and is
-                    before Banda’s fee. On this test version it earns nothing yet.
+                    before Banda’s fee. On this test version, income is simulated at this rate.
                   </p>
                   <a href={estimate.source} target="_blank" rel="noreferrer">
                     Rate source ↗
@@ -75,7 +75,7 @@ export function BasketFeatures({ basket }: { basket: Basket }) {
             the example mix. This estimate covers the income portion only; the
             other assets earn no interest. It is before Banda’s fee and leaves
             out price changes and extra rewards. Rates change and this is not a
-            guaranteed return. On this test version it earns nothing yet.
+            guaranteed return. On this test version, income is simulated at this rate.
           </p>
           <p>
             Rate as of {yieldDate(yieldSnapshotDate)}. Each asset card shows its

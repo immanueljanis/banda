@@ -99,8 +99,8 @@ export default function Docs() {
             are examples. Past comparisons use real daily prices from June to
             September 2025 with a hypothetical mix; open Methodology in a
             Basket’s Historical tab for the assumptions and sources. The income
-            portion earns nothing on this test version. On the real version it
-            is designed to earn interest, at rates that change.
+            portion earns interest at the live rate of the Steakhouse USDG vault on
+            Morpho; on this test version that income is simulated. Rates change.
           </p>
         </section>
         <section>

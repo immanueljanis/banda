@@ -16,6 +16,8 @@ export type BasketValuation = {
   costBasis: bigint;
   pricedAt?: number;
   complete: boolean;
+  /** Unix time of the Basket's last deposit or withdrawal, where simulated income starts accruing. */
+  since?: number;
 };
 
 const client = createPublicClient({ chain: ROBINHOOD_TESTNET, transport: http(), batch: { multicall: true } });
@@ -28,6 +30,7 @@ const abi = parseAbi([
   "function symbol() view returns (string)",
   "function decimals() view returns (uint8)",
   "function balanceOf(address) view returns (uint256)",
+  "function feeState(uint256) view returns (uint128,uint40,uint256)",
 ]);
 const tickerOf = (symbol: string) => (symbol === "WETH" ? "ETH" : symbol === "tUSDG" ? "USDG" : symbol);
 
@@ -36,10 +39,11 @@ const tickerOf = (symbol: string) => (symbol === "WETH" ? "ETH" : symbol === "tU
  * Needs no fresh quote, so it is always available; the redeem quote may differ slightly once prices refresh.
  * Cost basis is exact: one share is one deposited USDG base unit and partial redemptions burn shares pro rata.
  */
-export async function valueBasket(strategyId: number, account: Address, shares: bigint): Promise<BasketValuation> {
-  const [[strategy], settlement] = await Promise.all([
+export async function valueBasket(strategyId: number, account: Address, shares: bigint, tokenId?: bigint): Promise<BasketValuation> {
+  const [[strategy], settlement, fee] = await Promise.all([
     client.readContract({ address: ROBINHOOD_TESTNET.diamond, abi, functionName: "strategy", args: [strategyId] }),
     client.readContract({ address: ROBINHOOD_TESTNET.diamond, abi, functionName: "settlementAsset" }),
+    tokenId === undefined ? undefined : client.readContract({ address: ROBINHOOD_TESTNET.diamond, abi, functionName: "feeState", args: [tokenId] }).catch(() => undefined),
   ]);
   const [[tokens], pool] = await Promise.all([
     client.readContract({ address: strategy, abi, functionName: "legs" }),
@@ -64,5 +68,6 @@ export async function valueBasket(strategyId: number, account: Address, shares: 
     costBasis: shares,
     pricedAt: priced.length ? Math.min(...priced) : undefined,
     complete: holdings.every((holding) => holding.value !== undefined),
+    since: fee ? Number(fee[1]) : undefined,
   };
 }

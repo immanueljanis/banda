@@ -61,7 +61,7 @@ Robinhood Chain testnet, chain ID 46630.
 ## Testnet honesty
 
 - Vault holdings are clearly labelled practice tokens, minted and burned by the pool and bought and sold at live market prices. They are not the real assets.
-- The income portion (10–25% of each Basket) holds USDG and earns nothing on testnet. On mainnet it is designed to sit in a USDG yield vault; see [YIELD_ADMISSION.md](contracts/YIELD_ADMISSION.md).
+- The income portion (10–25% of each Basket) holds USDG. Its income is simulated in the app at the live rate of the Steakhouse USDG vault on Morpho (Robinhood Chain mainnet); on mainnet the portion is designed to sit in that vault. See [YIELD_ADMISSION.md](contracts/YIELD_ADMISSION.md).
 - History charts are hypothetical backtests on real closing prices, not a record of trades.
 - Admin is a single key on testnet. A multisig and timelock come before mainnet.
 

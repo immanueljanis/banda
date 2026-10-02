@@ -399,7 +399,7 @@ export const ASSETS: Record<string, AssetDefinition> = {
   USDG: {
     name: "USDG income",
     description:
-      "USDG, a digital dollar, set aside to earn interest. Rates change. The real interest vault has not been integrated yet, so it earns nothing on this test version.",
+      "USDG, a digital dollar, that earns interest at the live Steakhouse USDG rate on Morpho. Rates change. On this test version the income is simulated.",
     color: "#729384",
     url: "https://www.paxos.com/usdg",
   },

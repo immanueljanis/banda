@@ -56,6 +56,10 @@
   color: var(--muted);
   font-size: 12px;
 }
+.earned {
+  color: var(--accent);
+  font-size: 12px;
+}
 .weight {
   color: var(--muted);
   font-size: 13px;
@@ -98,6 +102,7 @@
     grid-template-columns: 24px minmax(0, 1fr) 40px 76px;
   }
   .units,
+  .earned,
   .name small {
     display: none;
   }

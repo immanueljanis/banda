@@ -28,7 +28,7 @@ export default function Home() {
               </div>
               <div>
                 <dt><i className="category-2" aria-hidden="true" />Income</dt>
-                <dd>10 to 25% sits in USDG, set aside to earn interest. Rates change and are not guaranteed. On this test version it earns nothing yet.</dd>
+                <dd>10 to 25% sits in USDG and earns interest at the live USDG lending rate. Rates change and are not guaranteed.</dd>
               </div>
             </dl>
             <div className="hero-actions">
@@ -68,7 +68,7 @@ export default function Home() {
             </div>
             <div>
               <dt><i className="category-2" aria-hidden="true" />Income</dt>
-              <dd>10 to 25% held in USDG and meant to earn interest, so the Basket can earn income as well as grow in price. On this test version it earns nothing yet.</dd>
+              <dd>10 to 25% held in USDG that earns interest, so the Basket earns income as well as growing in price.</dd>
             </div>
             <div>
               <dt><i className="category-1" aria-hidden="true" />Liquidity</dt>

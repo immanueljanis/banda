@@ -6,7 +6,8 @@ import { RedeemPanel } from "@/components/redeem-panel";
 import { useEffect, useState } from "react";
 import { BASKETS } from "@/constants/baskets";
 import type { Address } from "viem";
-import { AccountHoldings, pnl, pnlTone, usd } from "@/components/account-holdings";
+import { AccountHoldings, pnl, pnlTone, usd, useIncomeRate, useNow } from "@/components/account-holdings";
+import { incomeEarned, incomePerYear, smallUsd } from "@/lib/chain/income.mjs";
 import { valueBasket, type BasketValuation } from "@/lib/chain/valuation";
 import type { WalletPosition } from "@/components/wallet";
 import { Rosette } from "@/components/guilloche";
@@ -17,7 +18,7 @@ function useValuations(positions: WalletPosition[], refreshKey: string) {
     let cancelled = false;
     setValuations({});
     for (const position of positions) {
-      valueBasket(position.strategyId, position.account as Address, BigInt(position.shares))
+      valueBasket(position.strategyId, position.account as Address, BigInt(position.shares), BigInt(position.tokenId))
         .then((valuation) => { if (!cancelled) setValuations((current) => ({ ...current, [position.tokenId]: valuation })); })
         .catch(() => { if (!cancelled) setValuations((current) => ({ ...current, [position.tokenId]: null })); });
     }
@@ -58,12 +59,12 @@ function ValueCells({ summary, loading }: { summary?: { value: bigint; costBasis
 }
 
 /** A Basket's holdings, with the withdrawal panel opened on demand so the assets stay the first thing read. */
-function PositionBody({ position, valuation }: { position: WalletPosition; valuation: BasketValuation | null | undefined }) {
+function PositionBody({ position, valuation, apy, now }: { position: WalletPosition; valuation: BasketValuation | null | undefined; apy?: number; now: number }) {
   const [withdrawing, setWithdrawing] = useState(false);
   return (
     <div className="position-body">
       <div className={withdrawing ? "position-body-grid" : undefined}>
-        <AccountHoldings account={position.account} valuation={valuation} />
+        <AccountHoldings account={position.account} valuation={valuation} apy={apy} now={now} />
         {withdrawing ? <RedeemPanel position={position} valuation={valuation ?? undefined} /> : null}
       </div>
       <div className="position-actions">
@@ -87,6 +88,15 @@ export default function Portfolio() {
         const valuation = valuations[position.tokenId] as BasketValuation;
         return { value: sum.value + valuation.value, costBasis: sum.costBasis + valuation.costBasis };
       }, { value: BigInt(0), costBasis: BigInt(0) })
+    : undefined;
+  const apy = useIncomeRate();
+  const now = useNow();
+  const incomeOf = (valuation: BasketValuation) => valuation.holdings.find((holding) => holding.ticker === "USDG")?.value ?? BigInt(0);
+  const income = ready && apy
+    ? wallet.positions.reduce((sum, position) => {
+        const valuation = valuations[position.tokenId] as BasketValuation;
+        return { earned: sum.earned + incomeEarned(incomeOf(valuation), apy, valuation.since, now), yearly: sum.yearly + incomePerYear(incomeOf(valuation), apy) };
+      }, { earned: 0, yearly: 0 })
     : undefined;
   const loading = <span className="value-skeleton" aria-label="Loading" />;
   return (
@@ -161,9 +171,9 @@ export default function Portfolio() {
                 <dd className={`mono ${totals ? pnlTone(pnl(totals).direction) : ""}`}>{totals ? pnl(totals).label : loading}</dd>
               </div>
               <div>
-                <dt>Income earned</dt>
-                <dd className="mono">$0.00</dd>
-                <small>None yet on this test version.</small>
+                <dt>Income earned <span className="sim-tag">Simulated</span></dt>
+                <dd className="mono positive">{income ? `+${smallUsd(income.earned)}` : loading}</dd>
+                {income && apy ? <small>{apy.toFixed(2)}% a year on your income portion · about {smallUsd(income.yearly)} a year</small> : null}
               </div>
             </dl>
           ) : null}
@@ -197,7 +207,7 @@ export default function Portfolio() {
                     </summary>
                     <div className="position-items">
                       {group.items.map((p) => group.items.length === 1 ? (
-                        <PositionBody key={p.tokenId} position={p} valuation={valuations[p.tokenId]} />
+                        <PositionBody key={p.tokenId} position={p} valuation={valuations[p.tokenId]} apy={apy} now={now} />
                       ) : (
                         <details className="position-item" key={p.tokenId}>
                           <summary className="position-row position-subrow">
@@ -205,7 +215,7 @@ export default function Portfolio() {
                             <ValueCells summary={sumValuations([p], valuations)} loading={loading} />
                             <span className="position-chevron" aria-hidden="true" />
                           </summary>
-                          <PositionBody position={p} valuation={valuations[p.tokenId]} />
+                          <PositionBody position={p} valuation={valuations[p.tokenId]} apy={apy} now={now} />
                         </details>
                       ))}
                     </div>

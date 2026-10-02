@@ -10,3 +10,18 @@ test("P&L compares market value with the USDG cost basis", () => {
   assert.equal(pnl({ value: 0n, costBasis: 0n }).percent, 0);
   assert.equal(usd(1_234_567_890n), "$1,234.57");
 });
+
+test("simulated income accrues simple interest on the USDG portion since the last checkpoint", async () => {
+  const { incomeEarned, incomePerYear, smallUsd } = await import("../../lib/chain/income.mjs");
+  const year = 365 * 24 * 3600;
+  assert.equal(incomeEarned(5_000_000n, 3.67, 1_000, 1_000 + year), 0.1835);
+  assert.ok(Math.abs(incomeEarned(5_000_000n, 3.67, 1_000, 1_000 + 86_400) - 0.1835 / 365) < 1e-12);
+  assert.equal(incomeEarned(5_000_000n, 3.67, undefined, 2_000), 0);
+  assert.equal(incomeEarned(5_000_000n, 0, 1_000, 2_000), 0);
+  assert.equal(incomeEarned(0n, 3.67, 1_000, 2_000), 0);
+  assert.equal(incomeEarned(5_000_000n, 3.67, 3_000, 2_000), 0);
+  assert.equal(incomePerYear(5_000_000n, 3.67), 0.1835);
+  assert.equal(smallUsd(0.000503), "$0.0005");
+  assert.equal(smallUsd(0.1835), "$0.18");
+  assert.equal(smallUsd(0), "$0.00");
+});
