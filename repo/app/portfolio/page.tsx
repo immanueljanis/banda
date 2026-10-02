@@ -156,7 +156,7 @@ export default function Portfolio() {
               <div>
                 <dt>Income earned</dt>
                 <dd className="mono">$0.00</dd>
-                <small>None on this test version: the income portion holds test USDG, and practice versions pay no dividends.</small>
+                <small>None on this test version: the income portion holds USDG without interest, and practice versions pay no dividends.</small>
               </div>
             </dl>
           ) : null}

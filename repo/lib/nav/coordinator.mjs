@@ -1,7 +1,7 @@
 import { NavError } from "./errors.mjs";
 
-/** Live market-priced Baskets on test USDG. Strategies 1-15 are closed to deposits and hold no positions. */
-export const STRATEGY_IDS = [16, 17, 18, 19, 20];
+/** Live market-priced Baskets settled in Paxos USDG. Strategies 1-20 are closed to deposits and hold no positions. */
+export const STRATEGY_IDS = [21, 22, 23, 24, 25];
 
 export function strategyInput(value) {
   if (!value || typeof value !== "object" || Array.isArray(value) ||

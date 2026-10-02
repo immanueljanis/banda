@@ -38,7 +38,7 @@ export function AccountHoldings({ account, valuation, showSummary = true }: { ac
             <span className={styles.name}>
               <strong>{holding.ticker}</strong>
               {holding.ticker === "USDG"
-                ? <small className={styles.canonical}>Income portion · test USDG</small>
+                ? <small className={styles.canonical}>Income portion · USDG</small>
                 : (CANONICAL_TESTNET_TICKERS as readonly string[]).includes(holding.ticker)
                   ? <small className={styles.canonical}>Official test token</small>
                   : <small>Practice version</small>}

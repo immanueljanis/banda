@@ -20,7 +20,7 @@ const REVERTS: [RegExp, string][] = [
   [/invalid shares|empty redeem/, "Choose how much to withdraw."],
   [/fee exceeds proceeds|fee insolvent/, "That withdrawal is too small to cover its fee."],
   [/inventory exhausted/, "One of this Basket’s test assets is out of stock right now. Try a smaller amount or another Basket."],
-  [/ERC20: balance|transfer amount exceeds balance|insufficient balance/i, "Not enough test USDG in this wallet. Get free test USDG on the faucet page at /mint."],
+  [/ERC20: balance|transfer amount exceeds balance|insufficient balance/i, "Not enough USDG in this wallet. Get free testnet USDG from the Paxos faucet on the Get USDG page."],
   [/ERC20: allowance/, "Banda was not allowed to use your USDG. Please try again and approve it in your wallet."],
   [/recipient rejected|payout failed|transfer failed/, "The transfer was rejected. Nothing was changed."],
 ];

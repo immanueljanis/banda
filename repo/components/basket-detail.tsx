@@ -146,7 +146,7 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             <p role="alert">That is more than your available balance.</p>
           )}
           <p>
-            This is a test version with test USDG. Nothing here has real value.
+            This is a test version using Paxos’ testnet USDG. Nothing here has real value.
             Buying takes two approvals in your wallet: first you let Banda use your
             USDG, then you make the deposit. Each holding goes into your Basket’s own
             vault as a practice version of the real asset, bought and sold at live

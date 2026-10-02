@@ -1,66 +1,34 @@
 "use client";
-import { useState } from "react";
 import { useWallet } from "./wallet";
 import { WaveBand } from "./guilloche";
+import { ROBINHOOD_TESTNET } from "@/lib/chain/config";
 
 export function MintPanel() {
   const wallet = useWallet();
-  const [amount, setAmount] = useState("100");
-  const busy = ["preparing", "signing", "confirming"].includes(wallet.transactionStatus);
   return (
-    <form
-      className="buy-panel mint-panel"
-      onSubmit={async (event) => {
-        event.preventDefault();
-        if (!wallet.connected) {
-          wallet.connect();
-          return;
-        }
-        await wallet.mintTestUsdg(amount).catch(() => undefined);
-      }}
-    >
+    <div className="buy-panel mint-panel">
       <WaveBand className="terms-wave" />
-      <span className="certificate-kind">Free test money</span>
-      <h2>Get test USDG</h2>
-      <p>Test USDG goes to your connected wallet. It is test money with no real value.</p>
-      <label htmlFor="mint-amount">Amount in test USDG</label>
-      <input
-        id="mint-amount"
-        inputMode="decimal"
-        type="number"
-        min="0.000001"
-        max="10000"
-        step="any"
-        value={amount}
-        onChange={(event) => {
-          setAmount(event.target.value);
-        }}
-        required
-      />
-      <div className="quick-chips">
-        {["100", "1000", "10000"].map((value) => (
-          <button type="button" key={value} aria-pressed={amount === value} onClick={() => setAmount(value)}>
-            {Number(value).toLocaleString("en-US")}
-          </button>
-        ))}
-      </div>
+      <span className="certificate-kind">Free testnet USDG</span>
+      <h2>Get USDG to try Banda</h2>
+      <p>The Paxos faucet sends 100 testnet USDG per wallet each day, enough for several Baskets. It has no real value.</p>
+      <ol className="mint-steps">
+        <li>Copy your wallet address{wallet.address ? <>: <span className="mono">{wallet.address}</span></> : " after you connect."}</li>
+        <li>On the Paxos faucet, choose Robinhood Chain Testnet and request USDG.</li>
+        <li>If your wallet has no ETH for network fees, get a little from the Robinhood faucet.</li>
+      </ol>
       <p>
         {wallet.connected ? (
-          <>Wallet balance: <span className="mono">{wallet.balanceLabel} USDG</span></>
-        ) : "Connect a wallet to get test USDG."}
+          <>Your balance: <span className="mono">{wallet.balanceLabel} USDG</span></>
+        ) : (
+          <button type="button" className="text-link" onClick={wallet.connect}>Connect wallet</button>
+        )}
       </p>
-      <button className="primary-button" type="submit" disabled={wallet.connected && busy}>
-        {!wallet.connected
-          ? "Connect wallet"
-          : wallet.transactionStatus === "signing"
-            ? "Approve in your wallet…"
-            : wallet.transactionStatus === "confirming"
-              ? "Confirming…"
-              : busy
-                ? "Preparing…"
-                : `Get ${Number(amount || 0).toLocaleString("en-US")} test USDG`}{" "}
-        <span aria-hidden="true">→</span>
-      </button>
-    </form>
+      <a className="primary-button" href={ROBINHOOD_TESTNET.usdgFaucet} target="_blank" rel="noreferrer">
+        Open the Paxos USDG faucet <span aria-hidden="true">↗</span>
+      </a>
+      <a className="text-link mint-secondary" href="https://faucet.testnet.chain.robinhood.com/" target="_blank" rel="noreferrer">
+        Get testnet ETH for fees <span aria-hidden="true">↗</span>
+      </a>
+    </div>
   );
 }

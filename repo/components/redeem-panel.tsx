@@ -66,6 +66,6 @@ export function RedeemPanel({ position, valuation }: { position: WalletPosition;
       setRevision(value => value + 1);
     }}>{busy ? wallet.transactionStatus === "preparing" ? "Getting the latest prices…" : wallet.transactionStatus === "signing" ? "Approve in your wallet…" : "Confirming…" : percentage === 100 ? "Withdraw everything" : `Withdraw ${percentage}%`}</button>
     <p role="status" className="redemption-note">{quote ? "The money goes to the wallet that owns this Basket." : estimated ? "Estimate based on the last prices. We check the latest prices and show the exact amount when you withdraw." : status === "unavailable" ? "You see the exact amount when you withdraw." : "Checking what you would get…"}</p>
-    <p className="redemption-note">You get your holdings’ value at live market prices, paid in test USDG.</p>
+    <p className="redemption-note">You get your holdings’ value at live market prices, paid in USDG.</p>
   </section>;
 }
