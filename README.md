@@ -6,7 +6,7 @@ Banda is a composable ETF platform on Robinhood Chain. Deposit USDG and you rece
 
 **[Try it on testnet](https://www.bandafinance.xyz)** · [Diamond on the explorer](https://explorer.testnet.chain.robinhood.com/address/0xB1dD20D06fc0741237c812Ca904bD8dc3f7DE4e7) · [How it works](https://www.bandafinance.xyz/docs)
 
-![Banda landing page](repo/docs/hero.png)
+![Banda landing page](docs/hero.png)
 
 ## Key features
 
@@ -61,7 +61,7 @@ Robinhood Chain testnet, chain ID 46630.
 ## Testnet honesty
 
 - Vault holdings are clearly labelled practice tokens, minted and burned by the pool and bought and sold at live market prices. They are not the real assets.
-- The income portion (10–25% of each Basket) holds USDG and earns nothing on testnet. On mainnet it is designed to sit in a USDG yield vault; see [YIELD_ADMISSION.md](repo/contracts/YIELD_ADMISSION.md).
+- The income portion (10–25% of each Basket) holds USDG and earns nothing on testnet. On mainnet it is designed to sit in a USDG yield vault; see [YIELD_ADMISSION.md](contracts/YIELD_ADMISSION.md).
 - History charts are hypothetical backtests on real closing prices, not a record of trades.
 - Admin is a single key on testnet. A multisig and timelock come before mainnet.
 
@@ -71,7 +71,7 @@ Prerequisites: [Bun](https://bun.sh), Node.js 22+ and [Foundry](https://getfound
 
 ```sh
 git clone https://github.com/immanueljanis/banda.git
-cd banda/repo
+cd banda
 bun install
 cp .env.example .env.local   # Privy app id and RPC URLs
 bun run dev
@@ -79,7 +79,7 @@ bun run dev
 
 To try a deposit, get testnet USDG from the [Paxos faucet](https://faucet.paxos.com/?network=robinhood) and testnet ETH for gas from the Robinhood Chain faucet.
 
-Run every check from `repo/` (Node tests, Foundry tests, `tsc`, `next build`):
+Run every check (Node tests, Foundry tests, `tsc`, `next build`):
 
 ```sh
 bun run check
@@ -93,8 +93,6 @@ forge test --root contracts --match-contract Banda
 
 ## Repository layout
 
-Everything lives in `repo/`:
-
 - `contracts/src/diamond/`: EIP-2535 proxy, cut, loupe and ownership
 - `contracts/src/banda/`: facets, the Basket vault, strategy, pools and the settlement initializer
 - `contracts/script/`: deployment and migration scripts for Robinhood Chain testnet
@@ -105,6 +103,6 @@ Everything lives in `repo/`:
 
 ## Roadmap
 
-1. **Mainnet assets:** issuer-bridged real assets and the USDG yield portion on Robinhood Chain mainnet. The admission criteria are in [ASSET_ADMISSION.md](repo/contracts/ASSET_ADMISSION.md).
+1. **Mainnet assets:** issuer-bridged real assets and the USDG yield portion on Robinhood Chain mainnet. The admission criteria are in [ASSET_ADMISSION.md](contracts/ASSET_ADMISSION.md).
 2. **Security:** an audit, a multisig admin and a timelock.
 3. **Open platform:** anyone can create a Basket, and Baskets become building blocks in other protocols.

@@ -1,0 +1,11 @@
+/*.md
+/openhouse/
+/token2049/
+/node_modules/
+/.next/
+/contracts/out/
+/contracts/cache/
+/contracts/broadcast/
+/test-results/
+.env*
+!.env.example

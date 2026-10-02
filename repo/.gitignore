@@ -1,8 +1,0 @@
-node_modules/
-.next/
-*.tsbuildinfo
-test-results/
-playwright-report/
-.env*
-!.env.example
-.nav-state/

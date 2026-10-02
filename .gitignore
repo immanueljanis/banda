@@ -1,0 +1,15 @@
+node_modules/
+.next/
+*.tsbuildinfo
+test-results/
+playwright-report/
+.env*
+!.env.example
+.nav-state/
+# Private notes and workspaces stay local.
+/*.md
+!/README.md
+!/DESIGN.md
+!/PRODUCT.md
+/openhouse/
+/token2049/
