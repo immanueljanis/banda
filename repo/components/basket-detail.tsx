@@ -30,17 +30,17 @@ export function BasketDetail({ basket }: { basket: Basket }) {
               <p>{basket.mandate}</p>
             </div>
             <div className="detail-value">
-              <span>Hypothetical $10,000 Basket, 30 days</span>
+              <span>Example: $10,000 over the last 30 days</span>
               <strong className="detail-nav">
                 <NavNumber value={basket.nav} />
               </strong>
               <details className="valuation-details">
                 <summary>About this value</summary>
                 <p>
-                  What $10,000 placed in this Basket 30 days before the last close
-                  would be worth now, at its current weights and real daily closes
-                  (Yahoo Finance and CoinGecko, cross-checked against live Chainlink).
-                  Not a live position.
+                  What $10,000 put into this Basket 30 days before the last close
+                  would be worth now, using today’s mix and real daily closing prices
+                  (Yahoo Finance and CoinGecko, checked against live Chainlink prices).
+                  This is an example, not a real holding.
                 </p>
               </details>
             </div>
@@ -66,9 +66,9 @@ export function BasketDetail({ basket }: { basket: Basket }) {
           }}
         >
           <WaveBand className="terms-wave" />
-          <span className="certificate-kind">Subscription</span>
+          <span className="certificate-kind">Buy</span>
           <h2>Buy {basket.name}</h2>
-          <p>Choose an amount in USDG. You receive one Basket NFT that holds the whole mix.</p>
+          <p>Choose an amount in USDG, a digital dollar. You get one Basket that holds the whole mix.</p>
           <label htmlFor="amount">Amount in USDG</label>
           <input
             id="amount"
@@ -109,22 +109,22 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             <span className="mono">{money(wallet.balance)} USDG</span>
           </p>
           <div className="buy-preview">
-            You will receive <span className="mono">1</span> basket holding{" "}
+            You get <span className="mono">1</span> Basket worth{" "}
             <span className="mono">
               {money(Number.isFinite(value) && value > 0 ? value : 0)}
             </span>{" "}
             in {basket.name}.
           </div>
           <div className="fee-line">
-            <span>Purchase fee</span>
+            <span>Fee to buy</span>
             <span className="mono">0%</span>
           </div>
           <div className="fee-line">
-            <span>Management fee</span>
-            <span className="mono">{basket.managementFee}% / year</span>
+            <span>Yearly fee</span>
+            <span className="mono">{basket.managementFee}% a year</span>
           </div>
           <p>
-            No entry, exit or performance fee. The management fee accrues by the second and appears in your redemption preview.
+            No fee to buy or withdraw, and no performance fee. The yearly fee is charged in tiny amounts over time, only when you withdraw, and you see it before you approve.
           </p>
           <button
             className="primary-button"
@@ -134,22 +134,23 @@ export function BasketDetail({ basket }: { basket: Basket }) {
             {!wallet.connected
               ? "Connect wallet"
               : wallet.transactionStatus === "preparing"
-                ? "Preparing quote…"
+                ? "Getting the latest prices…"
               : wallet.transactionStatus === "signing"
-                ? "Confirm in wallet…"
+                ? "Approve in your wallet…"
                 : wallet.transactionStatus === "confirming"
                   ? "Confirming…"
                   : "Deposit now"}{" "}
             <span aria-hidden="true">→</span>
           </button>
           {wallet.connected && value > wallet.balance && (
-            <p role="alert">Amount exceeds your available balance.</p>
+            <p role="alert">That is more than your available balance.</p>
           )}
           <p>
-            Balance and transactions use Robinhood testnet and test USDG. Deposit takes
-            two wallet confirmations: USDG approval, then the Basket deposit. Every
-            holding lands in your Basket’s own account as a testnet mock token, bought
-            and sold at live market prices from Chainlink and CoinGecko.
+            This is a test version with test USDG. Nothing here has real value.
+            Buying takes two approvals in your wallet: first you let Banda use your
+            USDG, then you make the deposit. Each holding goes into your Basket’s own
+            vault as a practice version of the real asset, bought and sold at live
+            market prices.
           </p>
         </form>
       </div>

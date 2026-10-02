@@ -14,7 +14,7 @@ export function AccountHoldings({ account, valuation }: { account: string; valua
   if (valuation === null) return <p className={styles.note}>Holdings could not be read right now.</p>;
   if (!valuation) {
     return (
-      <div className={styles.holdings} aria-busy="true" aria-label="Reading holdings from the Basket account">
+      <div className={styles.holdings} aria-busy="true" aria-label="Loading what your Basket’s vault holds">
         {[0, 1, 2].map((row) => <span key={row} className={`value-skeleton ${styles.skeletonRow}`} />)}
       </div>
     );
@@ -24,12 +24,12 @@ export function AccountHoldings({ account, valuation }: { account: string; valua
     <div className={styles.holdings}>
       <dl className={styles.pnl}>
         <div><dt>Invested</dt><dd className="mono">{usd(valuation.costBasis)}</dd></div>
-        <div><dt>Market value</dt><dd className="mono">{usd(valuation.value)}</dd></div>
-        <div><dt>Unrealized P&amp;L</dt><dd className={`mono ${result.change < BigInt(0) ? "negative" : "positive"}`}>{result.label}</dd></div>
+        <div><dt>Worth now</dt><dd className="mono">{usd(valuation.value)}</dd></div>
+        <div><dt>Profit / loss so far</dt><dd className={`mono ${result.change < BigInt(0) ? "negative" : "positive"}`}>{result.label}</dd></div>
       </dl>
       <div className={styles.head}>
-        <span>Held in this Basket’s account</span>
-        <a href={`${ROBINHOOD_TESTNET.explorer}/address/${account}`} target="_blank" rel="noreferrer">View onchain ↗</a>
+        <span>Held in this Basket’s vault</span>
+        <a href={`${ROBINHOOD_TESTNET.explorer}/address/${account}`} target="_blank" rel="noreferrer">See it on the blockchain ↗</a>
       </div>
       <ul className={styles.list}>
         {valuation.holdings.map((holding) => (
@@ -38,19 +38,19 @@ export function AccountHoldings({ account, valuation }: { account: string; valua
             <span className={styles.name}>
               <strong>{holding.ticker}</strong>
               {(CANONICAL_TESTNET_TICKERS as readonly string[]).includes(holding.ticker)
-                ? <small className={styles.canonical}>Canonical testnet token</small>
-                : <small>Testnet mock</small>}
+                ? <small className={styles.canonical}>Official test token</small>
+                : <small>Practice version</small>}
             </span>
             <span className={styles.amount}>
               <span className="mono">{Number(formatUnits(holding.amount, holding.decimals)).toLocaleString("en-US", { maximumSignificantDigits: 6 })}</span>
-              <small className="mono">{holding.value === undefined ? "No published price" : usd(holding.value)}</small>
+              <small className="mono">{holding.value === undefined ? "No price yet" : usd(holding.value)}</small>
             </span>
           </li>
         ))}
       </ul>
       <p className={styles.total}>
         <span>
-          Valued at the last published prices
+          Valued at the latest prices
           {valuation.pricedAt ? ` · ${new Date(valuation.pricedAt * 1000).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : ""}
         </span>
       </p>

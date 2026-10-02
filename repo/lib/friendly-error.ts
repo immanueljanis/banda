@@ -9,20 +9,20 @@ import {
 } from "viem";
 
 const REVERTS: [RegExp, string][] = [
-  [/stale NAV|stale-block NAV|future-block NAV|invalid NAV|nav guard/i, "The Basket price quote expired before your transaction landed. Nothing was spent; please try again."],
-  [/Banda: paused/, "Deposits are paused right now. Redemptions stay open."],
+  [/stale NAV|stale-block NAV|future-block NAV|invalid NAV|nav guard/i, "The price check expired before your transaction went through. Nothing was spent; please try again."],
+  [/Banda: paused/, "Deposits are paused right now. You can still withdraw."],
   [/strategy disabled/, "This Basket is not accepting deposits right now."],
-  [/deposit too small/, "That deposit is below this Basket’s minimum."],
-  [/minimum payout/, "The payout moved more than 0.5% while you were signing. Nothing was redeemed; please try again."],
+  [/deposit too small/, "That amount is below this Basket’s minimum deposit."],
+  [/minimum payout/, "Prices moved more than 0.5% while you were approving. Nothing was withdrawn; please try again."],
   [/not basket authority|not approved/, "This wallet is not allowed to manage that Basket."],
   [/lifecycle busy/, "This Basket is busy with another transaction. Please try again in a moment."],
-  [/basket missing|token missing/, "That Basket no longer exists. It may have been fully redeemed."],
-  [/invalid shares|empty redeem/, "Choose an amount of shares to redeem."],
-  [/fee exceeds proceeds|fee insolvent/, "That redemption is too small to cover its fee."],
-  [/inventory exhausted/, "One of this Basket’s testnet assets is out of inventory. Try a smaller amount or another Basket."],
-  [/ERC20: balance|transfer amount exceeds balance|insufficient balance/i, "Not enough test USDG in this wallet. Mint some on the faucet page."],
-  [/ERC20: allowance/, "USDG spending was not approved. Please try again and approve the deposit."],
-  [/recipient rejected|payout failed|transfer failed/, "The token transfer was rejected. Nothing was changed."],
+  [/basket missing|token missing/, "That Basket no longer exists. It may have been fully withdrawn."],
+  [/invalid shares|empty redeem/, "Choose how much to withdraw."],
+  [/fee exceeds proceeds|fee insolvent/, "That withdrawal is too small to cover its fee."],
+  [/inventory exhausted/, "One of this Basket’s test assets is out of stock right now. Try a smaller amount or another Basket."],
+  [/ERC20: balance|transfer amount exceeds balance|insufficient balance/i, "Not enough test USDG in this wallet. Get free test USDG on the faucet page at /mint."],
+  [/ERC20: allowance/, "Banda was not allowed to use your USDG. Please try again and approve it in your wallet."],
+  [/recipient rejected|payout failed|transfer failed/, "The transfer was rejected. Nothing was changed."],
 ];
 
 const PLAIN = /^[^\n]{1,180}$/;
@@ -33,8 +33,8 @@ export const CANCELLED = "Request cancelled in your wallet. Nothing was sent.";
 export function friendlyError(reason: unknown, fallback = "Something went wrong. Nothing was sent; please try again."): string {
   if (reason instanceof BaseError) {
     if (reason.walk((error) => error instanceof UserRejectedRequestError)) return CANCELLED;
-    if (reason.walk((error) => error instanceof InsufficientFundsError)) return "This wallet needs a little testnet ETH for gas.";
-    if (reason.walk((error) => error instanceof ChainMismatchError)) return "Switch your wallet to Robinhood Chain testnet and try again.";
+    if (reason.walk((error) => error instanceof InsufficientFundsError)) return "This wallet needs a little test ETH to pay the network fee.";
+    if (reason.walk((error) => error instanceof ChainMismatchError)) return "Switch your wallet to the Robinhood Chain test network and try again.";
     if (reason.walk((error) => error instanceof TimeoutError || error instanceof HttpRequestError)) return "The network is slow to respond. Check your portfolio before retrying.";
     const revert = reason.walk((error) => error instanceof ContractFunctionRevertedError);
     const text = revert instanceof ContractFunctionRevertedError ? `${revert.reason ?? ""} ${revert.shortMessage}` : `${reason.shortMessage} ${reason.details ?? ""}`;

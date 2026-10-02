@@ -48,7 +48,7 @@ export function Sparkline({ basket }: { basket: Basket }) {
       className="sparkline"
       viewBox="0 0 250 65"
       role="img"
-      aria-label={`Hypothetical $10,000 Basket, ${basket.change.toFixed(2)}% over thirty days on real prices`}
+      aria-label={`Example $10,000 Basket, ${basket.change.toFixed(2)}% over 30 days on real prices`}
     >
       <path className="spark-baseline" d="M0 60H250" />
       <polyline
@@ -109,7 +109,7 @@ export function Certificate({
       <WaveBand className="certificate-wave" />
       <div className="certificate-top">
         <span className="certificate-kind">Basket certificate</span>
-        <span className="example-tag">Illustrative</span>
+        <span className="example-tag">Example</span>
       </div>
       <div className="certificate-title">
         <h3>{basket.name}</h3>
@@ -121,7 +121,7 @@ export function Certificate({
       )}
       <div className="certificate-value">
         <Rosette className="certificate-rosette" />
-        <span className="eyebrow">Hypothetical $10,000 Basket</span>
+        <span className="eyebrow">Example $10,000 Basket</span>
         <strong>
           <NavNumber value={basket.nav} />
         </strong>
@@ -131,13 +131,13 @@ export function Certificate({
             {basket.change.toFixed(2)}%
           </span>
           <span className="muted">
-            <span className="mono">30</span>d, real prices
+            <span className="mono">30</span> days, real prices
           </span>
         </div>
       </div>
       {!hero && <Sparkline basket={basket} />}
       <div className="certificate-allocation">
-        <span className="eyebrow">One basket. Multiple asset classes.</span>
+        <span className="eyebrow">One Basket. Several kinds of assets.</span>
         <Allocation basket={basket} />
       </div>
       {!hero && (
@@ -202,7 +202,7 @@ function PortfolioAssembly({
           transition={{ delay: 0.6, duration: 0.8 }}
         >
           <img src="/icon.svg" width="22" height="22" alt="" />
-          <span>One basket</span>
+          <span>One Basket</span>
         </motion.div>
         {basket.holdings.map((h, i) => (
           <motion.div

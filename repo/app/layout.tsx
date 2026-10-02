@@ -8,7 +8,7 @@ const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 export const metadata: Metadata = {
   title: "Banda | A managed portfolio you own as a single token",
   description:
-    "Choose a Basket of tokenized stocks, crypto, gold and DeFi yield. Deposit USDG on Robinhood Chain and hold the whole portfolio as one NFT.",
+    "Choose a Basket of stocks, crypto, gold and an income portion. Deposit USDG, a digital dollar, and own the whole portfolio as a single token. This is a test version with test money.",
 };
 export default function RootLayout({
   children,

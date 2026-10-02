@@ -14,7 +14,7 @@ export function AssetFacts({ ticker }: { ticker: string }) {
     <div className="asset-facts">
       {estimate && (
         <div className="asset-apy">
-          <span>Est. APY</span>
+          <span>Est. yearly rate</span>
           <strong className="mono">{estimate.apy.toFixed(2)}%</strong>
         </div>
       )}
@@ -31,8 +31,8 @@ export function AssetFacts({ ticker }: { ticker: string }) {
                     {estimate.provider}. {estimate.method}
                   </p>
                   <p>
-                    Snapshot: {yieldDate(estimate.asOf)}. Variable, before Banda
-                    fees.
+                    Rate as of {yieldDate(estimate.asOf)}. It changes, and is
+                    before Banda’s fee. On this test version it earns nothing yet.
                   </p>
                   <a href={estimate.source} target="_blank" rel="noreferrer">
                     Rate source ↗
@@ -66,21 +66,20 @@ export function BasketFeatures({ basket }: { basket: Basket }) {
                 ),
               ),
             ).join(" + ")}{" "}
-            yield
             <strong className="basket-apy mono">
-              {basketYield(basket).toFixed(2)}% <span>est. APY</span>
+              {basketYield(basket).toFixed(2)}% <span>est. yearly rate</span>
             </strong>
           </summary>
           <p>
             {yielding.map((h) => `${h.ticker} (${h.weight}%)`).join(" · ")} of
-            the example allocation. Allocation-weighted estimate from the
-            yield-bearing assets; other assets contribute zero yield. Before
-            Banda fees, excluding price changes and additional incentives. Rates
-            vary, not a guaranteed portfolio return.
+            the example mix. This estimate covers the income portion only; the
+            other assets earn no interest. It is before Banda’s fee and leaves
+            out price changes and extra rewards. Rates change and this is not a
+            guaranteed return. On this test version it earns nothing yet.
           </p>
           <p>
-            Rate snapshot: {yieldDate(yieldSnapshotDate)}. Asset cards show
-            individual rates and sources.
+            Rate as of {yieldDate(yieldSnapshotDate)}. Each asset card shows its
+            own rate and source.
           </p>
         </details>
       )}

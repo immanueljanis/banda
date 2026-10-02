@@ -84,8 +84,7 @@ export function AssetLabel({
             )}
             {!ASSET_FACTS[ticker]?.yield && (
               <p>
-                Holding this token alone does not generate yield in the example
-                basket.
+                This asset does not earn income on its own in this Basket.
               </p>
             )}
             <Tooltip.Arrow className="tooltip-arrow" />

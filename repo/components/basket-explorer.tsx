@@ -16,7 +16,6 @@ import {
 import { ASSETS, type Basket, money } from "@/constants/baskets";
 import {
   PERIODS,
-  assetSource,
   backtest,
   dataPeriod,
   historicalAsset,
@@ -107,7 +106,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             <div className="panel-heading">
               <h2>What’s inside</h2>
               <span className="muted">
-                {basket.holdings.length} assets, one basket
+                {basket.holdings.length} assets in one Basket
               </span>
             </div>
             <div className="allocation-overview">
@@ -177,7 +176,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             <div className="holdings-heading">
               <h3>The assets</h3>
               <span>
-                Daily close ·{" "}
+                Closing price ·{" "}
                 <span className="mono">{longDate(dataPeriod.end)}</span>
               </span>
             </div>
@@ -205,7 +204,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                         <small>
                           {quote
                             ? ` vs ${longDate(asset.date)} close`
-                            : " daily close"}
+                            : " in one day"}
                         </small>
                       </span>
                     </div>
@@ -213,7 +212,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                       <small className="asset-proxy-note">
                         {quote ? (
                           <>
-                            Live · {quote.source} ·{" "}
+                            Live market price ·{" "}
                             <span className="mono">
                               {longDate(quote.updatedAt.slice(0, 10))}{" "}
                               {quote.updatedAt.slice(11, 16)} UTC
@@ -221,7 +220,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                           </>
                         ) : (
                           <>
-                            {assetSource(h.ticker)} close ·{" "}
+                            Closing price ·{" "}
                             <span className="mono">{longDate(asset.date)}</span>
                           </>
                         )}
@@ -231,7 +230,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                       className={`asset-history ${up ? "positive" : "negative"}`}
                       viewBox="0 0 250 54"
                       role="img"
-                      aria-label={`${ASSETS[h.ticker].name} historical price, last thirty daily observations`}
+                      aria-label={`${ASSETS[h.ticker].name} price over the last 30 days`}
                     >
                       <path d="M0 51H250" stroke="var(--rule)" />
                       <polyline
@@ -253,7 +252,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                     </div>
                     {h.ticker === "USDG" && (
                       <small className="asset-proxy-note">
-                        Cash price held at $1; candidate vault yield excluded.
+                        Held at $1. Possible interest is not included.
                       </small>
                     )}
                   </article>
@@ -265,7 +264,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
         {tab === "Historical" && (
           <>
             <div className="panel-heading">
-              <h2>Historical comparison</h2>
+              <h2>How it would have done</h2>
               <div className="periods">
                 {PERIODS.map((p) => (
                   <button
@@ -279,8 +278,8 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
               </div>
             </div>
             <p className="chart-intro">
-              What a hypothetical <span className="mono">$10,000</span> Basket
-              would have done on real historical prices.
+              What a <span className="mono">$10,000</span> Basket would have
+              done on real past prices. This is a hypothetical example.
             </p>
             <div className="comparison-summary">
               <div>
@@ -315,7 +314,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             <div
               className="backtest-chart"
               role="img"
-              aria-label={`${period} backtested portfolio versus S&P 500, both starting at 10000 dollars`}
+              aria-label={`${period} example portfolio versus S&P 500, both starting at 10000 dollars`}
             >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
@@ -392,45 +391,45 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
               {history[0].date} to {end.date}
             </p>
             <p className="backtest-disclaimer">
-              Hypothetical backtest on real historical closing prices, using
-              today’s weights, before fees. This is not Banda’s live
-              performance and does not predict future results.
+              Hypothetical example on real past closing prices, using today’s
+              mix, before fees. This is not Banda’s real performance and does
+              not predict future results.
             </p>
             <details className="methodology">
               <summary>Methodology &amp; data sources</summary>
               <p>
-                Each selected window starts at{" "}
-                <span className="mono">$10,000</span> at the first close of the
-                window, split by the Basket’s current weights, then holds fixed
-                quantities without rebalancing. Changing the window starts a
-                fresh simulation. Data runs from{" "}
+                Each period starts with{" "}
+                <span className="mono">$10,000</span> at the first close,
+                split by the Basket’s current mix, then holds the same amounts
+                with no changes to the mix. Picking another period starts a
+                fresh example. Data runs from{" "}
                 <span className="mono">{dataPeriod.start}</span> to{" "}
                 <span className="mono">{dataPeriod.end}</span>, fetched{" "}
                 <span className="mono">{dataPeriod.fetchedAt.slice(0, 10)}</span>.
               </p>
               <p>
-                Daily closes matched on S&amp;P <span className="mono">500</span>{" "}
-                trading dates; a missing close carries the previous close
-                forward. Crypto closes at midnight UTC, equities at the US
-                market close. The benchmark is the S&amp;P{" "}
+                Daily closing prices are lined up on S&amp;P <span className="mono">500</span>{" "}
+                trading days; if a price is missing, the previous close is
+                used. Crypto closes at midnight UTC, stocks at the US market
+                close. The comparison is the S&amp;P{" "}
                 <span className="mono">500</span> price index (^GSPC),
-                excluding dividends.
+                without dividends.
               </p>
               <p>
-                Equities, ETFs, ETH, BTC and LINK use Yahoo Finance closes of
-                the markets their Robinhood Chain Chainlink feeds track; SOL,
-                TAO, NEAR and RENDER use CoinGecko, the same source Banda’s price
-                publisher uses for them. USDG is held at{" "}
-                <span className="mono">$1</span> without yield. Prices reflect
-                market behavior, not a verified strategy execution or Robinhood
-                Stock Token liquidity.
+                Stocks, ETFs, ETH, BTC and LINK use Yahoo Finance closing prices
+                for the same markets their Chainlink price feeds on Robinhood
+                Chain follow. SOL, TAO, NEAR and RENDER use CoinGecko, the same
+                source Banda uses for their live prices. USDG is held at{" "}
+                <span className="mono">$1</span> with no interest. These prices
+                show how the markets moved, not real trades by Banda or how
+                easy Robinhood stock tokens are to buy and sell.
               </p>
               <p>
-                The {basket.managementFee}% annual management fee, trading
-                costs, slippage, taxes and additional lending rewards are
-                excluded. The MVP has no performance fee. Current example
-                weights are applied retrospectively, introducing selection bias.
-                Returns do not predict future results.
+                The {basket.managementFee}% yearly fee, trading costs, price
+                movement while trading, taxes and extra lending rewards are not
+                included. This version has no performance fee. Today’s mix is
+                applied to the past, which can make results look better than
+                they would have been. Past results do not predict future results.
               </p>
               <div className="source-links">
                 <a
@@ -450,22 +449,22 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
         {tab === "Rebalances" && (
           <>
             <div className="panel-heading">
-              <h2>Changes to the basket</h2>
+              <h2>Changes to the mix</h2>
             </div>
             <div className="rebalance-empty">
               <span className="empty-rule" />
-              <h3>No rebalances recorded.</h3>
+              <h3>No changes to the mix yet.</h3>
               <p>
-                When the portfolio’s mix changes, you’ll see what changed, when
-                it happened, and why.
+                When the mix changes, you’ll see what changed, when it
+                happened, and why.
               </p>
             </div>
             <div className="plain-note">
-              <h3>How rebalancing works</h3>
+              <h3>How changes to the mix work</h3>
               <p>
-                The manager adjusts the mix of assets to keep the basket aligned
-                with its strategy. The historical comparison assumes no
-                rebalancing; it is not an execution log.
+                The manager adjusts the mix from time to time to keep the Basket
+                on its theme. The past comparison assumes the mix never changed;
+                it is not a record of real trades.
               </p>
             </div>
           </>
@@ -481,18 +480,19 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
               </span>
             </div>
             <p className="risk-intro">
-              {basket.mandate} Its {basket.character.toLowerCase()} profile can
-              still lose value, and diversification cannot prevent losses.
+              {basket.mandate} Its {basket.character.toLowerCase()} style can
+              still lose value. Spreading your money across assets does not
+              prevent losses.
             </p>
             <div className="risk-observation">
               <span>
-                Largest decline from a peak in the six-month simulation
+                Largest drop from a high point in the six-month example
               </span>
               <strong className="mono negative">
                 {maxDrawdown(backtest(basket.holdings, "6M")).toFixed(2)}%
               </strong>
               <small>
-                Historical model, before fees. Future losses can be larger.
+                Based on past prices, before fees. Future drops can be larger.
               </small>
             </div>
             {[
@@ -502,15 +502,15 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
               ],
               [
                 "Underlying platforms",
-                "A failure in a lending, staking or custody provider can affect the assets held by the basket.",
+                "If a lending, staking or storage service the Basket relies on fails, the Basket’s assets can be affected.",
               ],
               [
                 "Access to your money",
-                "Low liquidity or unavailable price feeds can delay selling. Redeeming underlying holdings does not guarantee an immediate cash exit.",
+                "Thin trading or missing market prices can delay a sale. A withdrawal does not guarantee you get cash instantly.",
               ],
               [
                 "Portfolio management",
-                "The manager controls defined portfolio actions. The final operator and security setup must be settled before launch.",
+                "The manager can only take a set list of actions on the portfolio. Who runs it and how it is secured will be settled before launch.",
               ],
             ].map(([title, description]) => (
               <div className="risk-row" key={title}>
@@ -527,8 +527,8 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             </div>
             <Link className="resource-row" href="/docs">
               <div>
-                <h3>Banda methodology</h3>
-                <p>Ownership, pricing, fees and redemption.</p>
+                <h3>How Banda works</h3>
+                <p>Ownership, prices, fees and withdrawals.</p>
               </div>
               <span aria-hidden="true">↗</span>
             </Link>
@@ -539,7 +539,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             >
               <div>
                 <h3>Historical price data</h3>
-                <p>Download the source data used in the comparison.</p>
+                <p>Download the price data used in the comparison.</p>
               </div>
               <span aria-hidden="true">↓</span>
             </a>
@@ -557,7 +557,7 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
                     {ASSETS[h.ticker].name}{" "}
                     <span className="mono">{h.ticker}</span>
                   </h3>
-                  <p>Official project documentation</p>
+                  <p>Official website and docs</p>
                 </div>
                 <span aria-hidden="true">↗</span>
               </a>

@@ -42,13 +42,13 @@ export default function Portfolio() {
         <Rosette className="hero-rosette" />
         <div className="wrap detail-hero">
           <h1>Your Baskets.</h1>
-          <p>Every Basket NFT this wallet owns, read live from Robinhood Chain testnet.</p>
+          <p>Every Basket this wallet owns, read live from the blockchain. This is a test version with test money.</p>
         </div>
       </section>
       <div className="portfolio wrap">
       {!wallet.connected ? (
         <p>
-          Connect your wallet to explore your portfolio.{" "}
+          Connect your wallet to see your Baskets.{" "}
           <button
             className="wallet-button"
             onClick={wallet.connect}
@@ -63,12 +63,12 @@ export default function Portfolio() {
           <span className="portfolio-loading-line" />
           <span className="portfolio-loading-line portfolio-loading-line-short" />
           <span className="sr-only">
-            Reading your Robinhood testnet portfolio.
+            Loading your Baskets.
           </span>
         </div>
       ) : wallet.portfolioStatus === "error" ? (
         <div className="portfolio-notice" role="alert">
-          <p>We could not read this wallet from Robinhood testnet.</p>
+          <p>We could not load this wallet right now.</p>
           <p className="muted">{wallet.error}</p>
           <button
             className="secondary-button"
@@ -91,7 +91,7 @@ export default function Portfolio() {
               <span className="mono">{wallet.address}</span>
               {wallet.portfolioBlock ? (
                 <span>
-                  Indexed through block{" "}
+                  Up to date as of block{" "}
                   <span className="mono">
                     {Number(wallet.portfolioBlock).toLocaleString("en-US")}
                   </span>
@@ -102,24 +102,24 @@ export default function Portfolio() {
           {wallet.positions.length > 0 ? (
             <dl className="portfolio-performance">
               <div><dt>Invested</dt><dd className="mono">{totals ? usd(totals.costBasis) : loading}</dd></div>
-              <div><dt>Market value</dt><dd className="mono">{totals ? usd(totals.value) : loading}</dd></div>
+              <div><dt>Worth now</dt><dd className="mono">{totals ? usd(totals.value) : loading}</dd></div>
               <div>
-                <dt>Unrealized P&amp;L</dt>
+                <dt>Profit / loss so far</dt>
                 <dd className={`mono ${totals && totals.value < totals.costBasis ? "negative" : "positive"}`}>{totals ? pnl(totals).label : loading}</dd>
               </div>
               <div>
-                <dt>Yield &amp; dividends earned</dt>
+                <dt>Income earned</dt>
                 <dd className="mono">$0.00</dd>
-                <small>None on testnet: the USDG sleeve holds test USDG and mock tokens pay no dividends.</small>
+                <small>None on this test version: the income portion holds test USDG, and practice versions pay no dividends.</small>
               </div>
             </dl>
           ) : null}
           {wallet.positions.length === 0 ? (
             <div className="portfolio-empty">
-              <h2>No active Baskets.</h2>
+              <h2>No Baskets yet.</h2>
               <p>
-                This wallet currently owns no Banda Basket NFTs. Fully redeemed
-                Baskets are burned and do not appear here.
+                This wallet has no Banda Baskets right now. When you withdraw
+                everything from a Basket, it closes and no longer shows here.
               </p>
               <Link className="empty-link" href="/#baskets">
                 Explore Baskets →
@@ -137,11 +137,10 @@ export default function Portfolio() {
                   </div>
                   <h2>{p.name}</h2>
                   <p>
-                    <span className="mono">{p.displayShares}</span> strategy
-                    shares
+                    <span className="mono">{p.displayShares}</span> units
                   </p>
                   <p className="muted">
-                    ERC-6551 account <span className="mono">{p.account}</span>
+                    Vault address <span className="mono">{p.account}</span>
                   </p>
                   {p.slug !== "unknown" ? (
                     <>
@@ -160,9 +159,9 @@ export default function Portfolio() {
         </>
       )}
       <p className="muted">
-        Balance and ownership are read from Robinhood Chain testnet. Test USDG
-        and fixture strategy shares have no mainnet value. Banda never receives
-        your private key.
+        Your balance and Baskets are read from the Robinhood Chain test
+        network. This is a test version with test money. Nothing here has real
+        value. Banda never sees your wallet’s private key.
       </p>
       <LiveChainStatus />
       </div>

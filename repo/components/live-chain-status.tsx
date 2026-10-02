@@ -27,17 +27,17 @@ export function LiveChainStatus() {
   }, []);
 
   if (error) {
-    return <p className="chain-status muted">Live chain data is temporarily unavailable.</p>;
+    return <p className="chain-status muted">Live status is unavailable right now.</p>;
   }
   if (!snapshot) {
-    return <p className="chain-status muted" aria-live="polite">Checking Robinhood Chain…</p>;
+    return <p className="chain-status muted" aria-live="polite">Checking live status…</p>;
   }
   return (
-    <div className="chain-status" aria-label="Live Robinhood Chain status">
+    <div className="chain-status" aria-label="Live Banda status">
       <span className={`status-dot ${snapshot.paused ? "status-dot-paused" : "status-dot-live"}`} aria-hidden="true" />
-      <span>{snapshot.paused ? "Paused for deposits" : "Deposits open"}</span>
+      <span>{snapshot.paused ? "Deposits are paused right now. You can still withdraw." : "Deposits open"}</span>
       <span className="muted">Block {snapshot.blockNumber}</span>
-      <span className="muted">NAV freshness {Math.round(snapshot.navMaxAgeSeconds / 60)}m / {snapshot.navMaxBlockLag} blocks</span>
+      <span className="muted">Prices must be under {Math.round(snapshot.navMaxAgeSeconds / 60)} min old</span>
     </div>
   );
 }

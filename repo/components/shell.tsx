@@ -90,16 +90,16 @@ export function Footer() {
         <p>A managed portfolio you own as a single token.</p>
       </div>
       <div className="footer-links">
-        <Link href="/#baskets">Explore baskets ↗</Link>
+        <Link href="/#baskets">Explore Baskets ↗</Link>
         <Link href="/docs">Documentation ↗</Link>
-        <Link href="/#fees">Fee structure ↗</Link>
+        <Link href="/#fees">Fees ↗</Link>
       </div>
       <div className="footer-note">
-        Running on Robinhood Chain testnet.
+        This is a test version of Banda with test money. Nothing here has real value.
         <p>
-          Test USDG has no value. Holdings are testnet mock tokens bought and
-          redeemed at live market prices, and historical comparisons are
-          hypothetical backtests on real prices.
+          It runs on the Robinhood Chain test network. Holdings are practice
+          versions of real assets, bought and sold at live market prices. Past
+          comparisons are hypothetical examples based on real prices.
         </p>
         <span className="mono">© 2026 Banda</span>
       </div>

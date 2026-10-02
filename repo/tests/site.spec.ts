@@ -10,14 +10,14 @@ test("the five mandates expose sourced USDG yield without implying live availabi
   for (const slug of ["neural", "rails", "reserve", "frontier", "fortress"]) {
     await page.goto(`/basket/${slug}`);
     const sleeve = page.locator(".asset-card").filter({
-      has: page.getByRole("button", { name: "About USDG: USDG DeFi Yield" }),
+      has: page.getByRole("button", { name: "About USDG: USDG income" }),
     });
-    await sleeve.locator("summary").filter({ hasText: "DeFi yield" }).click();
-    await expect(sleeve).toContainText("Rates are variable");
+    await sleeve.locator("summary").filter({ hasText: "Income portion" }).click();
+    await expect(sleeve).toContainText("Rates go up and down");
     await expect(sleeve).toContainText("candidate");
     await expect(sleeve).toContainText("not been integrated");
     await expect(sleeve.locator(".asset-apy")).toContainText(
-      /Est. APY\d+\.\d{2}%/,
+      /Est. yearly rate\d+\.\d{2}%/,
     );
     await expect(
       sleeve.getByRole("link", { name: "Rate source" }),
@@ -165,7 +165,7 @@ test("invalid amounts are blocked and basket tabs and chart periods work", async
   }
   await page.getByRole("tab", { name: "Historical" }).focus();
   await page.keyboard.press("ArrowRight");
-  await expect(page.getByText("No rebalances recorded.")).toBeVisible();
+  await expect(page.getByText("No changes to the mix yet.")).toBeVisible();
   await page.keyboard.press("ArrowRight");
   await expect(page.locator(".risk-observation")).toBeVisible();
   await page.keyboard.press("End");

@@ -16,18 +16,18 @@ export default function Home() {
           <div className="hero-copy">
             <h1>A managed portfolio you own as a single token.</h1>
             <p className="hero-lede">
-              Deposit USDG and receive one NFT whose own onchain account holds
-              the whole Basket. It is built to earn in two ways, so you are not
-              relying on prices alone.
+              Deposit USDG, a digital dollar, and get one Basket: a token you
+              own, with its own vault that holds the whole portfolio. It is
+              built to earn in two ways, so you are not relying on prices alone.
             </p>
             <dl className="hero-engines">
               <div>
                 <dt><i className="category-0" aria-hidden="true" />Growth</dt>
-                <dd>Tokenized stocks, crypto and gold, chosen for the Basket’s thesis.</dd>
+                <dd>Stocks, crypto and gold in token form, chosen for the Basket’s theme.</dd>
               </div>
               <div>
                 <dt><i className="category-2" aria-hidden="true" />Income</dt>
-                <dd>10 to 25% sits in USDG DeFi positions that pay yield. Rates vary and are not guaranteed.</dd>
+                <dd>10 to 25% sits in USDG, set aside to earn interest. Rates change and are not guaranteed. On this test version it earns nothing yet.</dd>
               </div>
             </dl>
             <div className="hero-actions">
@@ -44,46 +44,46 @@ export default function Home() {
           </div>
         </div>
         <div className="wrap hero-terms">
-          <span>5 thematic Baskets</span>
-          <span>0.25% a year, nothing to enter or leave</span>
-          <span>ERC-721 Basket, ERC-6551 account</span>
-          <span>Robinhood Chain testnet, illustrative values</span>
+          <span>5 themed Baskets</span>
+          <span>0.25% a year, nothing to buy or withdraw</span>
+          <span>Your Basket, your vault</span>
+          <span>Test version with test money</span>
         </div>
         <Microtext text="BANDA · A MANAGED PORTFOLIO YOU OWN AS A SINGLE TOKEN" className="hero-microtext" />
       </section>
 
       <section className="anatomy wrap" aria-labelledby="anatomy-title">
         <div className="anatomy-copy">
-          <h2 id="anatomy-title">What the token holds.</h2>
+          <h2 id="anatomy-title">What your Basket holds.</h2>
           <p>
-            Every Basket is an NFT with its own onchain account. The account
-            holds the positions, so the portfolio moves as one object: transfer
-            the NFT and the whole mix goes with it.
+            Every Basket is a token you own, with its own vault. The vault
+            holds the investments, so the portfolio moves as one: send your
+            Basket to someone and the whole mix goes with it.
           </p>
           <dl className="anatomy-sleeves">
             <div>
               <dt><i className="category-0" aria-hidden="true" />Growth</dt>
-              <dd>Tokenized stocks, crypto and gold chosen for the Basket’s thesis.</dd>
+              <dd>Stocks, crypto and gold in token form, chosen for the Basket’s theme.</dd>
             </div>
             <div>
-              <dt><i className="category-2" aria-hidden="true" />Yield</dt>
-              <dd>10 to 25% placed in USDG DeFi positions that earn a variable rate, so the Basket has income as well as price exposure.</dd>
+              <dt><i className="category-2" aria-hidden="true" />Income</dt>
+              <dd>10 to 25% held in USDG and meant to earn interest, so the Basket can earn income as well as grow in price. On this test version it earns nothing yet.</dd>
             </div>
             <div>
               <dt><i className="category-1" aria-hidden="true" />Liquidity</dt>
-              <dd>Discipline for rebalances and redemptions.</dd>
+              <dd>Kept easy to sell, so the mix can be adjusted and you can withdraw at any time.</dd>
             </div>
           </dl>
         </div>
         <figure className="anatomy-diagram" aria-label={`How the ${SPECIMEN.name} Basket is held`}>
           <div className="anatomy-node anatomy-owner">
             <span className="anatomy-role">Your wallet owns</span>
-            <strong>Basket NFT No. {SPECIMEN.id}</strong>
+            <strong>Your Basket No. {SPECIMEN.id}</strong>
             <span className="mono">ERC-721</span>
           </div>
           <div className="anatomy-node anatomy-account">
-            <span className="anatomy-role">Which controls</span>
-            <strong>Basket account</strong>
+            <span className="anatomy-role">Which has</span>
+            <strong>Its own vault</strong>
             <span className="mono">ERC-6551</span>
           </div>
           <ul className="anatomy-holdings">
@@ -95,16 +95,16 @@ export default function Home() {
             ))}
           </ul>
           <figcaption>
-            Redeem part of it and the NFT stays open. Redeem all of it and the
-            NFT is burned.
+            Withdraw part of it and your Basket stays open. Withdraw everything
+            and the Basket is closed.
           </figcaption>
         </figure>
       </section>
 
       <section className="ledger wrap" id="baskets" aria-labelledby="baskets-title">
         <div className="ledger-heading">
-          <h2 id="baskets-title">Five mandates to choose from.</h2>
-          <p>Values are illustrative examples, not historical returns.</p>
+          <h2 id="baskets-title">Five themes to choose from.</h2>
+          <p>Values are examples based on real past prices. They are not a forecast.</p>
         </div>
         <ol className="ledger-list">
           {BASKETS.map((basket) => (
@@ -126,7 +126,7 @@ export default function Home() {
                 </span>
               </div>
               <div className="ledger-value">
-                <span>Hypothetical $10,000 · 30d</span>
+                <span>Example $10,000 · 30 days</span>
                 <strong className="mono">{money(basket.nav)}</strong>
                 <span className={`mono ${basket.change >= 0 ? "positive" : "negative"}`}>
                   {basket.change >= 0 ? "+" : "−"}{Math.abs(basket.change).toFixed(2)}% · real prices
@@ -135,7 +135,7 @@ export default function Home() {
               <Sparkline basket={basket} />
               <div className="ledger-yield">
                 <strong className="mono">{yieldWeight(basket)}%</strong>
-                <span>yield sleeve via {yieldAssets(basket).join(" + ")}</span>
+                <span>income portion in {yieldAssets(basket).join(" + ")}</span>
               </div>
               <span className="ledger-arrow" aria-hidden="true">→</span>
             </li>
@@ -145,22 +145,22 @@ export default function Home() {
 
       <section className="steps-section" id="how-it-works" aria-labelledby="steps-title">
         <div className="wrap">
-          <h2 id="steps-title">From USDG to one token in three steps.</h2>
+          <h2 id="steps-title">From dollars to your own Basket in three steps.</h2>
           <ol className="steps">
             <li>
               <span className="step-number mono">1</span>
-              <h3>Choose a mandate</h3>
-              <p>Compare each Basket’s thesis, holdings, yield sleeve, fee and risks.</p>
+              <h3>Choose a theme</h3>
+              <p>Compare each Basket’s theme, holdings, income portion, fee and risks.</p>
             </li>
             <li>
               <span className="step-number mono">2</span>
               <h3>Deposit USDG</h3>
-              <p>Sign in with Privy or your own wallet. The deposit mints your Basket NFT.</p>
+              <p>Sign in with email, Google or your own wallet. Deposit USDG, a digital dollar, and your Basket is created for you.</p>
             </li>
             <li>
               <span className="step-number mono">3</span>
-              <h3>Hold, transfer or redeem</h3>
-              <p>Track it in your portfolio. Redeem any share of it back to USDG at any time.</p>
+              <h3>Hold, send or withdraw</h3>
+              <p>Track it in your portfolio. Withdraw any part of it back to USDG at any time.</p>
             </li>
           </ol>
           <Link className="text-link" href="/docs">
@@ -176,12 +176,12 @@ export default function Home() {
             <span>0% to buy.</span> <span>0% to withdraw.</span>
           </h2>
           <p>
-            No entry fee, no exit fee and no performance fee. One management
-            fee of 0.25% a year accrues onchain by the second, and your
-            redemption preview shows it before you sign.
+            No fee to buy, no fee to withdraw and no performance fee. Just one
+            yearly fee of 0.25%, charged in tiny amounts over time and taken
+            only when you withdraw. You see it before you approve.
           </p>
           <Link className="text-link" href="/docs">
-            Read the methodology <span aria-hidden="true">→</span>
+            Read the details <span aria-hidden="true">→</span>
           </Link>
         </div>
         <div className="terms-sheet">
@@ -192,13 +192,13 @@ export default function Home() {
               <tr><th>Buy</th><td className="mono">0%</td></tr>
               <tr><th>Withdraw</th><td className="mono">0%</td></tr>
               <tr><th>Performance fee</th><td>None</td></tr>
-              <tr><th>Management fee, every Basket</th><td><span className="mono">0.25%</span><span className="muted"> a year</span></td></tr>
+              <tr><th>Yearly fee, every Basket</th><td><span className="mono">0.25%</span><span className="muted"> a year</span></td></tr>
             </tbody>
           </table>
           <p className="fee-note">
-            The management fee accrues per second and is collected only when you
-            redeem. Testnet holdings are mock tokens bought and redeemed at live
-            market prices.
+            The yearly fee is charged in tiny amounts over time, only when you
+            withdraw. On this test version, holdings are practice versions of
+            each asset, bought and sold at live market prices.
           </p>
         </div>
       </section>

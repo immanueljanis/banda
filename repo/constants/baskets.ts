@@ -90,7 +90,7 @@ export const BASKETS: Basket[] = [
     thesis: "Artificial Intelligence",
     character: "Aggressive growth",
     id: 1101,
-    mandate: "Own the intelligence stack, from silicon to decentralized AI.",
+    mandate: "Own the companies and networks behind AI, from chips to open AI networks.",
     block: 63_794_454,
     managementFee: 0.25,
     holdings: [
@@ -135,10 +135,10 @@ export const BASKETS: Basket[] = [
   basket({
     slug: "rails",
     name: "RAILS",
-    thesis: "Onchain Financial Economy",
+    thesis: "Digital Finance",
     character: "Crypto growth",
     id: 1202,
-    mandate: "Own the infrastructure powering the internet of money.",
+    mandate: "Own the companies and networks that move money online.",
     block: 63_794_454,
     managementFee: 0.25,
     holdings: [
@@ -192,7 +192,7 @@ export const BASKETS: Basket[] = [
     thesis: "Diversified Core",
     character: "Balanced",
     id: 1303,
-    mandate: "Growth, scarcity and yield, built for every market regime.",
+    mandate: "Stocks, bitcoin, gold and income in one balanced mix, for good and bad markets.",
     block: 63_794_454,
     managementFee: 0.25,
     holdings: [
@@ -235,7 +235,7 @@ export const BASKETS: Basket[] = [
     character: "Growth",
     id: 1404,
     mandate:
-      "A basket for the technologies rewriting how we compute, move and transact.",
+      "A Basket for the technologies changing how we compute, travel and pay.",
     block: 63_794_454,
     managementFee: 0.25,
     holdings: [
@@ -295,7 +295,7 @@ export const BASKETS: Basket[] = [
     thesis: "Hard Assets & Income",
     character: "Defensive",
     id: 1505,
-    mandate: "Built to preserve capital while keeping it productive.",
+    mandate: "Aims to hold up in rough markets while still earning some income.",
     block: 63_794_454,
     managementFee: 0.25,
     holdings: [
@@ -337,126 +337,126 @@ export const ASSETS: Record<string, AssetDefinition> = {
   NVDA: {
     name: "NVIDIA",
     description:
-      "Target exposure to NVIDIA through an admitted Robinhood Stock Token. Availability and liquidity must be verified before execution.",
+      "Follows NVIDIA’s share price through a Robinhood stock token. Availability must be confirmed before real launch.",
     color: "#52734f",
     url: "https://docs.robinhood.com/chain/stock-tokens/",
   },
   TAO: {
     name: "Bittensor",
     description:
-      "TAO provides exposure to Bittensor's decentralized machine-intelligence network. It remains a candidate asset for Robinhood Chain.",
+      "TAO is the coin of Bittensor, an open network for machine learning. Not yet available on Robinhood Chain.",
     color: "#866d46",
     url: "https://docs.bittensor.com/",
   },
   GOOGL: {
     name: "Alphabet",
     description:
-      "Target exposure to Alphabet through an admitted Robinhood Stock Token.",
+      "Follows Alphabet’s share price through a Robinhood stock token.",
     color: "#758b6d",
     url: "https://docs.robinhood.com/chain/stock-tokens/",
   },
   NEAR: {
     name: "NEAR",
     description:
-      "NEAR provides exposure to smart-contract and agent infrastructure. It remains a candidate asset for Robinhood Chain.",
+      "NEAR is the coin of a network for apps and AI agents. Not yet available on Robinhood Chain.",
     color: "#8a9a88",
     url: "https://docs.near.org/",
   },
   GLD: {
     name: "Gold ETF",
     description:
-      "Target gold exposure through the admitted GLD Robinhood Stock Token.",
+      "Follows the price of gold through the GLD Robinhood stock token.",
     color: "#b1914d",
     url: "https://docs.robinhood.com/chain/stock-tokens/",
   },
   USDG: {
-    name: "USDG DeFi Yield",
+    name: "USDG income",
     description:
-      "USDG allocated to an admitted DeFi strategy. Yield varies and the production vault has not been integrated.",
+      "USDG, a digital dollar, set aside to earn interest. Rates change. The real interest vault has not been integrated yet, so it earns nothing on this test version.",
     color: "#729384",
     url: "https://www.paxos.com/usdg",
   },
   COIN: {
     name: "Coinbase",
     description:
-      "Target exposure to Coinbase through an admitted Robinhood Stock Token.",
+      "Follows Coinbase’s share price through a Robinhood stock token.",
     color: "#496c91",
     url: "https://docs.robinhood.com/chain/stock-tokens/",
   },
   CRCL: {
     name: "Circle",
     description:
-      "Target exposure to Circle through an admitted Robinhood Stock Token.",
+      "Follows Circle’s share price through a Robinhood stock token.",
     color: "#668b91",
     url: "https://docs.robinhood.com/chain/stock-tokens/",
   },
   ETH: {
     name: "Ethereum",
     description:
-      "Ether exposure represented by the canonical admitted token used by the basket.",
+      "Ether, the coin of the Ethereum network, held as the official token on Robinhood Chain.",
     color: "#8298bb",
     url: "https://ethereum.org/en/eth/",
   },
   SOL: {
     name: "Solana",
     description:
-      "SOL provides exposure to the Solana network. It remains a candidate asset for Robinhood Chain.",
+      "SOL is the coin of the Solana network. Not yet available on Robinhood Chain.",
     color: "#7b7ea0",
     url: "https://solana.com/",
   },
   LINK: {
     name: "Chainlink",
     description:
-      "LINK provides exposure to Chainlink's oracle and interoperability network. It remains a candidate asset for Robinhood Chain.",
+      "LINK is the coin of Chainlink, a network that brings market prices to blockchains. Not yet available on Robinhood Chain.",
     color: "#637fa8",
     url: "https://chain.link/",
   },
   BTC: {
     name: "Bitcoin",
     description:
-      "Bitcoin exposure represented by an admitted canonical wrapped asset on Robinhood Chain.",
+      "Bitcoin, held as an official token version on Robinhood Chain.",
     color: "#bd8951",
     url: "https://bitcoin.org/",
   },
   SPY: {
     name: "S&P 500 ETF",
     description:
-      "Target broad US equity exposure through an admitted SPY Robinhood Stock Token.",
+      "Follows 500 large US companies through the SPY Robinhood stock token.",
     color: "#66795e",
     url: "https://docs.robinhood.com/chain/stock-tokens/",
   },
   QQQ: {
     name: "Nasdaq-100 ETF",
     description:
-      "Target broad technology exposure through an admitted QQQ Robinhood Stock Token.",
+      "Follows 100 large tech companies through the QQQ Robinhood stock token.",
     color: "#5f755a",
     url: "https://docs.robinhood.com/chain/stock-tokens/",
   },
   AMD: {
     name: "AMD",
     description:
-      "Target exposure to AMD through an admitted Robinhood Stock Token.",
+      "Follows AMD’s share price through a Robinhood stock token.",
     color: "#8d6a55",
     url: "https://docs.robinhood.com/chain/stock-tokens/",
   },
   TSLA: {
     name: "Tesla",
     description:
-      "Target exposure to Tesla through an admitted Robinhood Stock Token.",
+      "Follows Tesla’s share price through a Robinhood stock token.",
     color: "#93645f",
     url: "https://docs.robinhood.com/chain/stock-tokens/",
   },
   RENDER: {
     name: "Render",
     description:
-      "RENDER provides exposure to decentralized GPU compute. It remains a candidate asset for Robinhood Chain.",
+      "RENDER is the coin of a network that rents out graphics computing power. Not yet available on Robinhood Chain.",
     color: "#9a735f",
     url: "https://rendernetwork.com/",
   },
   USO: {
     name: "Oil ETF",
     description:
-      "Target oil exposure through an admitted USO Robinhood Stock Token.",
+      "Follows the price of oil through the USO Robinhood stock token.",
     color: "#8b7650",
     url: "https://docs.robinhood.com/chain/stock-tokens/",
   },
@@ -465,9 +465,9 @@ export const ASSETS: Record<string, AssetDefinition> = {
 export const ASSET_FACTS: Record<string, { yield?: AssetFact }> = {
   USDG: {
     yield: {
-      label: "DeFi yield",
+      label: "Income portion",
       detail:
-        "A defined USDG sleeve is intended for an admitted DeFi vault. Rates are variable; vault risk, liquidity and redemption must be verified before activation.",
+        "This part of the Basket is meant to earn interest in a USDG lending vault. Rates go up and down. The vault’s risks and how quickly you can withdraw must be checked before it is switched on.",
       source: "https://docs.morpho.org/learn/concepts/vault-v2/",
     },
   },
@@ -490,7 +490,7 @@ export const YIELD_SNAPSHOTS: Record<
       "https://app.morpho.org/robinhood-chain/vault/0xBeEff033F34C046626B8D0A041844C5d1A5409dd/steakhouse-usdg?tab=vault",
     provider: "Morpho · Steakhouse USDG candidate",
     method:
-      "Illustrative app snapshot. The vault is a candidate and has not been integrated or transaction-tested by Banda.",
+      "Example rate from the Morpho app. This vault is a candidate and has not been integrated or tested by Banda yet.",
   },
 };
 

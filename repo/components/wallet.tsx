@@ -89,9 +89,9 @@ const fallbackValue: Wallet = {
   positions: [],
   portfolioStatus: "idle",
   refreshPortfolio: () => undefined,
-  deposit: async () => { throw new Error("Wallet provider is not available"); },
-  redeem: async () => { throw new Error("Wallet provider is not available"); },
-  mintTestUsdg: async () => { throw new Error("Wallet provider is not available"); },
+  deposit: async () => { throw new Error("Your wallet is not available right now."); },
+  redeem: async () => { throw new Error("Your wallet is not available right now."); },
+  mintTestUsdg: async () => { throw new Error("Your wallet is not available right now."); },
   warmUp: () => undefined,
   warmRedemption: async () => undefined,
   previewRedemption: async () => { throw new Error("Connect a wallet first"); },
@@ -195,7 +195,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const prepareNav = useCallback(async (strategyId: number) => {
     const token = await getAccessToken();
-    if (!token) throw new Error("Please sign in again to prepare a quote.");
+    if (!token) throw new Error("Please sign in again to get the latest prices.");
     const response = await fetch(`${process.env.NEXT_PUBLIC_NAV_API_URL ?? ""}/api/nav/prepare`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -204,7 +204,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       signal: AbortSignal.timeout(180_000),
     });
     const result = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(result.message || "Quote preparation is unavailable. Please retry later.");
+    if (!response.ok) throw new Error(result.message || "Could not get the latest prices. Please try again later.");
   }, [getAccessToken]);
 
   const warmed = useRef(new Map<string, number>());
@@ -246,7 +246,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           throw new Error(
             "message" in body && body.message
               ? body.message
-              : "Live portfolio unavailable",
+              : "Could not load your Baskets",
           );
         }
         setPortfolio(body);
@@ -255,7 +255,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         if (reason instanceof DOMException && reason.name === "AbortError") return;
         setPortfolio(undefined);
         setPortfolioStatus("error");
-        setError(friendlyError(reason, "Live portfolio unavailable. Please try again."));
+        setError(friendlyError(reason, "Could not load your Baskets. Please try again."));
       }
     },
     [address, authenticated],
@@ -308,7 +308,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   async function deposit(strategyId: number, amount: string): Promise<Hash> {
     if (!activeWallet || !address) throw new Error("Connect a wallet first");
     const amountUnits = parseUnits(amount, 6);
-    if (amountUnits <= BigInt(0)) throw new Error("Enter a positive USDG amount");
+    if (amountUnits <= BigInt(0)) throw new Error("Enter an amount above 0 USDG.");
     if (!/^\d+(\.\d{1,6})?$/.test(amount)) throw new Error("Use up to six decimal places");
     if (transactionLock.current) throw new Error("A transaction is already in progress");
     transactionLock.current = true;
@@ -328,12 +328,12 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         "function strategy(uint32) view returns (address,uint96,uint16,address,bool)",
         "function previewNav(address,uint256) view returns (uint256)",
       ]);
-      if (await receiptClient.readContract({address: ROBINHOOD_TESTNET.diamond, abi: guardAbi, functionName: "isPaused"})) throw new Error("Deposits are paused. Please try again later.");
+      if (await receiptClient.readContract({address: ROBINHOOD_TESTNET.diamond, abi: guardAbi, functionName: "isPaused"})) throw new Error("Deposits are paused right now. You can still withdraw.");
       const [strategy, minimum, , , enabled] = await receiptClient.readContract({address: ROBINHOOD_TESTNET.diamond, abi: guardAbi, functionName: "strategy", args: [strategyId]});
-      if (!enabled || amountUnits < minimum) throw new Error(`Minimum deposit is ${formatUnits(minimum, 6)} USDG for this strategy.`);
+      if (!enabled || amountUnits < minimum) throw new Error(`Minimum deposit is ${formatUnits(minimum, 6)} USDG for this Basket.`);
       const tokenAbi = parseAbi(["function balanceOf(address) view returns (uint256)", "function allowance(address,address) view returns (uint256)"]);
       const balance = await receiptClient.readContract({address: ROBINHOOD_TESTNET.settlementAsset, abi: tokenAbi, functionName: "balanceOf", args: [address as Address]});
-      if (balance < amountUnits) throw new Error("Insufficient USDG balance");
+      if (balance < amountUnits) throw new Error("Not enough test USDG in this wallet. Get free test USDG on the faucet page at /mint.");
       const prepared = prepareNav(strategyId).then(() => null, (reason: unknown) => reason);
       const allowance = await receiptClient.readContract({address: ROBINHOOD_TESTNET.settlementAsset, abi: tokenAbi, functionName: "allowance", args: [address as Address, ROBINHOOD_TESTNET.diamond]});
       if (allowance < amountUnits) {
@@ -347,7 +347,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         });
         setTransactionStatus("confirming");
         const approval = await receiptClient.waitForTransactionReceipt({ hash: approvalHash });
-        if (approval.status !== "success") throw new Error("Approval reverted. Deposit was not sent.");
+        if (approval.status !== "success") throw new Error("The approval did not go through. Your deposit was not sent.");
         setTransactionStatus("preparing");
       }
       const preparation = await prepared;
@@ -363,9 +363,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       });
       setTransactionStatus("confirming");
       const depositReceipt = await receiptClient.waitForTransactionReceipt({ hash: depositHash });
-      if (depositReceipt.status !== "success") throw new Error("Deposit reverted. No Basket was created.");
+      if (depositReceipt.status !== "success") throw new Error("The deposit did not go through. No Basket was created.");
       setTransactionStatus("idle");
-      toast({ tone: "success", title: "Basket deposit confirmed", description: `${amount} USDG is now held in your Basket.`, action: { label: "View portfolio", href: "/portfolio" } });
+      toast({ tone: "success", title: "Your Basket is ready", description: `${amount} USDG is now in your Basket.`, action: { label: "View portfolio", href: "/portfolio" } });
       void loadPortfolio();
       return depositHash;
     } catch (reason) {
@@ -379,14 +379,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (!activeWallet) throw new Error("Connect a wallet first");
     const provider = await activeWallet.getEthereumProvider();
     const client = createWalletClient({chain: ROBINHOOD_TESTNET, transport: custom(provider)}).extend(publicActions);
-    if (await client.getChainId() !== ROBINHOOD_TESTNET.id) throw new Error("Switch your wallet to Robinhood Chain Testnet to preview.");
+    if (await client.getChainId() !== ROBINHOOD_TESTNET.id) throw new Error("Switch your wallet to the Robinhood Chain test network to see what you would get.");
     return marketPreview(client, BigInt(tokenId), parseUnits(shares, 6));
   }, [activeWallet]);
 
   async function redeem(tokenId: string, shares: string): Promise<Hash> {
     if (!activeWallet || !address) throw new Error("Connect a wallet first");
     const sharesUnits = parseUnits(shares, 6);
-    if (sharesUnits <= BigInt(0)) throw new Error("Enter a positive share amount");
+    if (sharesUnits <= BigInt(0)) throw new Error("Choose how much to withdraw.");
     if (transactionLock.current) throw new Error("A transaction is already in progress");
     transactionLock.current = true;
     setTransactionStatus("preparing");
@@ -403,7 +403,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       await prepareRedemption(tokenId);
       const preview = await marketPreview(receiptClient, BigInt(tokenId), sharesUnits);
       const minAssetsOut = (preview[2] * BigInt(995)) / BigInt(1000);
-      if (minAssetsOut <= BigInt(0)) throw new Error("Payout is too small");
+      if (minAssetsOut <= BigInt(0)) throw new Error("This withdrawal is too small.");
       await receiptClient.simulateContract({address: ROBINHOOD_TESTNET.diamond, abi: redeemAbi, functionName: "redeem", args: [BigInt(tokenId), sharesUnits, minAssetsOut], account: address as Address});
       setTransactionStatus("signing");
       const hash = await client.writeContract({
@@ -414,13 +414,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       });
       setTransactionStatus("confirming");
       const receipt = await receiptClient.waitForTransactionReceipt({ hash });
-      if (receipt.status !== "success") throw new Error("Redemption reverted. Your Basket was not redeemed.");
+      if (receipt.status !== "success") throw new Error("The withdrawal did not go through. Nothing was taken from your Basket.");
       setTransactionStatus("idle");
-      toast({ tone: "success", title: "Redemption confirmed", description: "USDG was sent to your wallet.", action: explorerAction(hash) });
+      toast({ tone: "success", title: "Withdrawal complete", description: "USDG was sent to your wallet.", action: explorerAction(hash) });
       void loadPortfolio();
       return hash;
     } catch (reason) {
-      throw fail("Redemption didn’t go through", reason);
+      throw fail("Withdrawal didn’t go through", reason);
     } finally {
       transactionLock.current = false;
     }
@@ -430,7 +430,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (!activeWallet || !address) throw new Error("Connect a wallet first");
     if (!/^\d+(\.\d{1,6})?$/.test(amount)) throw new Error("Use up to six decimal places");
     const amountUnits = parseUnits(amount, 6);
-    if (amountUnits <= BigInt(0) || amountUnits > parseUnits("10000", 6)) throw new Error("Mint between 0.000001 and 10,000 test USDG at a time");
+    if (amountUnits <= BigInt(0) || amountUnits > parseUnits("10000", 6)) throw new Error("Get between 0.000001 and 10,000 test USDG at a time.");
     if (transactionLock.current) throw new Error("A transaction is already in progress");
     transactionLock.current = true;
     setTransactionStatus("preparing");
@@ -447,13 +447,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const hash = await client.writeContract(request);
       setTransactionStatus("confirming");
       const receipt = await receiptClient.waitForTransactionReceipt({ hash });
-      if (receipt.status !== "success") throw new Error("Mint reverted. No test USDG was created.");
+      if (receipt.status !== "success") throw new Error("That did not go through. No test USDG was created.");
       setTransactionStatus("idle");
-      toast({ tone: "success", title: `${Number(amount).toLocaleString("en-US")} test USDG minted`, description: "It is ready to deposit.", action: explorerAction(hash) });
+      toast({ tone: "success", title: `${Number(amount).toLocaleString("en-US")} test USDG added`, description: "It is ready to deposit.", action: explorerAction(hash) });
       void loadPortfolio();
       return hash;
     } catch (reason) {
-      throw fail("Mint didn’t go through", reason);
+      throw fail("Getting test USDG didn’t go through", reason);
     } finally {
       transactionLock.current = false;
     }

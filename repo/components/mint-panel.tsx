@@ -20,9 +20,9 @@ export function MintPanel() {
       }}
     >
       <WaveBand className="terms-wave" />
-      <span className="certificate-kind">Testnet faucet</span>
-      <h2>Mint test USDG</h2>
-      <p>Test USDG goes to your connected wallet. It has no value outside Robinhood Chain testnet.</p>
+      <span className="certificate-kind">Free test money</span>
+      <h2>Get test USDG</h2>
+      <p>Test USDG goes to your connected wallet. It is test money with no real value.</p>
       <label htmlFor="mint-amount">Amount in test USDG</label>
       <input
         id="mint-amount"
@@ -47,18 +47,18 @@ export function MintPanel() {
       <p>
         {wallet.connected ? (
           <>Wallet balance: <span className="mono">{wallet.balanceLabel} USDG</span></>
-        ) : "Connect a wallet to mint."}
+        ) : "Connect a wallet to get test USDG."}
       </p>
       <button className="primary-button" type="submit" disabled={wallet.connected && busy}>
         {!wallet.connected
           ? "Connect wallet"
           : wallet.transactionStatus === "signing"
-            ? "Confirm in wallet…"
+            ? "Approve in your wallet…"
             : wallet.transactionStatus === "confirming"
               ? "Confirming…"
               : busy
                 ? "Preparing…"
-                : `Mint ${Number(amount || 0).toLocaleString("en-US")} test USDG`}{" "}
+                : `Get ${Number(amount || 0).toLocaleString("en-US")} test USDG`}{" "}
         <span aria-hidden="true">→</span>
       </button>
     </form>
