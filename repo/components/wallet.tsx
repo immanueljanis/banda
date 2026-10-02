@@ -47,7 +47,7 @@ type PortfolioResponse = {
     account: string;
     shares: string;
   }>;
-  source: "robinhood-rpc-events";
+  source: "robinhood-rpc-state";
   fetchedAt: string;
 };
 
@@ -232,7 +232,16 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const loadPortfolio = useCallback(
     async (signal?: AbortSignal) => {
       if (!address || !authenticated) return;
-      setPortfolioStatus("loading");
+      const key = `banda-portfolio-${address.toLowerCase()}`;
+      let cached: PortfolioResponse | undefined;
+      try { cached = JSON.parse(localStorage.getItem(key) ?? "null") ?? undefined; } catch { cached = undefined; }
+      if (cached && cached.address?.toLowerCase() === address.toLowerCase()) {
+        setPortfolio(cached);
+        setPortfolioStatus("ready");
+      } else {
+        cached = undefined;
+        setPortfolioStatus("loading");
+      }
       setError(undefined);
       try {
         const response = await fetch(`/api/portfolio/${address}`, {
@@ -251,8 +260,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         }
         setPortfolio(body);
         setPortfolioStatus("ready");
+        try { localStorage.setItem(key, JSON.stringify(body)); } catch {}
       } catch (reason) {
         if (reason instanceof DOMException && reason.name === "AbortError") return;
+        if (cached) return;
         setPortfolio(undefined);
         setPortfolioStatus("error");
         setError(friendlyError(reason, "Could not load your Baskets. Please try again."));

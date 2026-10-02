@@ -18,7 +18,7 @@ export type BasketValuation = {
   complete: boolean;
 };
 
-const client = createPublicClient({ chain: ROBINHOOD_TESTNET, transport: http() });
+const client = createPublicClient({ chain: ROBINHOOD_TESTNET, transport: http(), batch: { multicall: true } });
 const abi = parseAbi([
   "function strategy(uint32) view returns (address,uint96,uint16,address,bool)",
   "function settlementAsset() view returns (address)",

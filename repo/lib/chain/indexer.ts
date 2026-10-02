@@ -1,19 +1,18 @@
 import {
   getAddress,
-  parseAbiItem,
+  hexToBigInt,
+  keccak256,
+  numberToHex,
+  toBytes,
   type Address,
   type PublicClient,
 } from "viem";
 import { ROBINHOOD_TESTNET } from "./config";
 import { getPublicClient } from "./reader";
 
-const transferEvent = parseAbiItem(
-  "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
-);
-const ZERO = "0x0000000000000000000000000000000000000000";
-const PAGE_SIZE = BigInt(2_000);
-const CONFIRMATION_DEPTH = BigInt(2);
-const INDEXER_CACHE_MS = 15_000;
+/** Diamond storage slot of `nextTokenId` (LibBandaStorage base slot + 4), read directly so no event scan is needed. */
+const NEXT_TOKEN_ID_SLOT = numberToHex(hexToBigInt(keccak256(toBytes("banda.managed-baskets.storage.v1"))) + BigInt(4), { size: 32 });
+const INDEXER_CACHE_MS = 5_000;
 
 const nftAbi = [
   { type: "function", name: "ownerOf", stateMutability: "view", inputs: [{ name: "tokenId", type: "uint256" }], outputs: [{ type: "address" }] },
@@ -29,38 +28,29 @@ type CachedOwnership = { expiresAt: number; blockNumber: bigint; ownership: Owne
 let cachedOwnership: CachedOwnership | undefined;
 let ownershipInFlight: Promise<CachedOwnership> | undefined;
 
-function startBlock(): bigint {
-  const configured = process.env.ROBINHOOD_INDEXER_START_BLOCK;
-  if (!configured) throw new Error("ROBINHOOD_INDEXER_START_BLOCK is not configured");
-  const block = BigInt(configured);
-  if (block < BigInt(0)) throw new Error("ROBINHOOD_INDEXER_START_BLOCK must be non-negative");
-  return block;
-}
-
-async function scanOwnership(rpc: PublicClient): Promise<CachedOwnership> {
-  const latest = await rpc.getBlockNumber();
-  const toBlock = latest > CONFIRMATION_DEPTH ? latest - CONFIRMATION_DEPTH : latest;
-  const fromBlock = startBlock();
-  if (fromBlock > toBlock) return { expiresAt: Date.now() + INDEXER_CACHE_MS, blockNumber: toBlock, ownership: new Map() };
-
+/**
+ * Reads every live Basket owner at one block: the minted count from Diamond storage, then one multicall
+ * of ownerOf. Burned Baskets fail ownerOf and are skipped. Constant cost, unlike scanning Transfer logs.
+ */
+async function readOwnership(rpc: PublicClient): Promise<CachedOwnership> {
+  const blockNumber = await rpc.getBlockNumber();
+  const raw = await rpc.getStorageAt({ address: ROBINHOOD_TESTNET.diamond, slot: NEXT_TOKEN_ID_SLOT, blockNumber });
+  const minted = raw ? hexToBigInt(raw) : BigInt(0);
+  const tokenIds = Array.from({ length: Number(minted) }, (_, index) => BigInt(index + 1));
+  const owners = await rpc.multicall({
+    contracts: tokenIds.map((tokenId) => ({ address: ROBINHOOD_TESTNET.diamond, abi: nftAbi, functionName: "ownerOf" as const, args: [tokenId] })),
+    allowFailure: true,
+    blockNumber,
+  });
   const ownership: Ownership = new Map();
-  for (let pageFrom = fromBlock; pageFrom <= toBlock; pageFrom += PAGE_SIZE) {
-    const pageTo = pageFrom + PAGE_SIZE - BigInt(1) < toBlock ? pageFrom + PAGE_SIZE - BigInt(1) : toBlock;
-    const logs = await rpc.getLogs({ address: ROBINHOOD_TESTNET.diamond, event: transferEvent, fromBlock: pageFrom, toBlock: pageTo });
-    for (const log of logs) {
-      const args = log.args;
-      if (!args.tokenId || !args.to) continue;
-      if (args.to.toLowerCase() === ZERO) ownership.delete(args.tokenId);
-      else ownership.set(args.tokenId, getAddress(args.to));
-    }
-  }
-  return { expiresAt: Date.now() + INDEXER_CACHE_MS, blockNumber: toBlock, ownership };
+  owners.forEach((owner, index) => { if (owner.status === "success") ownership.set(tokenIds[index], getAddress(owner.result as Address)); });
+  return { expiresAt: Date.now() + INDEXER_CACHE_MS, blockNumber, ownership };
 }
 
 async function ownershipSnapshot(rpc: PublicClient): Promise<CachedOwnership> {
   if (cachedOwnership && cachedOwnership.expiresAt > Date.now()) return cachedOwnership;
   if (!ownershipInFlight) {
-    ownershipInFlight = scanOwnership(rpc).then((value) => { cachedOwnership = value; return value; }).finally(() => { ownershipInFlight = undefined; });
+    ownershipInFlight = readOwnership(rpc).then((value) => { cachedOwnership = value; return value; }).finally(() => { ownershipInFlight = undefined; });
   }
   return ownershipInFlight;
 }
@@ -77,7 +67,7 @@ export type LivePortfolio = {
   blockNumber: string;
   settlementBalance: string;
   positions: PortfolioPosition[];
-  source: "robinhood-rpc-events";
+  source: "robinhood-rpc-state";
   fetchedAt: string;
 };
 
@@ -103,5 +93,5 @@ export async function getLivePortfolio(address: Address): Promise<LivePortfolio>
     if ((owner.value as Address).toLowerCase() !== address.toLowerCase()) continue;
     positions.push({ tokenId: tokenIds[i].toString(), strategyId, account, shares: shares.toString() });
   }
-  return { address, blockNumber: indexed.blockNumber.toString(), settlementBalance: settlementBalance.toString(), positions, source: "robinhood-rpc-events", fetchedAt: new Date().toISOString() };
+  return { address, blockNumber: indexed.blockNumber.toString(), settlementBalance: settlementBalance.toString(), positions, source: "robinhood-rpc-state", fetchedAt: new Date().toISOString() };
 }

@@ -51,6 +51,7 @@ export function getPublicClient(): PublicClient {
   return createPublicClient({
     chain: ROBINHOOD_TESTNET,
     transport: http(rpcUrl, { timeout: 8_000, retryCount: 1, retryDelay: 250 }),
+    batch: { multicall: true },
   });
 }
 
