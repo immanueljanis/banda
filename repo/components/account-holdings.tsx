@@ -10,7 +10,7 @@ import { pnl, usd } from "@/lib/chain/pnl.mjs";
 export { pnl, usd };
 
 /** Shows the tokens a Basket's ERC-6551 account holds, their market value and the position's P&L. */
-export function AccountHoldings({ account, valuation }: { account: string; valuation: BasketValuation | null | undefined }) {
+export function AccountHoldings({ account, valuation, showSummary = true }: { account: string; valuation: BasketValuation | null | undefined; showSummary?: boolean }) {
   if (valuation === null) return <p className={styles.note}>Holdings could not be read right now.</p>;
   if (!valuation) {
     return (
@@ -22,11 +22,11 @@ export function AccountHoldings({ account, valuation }: { account: string; valua
   const result = pnl(valuation);
   return (
     <div className={styles.holdings}>
-      <dl className={styles.pnl}>
+      {showSummary ? <dl className={styles.pnl}>
         <div><dt>Invested</dt><dd className="mono">{usd(valuation.costBasis)}</dd></div>
         <div><dt>Worth now</dt><dd className="mono">{usd(valuation.value)}</dd></div>
         <div><dt>Profit / loss so far</dt><dd className={`mono ${result.change < BigInt(0) ? "negative" : "positive"}`}>{result.label}</dd></div>
-      </dl>
+      </dl> : null}
       <div className={styles.head}>
         <span>Held in this Basket’s vault</span>
         <a href={`${ROBINHOOD_TESTNET.explorer}/address/${account}`} target="_blank" rel="noreferrer">See it on the blockchain ↗</a>
