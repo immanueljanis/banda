@@ -47,6 +47,7 @@ export function Header() {
         <Link href="/docs">
           Docs <span aria-hidden="true">↗</span>
         </Link>
+        <Link href="/pitch">Pitch</Link>
       </nav>
       <div className="header-actions">
         <button
