@@ -250,15 +250,12 @@ const SLIDES: Slide[] = [
     ),
   },
   {
-    label: "Live demo",
+    label: "Traction",
     render: () => (
       <div className="pitch-col">
         <div className="pitch-demo-head">
-          <h2>See it live.</h2>
-          <div className="pitch-demo-actions">
-            <Link className="text-link" href="/mint">Get test USDG <span aria-hidden="true">→</span></Link>
-            <Link className="text-link" href="/portfolio">My portfolio <span aria-hidden="true">→</span></Link>
-          </div>
+          <h2>Live on testnet <em>today.</em></h2>
+          <span className="mono pitch-demo-url">bandafinance.xyz · Robinhood Chain testnet</span>
         </div>
         <ol className="pitch-ledger">
           {BASKETS.map((basket) => (

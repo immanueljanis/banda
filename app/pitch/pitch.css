@@ -522,9 +522,9 @@
   gap: 16px 40px;
   width: 100%;
 }
-.pitch-demo-actions {
-  display: flex;
-  gap: 28px;
+.pitch-demo-url {
+  color: var(--muted);
+  font-size: 14px;
 }
 .pitch-ledger {
   width: 100%;
