@@ -30,3 +30,22 @@ test("a depegged USDG pauses every price", async () => {
   const readRound = async () => round(97_000000n);
   await assert.rejects(createMarketPrices({ readRound, now: () => NOW })(["NVDA"]), { code: "PRICE_UNAVAILABLE" });
 });
+
+test("a refused CoinGecko request is retried once with the demo key", async () => {
+  const rounds = { [USDG_USD_FEED]: round(100_000000n) };
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    calls.push(init.headers["x-cg-demo-api-key"]);
+    return calls.length === 1 ? { ok: false, status: 429 } : { ok: true, json: async () => ({ solana: { usd: 118.19, last_updated_at: NOW - 30 } }) };
+  };
+  const prices = await createMarketPrices({ readRound: async address => rounds[address], fetchImpl, now: () => NOW, geckoKey: "demo", retryDelayMs: 0 })(["SOL"]);
+  assert.deepEqual(calls, ["demo", "demo"]);
+  assert.deepEqual([...prices.entries()], [["SOL", 118_190_000n]]);
+});
+
+test("CoinGecko failing twice leaves its assets unpriced instead of throwing", async () => {
+  const rounds = { [USDG_USD_FEED]: round(100_000000n) };
+  const fetchImpl = async () => { throw new Error("socket hang up"); };
+  const prices = await createMarketPrices({ readRound: async address => rounds[address], fetchImpl, now: () => NOW, retryDelayMs: 0 })(["SOL"]);
+  assert.equal(prices.size, 0);
+});
