@@ -5,6 +5,7 @@ import { LiveChainStatus } from "@/components/live-chain-status";
 import { RedeemPanel } from "@/components/redeem-panel";
 import { useEffect, useState } from "react";
 import { BASKETS } from "@/constants/baskets";
+import { ROBINHOOD_TESTNET } from "@/lib/chain/config";
 import type { Address } from "viem";
 import { AccountHoldings, atLivePrices, pnl, pnlTone, usd, useIncomeRate, useLivePrices, useNow } from "@/components/account-holdings";
 import { incomeEarned, incomePerYear, smallUsd } from "@/lib/chain/income.mjs";
@@ -75,13 +76,16 @@ function PositionBody({ position, valuation, apy, now }: { position: WalletPosit
   return (
     <div className="position-body">
       <div className={withdrawing ? "position-body-grid" : undefined}>
-        <AccountHoldings account={position.account} valuation={valuation} apy={apy} now={now} />
+        <AccountHoldings valuation={valuation} apy={apy} now={now} />
         {withdrawing ? <RedeemPanel position={position} valuation={valuation ?? undefined} /> : null}
       </div>
       <div className="position-actions">
         <button type="button" className="secondary-button" aria-expanded={withdrawing} onClick={() => setWithdrawing((open) => !open)}>
           {withdrawing ? "Hide withdrawal" : "Withdraw"}
         </button>
+        <a className="text-link" href={`${ROBINHOOD_TESTNET.explorer}/address/${position.account}`} target="_blank" rel="noreferrer">
+          View vault onchain <span aria-hidden="true">↗</span>
+        </a>
         <Link className="text-link" href={`/basket/${position.slug}`}>
           View {position.name} details <span aria-hidden="true">→</span>
         </Link>

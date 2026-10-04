@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
-import { ROBINHOOD_TESTNET } from "@/lib/chain/config";
 import type { BasketValuation } from "@/lib/chain/valuation";
 import { ASSETS } from "@/constants/baskets";
 import { AssetLogo } from "./asset-label";
@@ -67,7 +66,7 @@ const amountLabel = (amount: bigint, decimals: number) =>
   Number(formatUnits(amount, decimals)).toLocaleString("en-US", { maximumSignificantDigits: 4 });
 
 /** Shows what a Basket's ERC-6551 vault holds: one line per asset, largest value first, with its share of the Basket. */
-export function AccountHoldings({ account, valuation, apy, now }: { account: string; valuation: BasketValuation | null | undefined; apy?: number; now: number }) {
+export function AccountHoldings({ valuation, apy, now }: { valuation: BasketValuation | null | undefined; apy?: number; now: number }) {
   if (valuation === null) return <p className={styles.note}>Holdings could not be read right now.</p>;
   if (!valuation) {
     return (
@@ -108,7 +107,6 @@ export function AccountHoldings({ account, valuation, apy, now }: { account: str
           Practice versions at live market prices
           {valuation.pricedAt ? ` · ${new Date(valuation.pricedAt * 1000).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : ""}
         </span>
-        <a href={`${ROBINHOOD_TESTNET.explorer}/address/${account}`} target="_blank" rel="noreferrer">View vault onchain ↗</a>
       </p>
     </div>
   );
