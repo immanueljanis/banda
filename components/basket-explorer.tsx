@@ -184,8 +184,14 @@ export function BasketExplorer({ basket }: { basket: Basket }) {
             <div className="holdings-heading">
               <h3>The assets</h3>
               <span>
-                Closing price ·{" "}
-                <span className="mono">{longDate(dataPeriod.end)}</span>
+                {Object.keys(live).length > 0 ? (
+                  "Live market prices"
+                ) : (
+                  <>
+                    Closing price ·{" "}
+                    <span className="mono">{longDate(dataPeriod.end)}</span>
+                  </>
+                )}
               </span>
             </div>
             <div className="asset-card-grid">

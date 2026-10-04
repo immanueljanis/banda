@@ -1,247 +1,231 @@
 {
-  "fetchedAt": "2026-09-30T18:49:56.993Z",
-  "start": "2026-03-29",
-  "end": "2026-09-29",
+  "fetchedAt": "2026-10-04T04:34:05.609Z",
+  "start": "2026-04-03",
+  "end": "2026-10-02",
   "methodology": "Daily closes. Equities, ETFs and ETH/BTC/LINK from Yahoo Finance (the markets the Robinhood Chain Chainlink feeds track); SOL, TAO, NEAR and RENDER from CoinGecko, the publisher's source for them. Benchmark is the S&P 500 price index (^GSPC), excluding dividends. Backtests use the Basket's current weights, buy at the first close of the window and hold fixed quantities with no rebalancing, fees, slippage or yield. USDG is held at $1. Dates follow S&P 500 trading days; a missing close carries the last available close forward.",
   "sources": {
     "NVDA": {
       "provider": "Yahoo Finance",
       "symbol": "NVDA",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?period1=1775174400&period2=1791072000&interval=1d",
       "name": "NVIDIA Corporation",
-      "fetchedAt": "2026-09-30T18:49:47.991Z"
+      "fetchedAt": "2026-10-04T04:33:41.983Z"
     },
     "GOOGL": {
       "provider": "Yahoo Finance",
       "symbol": "GOOGL",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/GOOGL?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/GOOGL?period1=1775174400&period2=1791072000&interval=1d",
       "name": "Alphabet Inc.",
-      "fetchedAt": "2026-09-30T18:49:48.338Z"
+      "fetchedAt": "2026-10-04T04:33:42.440Z"
     },
     "COIN": {
       "provider": "Yahoo Finance",
       "symbol": "COIN",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/COIN?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/COIN?period1=1775174400&period2=1791072000&interval=1d",
       "name": "Coinbase Global, Inc.",
-      "fetchedAt": "2026-09-30T18:49:48.626Z"
+      "fetchedAt": "2026-10-04T04:33:42.903Z"
     },
     "CRCL": {
       "provider": "Yahoo Finance",
       "symbol": "CRCL",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/CRCL?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/CRCL?period1=1775174400&period2=1791072000&interval=1d",
       "name": "Circle Internet Group, Inc.",
-      "fetchedAt": "2026-09-30T18:49:48.909Z"
+      "fetchedAt": "2026-10-04T04:33:43.360Z"
     },
     "SPY": {
       "provider": "Yahoo Finance",
       "symbol": "SPY",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/SPY?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/SPY?period1=1775174400&period2=1791072000&interval=1d",
       "name": "State Street SPDR S&P 500 ETF T",
-      "fetchedAt": "2026-09-30T18:49:49.295Z"
+      "fetchedAt": "2026-10-04T04:33:43.862Z"
     },
     "QQQ": {
       "provider": "Yahoo Finance",
       "symbol": "QQQ",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/QQQ?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/QQQ?period1=1775174400&period2=1791072000&interval=1d",
       "name": "Invesco QQQ Trust, Series 1",
-      "fetchedAt": "2026-09-30T18:49:49.609Z"
+      "fetchedAt": "2026-10-04T04:33:44.334Z"
     },
     "GLD": {
       "provider": "Yahoo Finance",
       "symbol": "GLD",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/GLD?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/GLD?period1=1775174400&period2=1791072000&interval=1d",
       "name": "SPDR Gold Shares",
-      "fetchedAt": "2026-09-30T18:49:49.895Z"
+      "fetchedAt": "2026-10-04T04:33:44.790Z"
     },
     "USO": {
       "provider": "Yahoo Finance",
       "symbol": "USO",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/USO?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/USO?period1=1775174400&period2=1791072000&interval=1d",
       "name": "United States Oil Fund",
-      "fetchedAt": "2026-09-30T18:49:50.183Z"
+      "fetchedAt": "2026-10-04T04:33:45.242Z"
     },
     "AMD": {
       "provider": "Yahoo Finance",
       "symbol": "AMD",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/AMD?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/AMD?period1=1775174400&period2=1791072000&interval=1d",
       "name": "Advanced Micro Devices, Inc.",
-      "fetchedAt": "2026-09-30T18:49:50.469Z"
+      "fetchedAt": "2026-10-04T04:33:45.696Z"
     },
     "TSLA": {
       "provider": "Yahoo Finance",
       "symbol": "TSLA",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/TSLA?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/TSLA?period1=1775174400&period2=1791072000&interval=1d",
       "name": "Tesla, Inc.",
-      "fetchedAt": "2026-09-30T18:49:50.801Z"
+      "fetchedAt": "2026-10-04T04:33:46.151Z"
     },
     "ETH": {
       "provider": "Yahoo Finance",
       "symbol": "ETH-USD",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/ETH-USD?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/ETH-USD?period1=1775174400&period2=1791072000&interval=1d",
       "name": "Ethereum USD",
-      "fetchedAt": "2026-09-30T18:49:51.104Z"
+      "fetchedAt": "2026-10-04T04:33:47.202Z"
     },
     "BTC": {
       "provider": "Yahoo Finance",
       "symbol": "BTC-USD",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD?period1=1775174400&period2=1791072000&interval=1d",
       "name": "Bitcoin USD",
-      "fetchedAt": "2026-09-30T18:49:51.393Z"
+      "fetchedAt": "2026-10-04T04:33:47.657Z"
     },
     "LINK": {
       "provider": "Yahoo Finance",
       "symbol": "LINK-USD",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/LINK-USD?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/LINK-USD?period1=1775174400&period2=1791072000&interval=1d",
       "name": "Chainlink USD",
-      "fetchedAt": "2026-09-30T18:49:51.689Z"
+      "fetchedAt": "2026-10-04T04:33:48.113Z"
     },
     "benchmark": {
       "provider": "Yahoo Finance",
       "symbol": "^GSPC",
-      "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?period1=1774742400&period2=1790726400&interval=1d",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?period1=1775174400&period2=1791072000&interval=1d",
       "name": "S&P 500",
-      "fetchedAt": "2026-09-30T18:49:51.967Z"
+      "fetchedAt": "2026-10-04T04:33:48.564Z"
     },
     "SOL": {
       "provider": "CoinGecko",
       "symbol": "solana",
-      "url": "https://api.coingecko.com/api/v3/coins/solana/market_chart?vs_currency=usd&days=188&interval=daily",
+      "url": "https://api.coingecko.com/api/v3/coins/solana/market_chart?vs_currency=usd&days=187&interval=daily",
       "name": "solana",
-      "fetchedAt": "2026-09-30T18:49:52.354Z"
+      "fetchedAt": "2026-10-04T04:33:48.945Z"
     },
     "TAO": {
       "provider": "CoinGecko",
       "symbol": "bittensor",
-      "url": "https://api.coingecko.com/api/v3/coins/bittensor/market_chart?vs_currency=usd&days=188&interval=daily",
+      "url": "https://api.coingecko.com/api/v3/coins/bittensor/market_chart?vs_currency=usd&days=187&interval=daily",
       "name": "bittensor",
-      "fetchedAt": "2026-09-30T18:49:52.662Z"
+      "fetchedAt": "2026-10-04T04:33:49.282Z"
     },
     "NEAR": {
       "provider": "CoinGecko",
       "symbol": "near",
-      "url": "https://api.coingecko.com/api/v3/coins/near/market_chart?vs_currency=usd&days=188&interval=daily",
+      "url": "https://api.coingecko.com/api/v3/coins/near/market_chart?vs_currency=usd&days=187&interval=daily",
       "name": "near",
-      "fetchedAt": "2026-09-30T18:49:52.980Z"
+      "fetchedAt": "2026-10-04T04:33:49.583Z"
     },
     "RENDER": {
       "provider": "CoinGecko",
       "symbol": "render-token",
-      "url": "https://api.coingecko.com/api/v3/coins/render-token/market_chart?vs_currency=usd&days=188&interval=daily",
+      "url": "https://api.coingecko.com/api/v3/coins/render-token/market_chart?vs_currency=usd&days=187&interval=daily",
       "name": "render-token",
-      "fetchedAt": "2026-09-30T18:49:53.302Z"
+      "fetchedAt": "2026-10-04T04:33:49.892Z"
     }
   },
   "crossCheck": {
     "NVDA": {
-      "price": 230.54857341,
-      "updatedAt": "2026-09-30T14:09:17.000Z",
-      "historyClose": 227.2100067138672,
-      "historyDate": "2026-09-29",
-      "deviationPct": 1.47
+      "price": 234.99711907,
+      "updatedAt": "2026-10-02T17:07:32.000Z",
+      "historyClose": 233.9499969482422,
+      "historyDate": "2026-10-02",
+      "deviationPct": 0.45
     },
     "GOOGL": {
-      "price": 349.90784251,
-      "updatedAt": "2026-09-30T17:27:16.000Z",
-      "historyClose": 340.9200134277344,
-      "historyDate": "2026-09-29",
-      "deviationPct": 2.64
+      "price": 343.66163145,
+      "updatedAt": "2026-10-02T16:06:58.000Z",
+      "historyClose": 343.5,
+      "historyDate": "2026-10-02",
+      "deviationPct": 0.05
     },
     "COIN": {
-      "price": 186.69,
-      "updatedAt": "2026-09-30T17:54:04.000Z",
-      "historyClose": 190.02000427246094,
-      "historyDate": "2026-09-29",
-      "deviationPct": -1.75
-    },
-    "CRCL": {
-      "price": 82.54855,
-      "updatedAt": "2026-09-30T17:27:04.000Z",
-      "historyClose": 83.69999694824219,
-      "historyDate": "2026-09-29",
-      "deviationPct": -1.38
-    },
-    "SPY": {
-      "price": 770.44134138,
-      "updatedAt": "2026-09-30T14:06:45.000Z",
-      "historyClose": 764.2000122070312,
-      "historyDate": "2026-09-29",
-      "deviationPct": 0.82
-    },
-    "QQQ": {
-      "price": 744.6764973,
-      "updatedAt": "2026-09-30T14:01:37.000Z",
-      "historyClose": 737.9299926757812,
-      "historyDate": "2026-09-29",
-      "deviationPct": 0.91
-    },
-    "GLD": {
-      "price": 382.03534429,
-      "updatedAt": "2026-09-30T15:09:53.000Z",
-      "historyClose": 382.8900146484375,
-      "historyDate": "2026-09-29",
-      "deviationPct": -0.22
-    },
-    "USO": {
-      "price": 145.95499999,
-      "updatedAt": "2026-09-30T17:58:16.000Z",
-      "historyClose": 143.35000610351562,
-      "historyDate": "2026-09-29",
-      "deviationPct": 1.82
-    },
-    "AMD": {
-      "price": 607.07999999,
-      "updatedAt": "2026-09-30T17:56:38.000Z",
-      "historyClose": 607.5700073242188,
-      "historyDate": "2026-09-29",
-      "deviationPct": -0.08
-    },
-    "TSLA": {
-      "price": 352.14,
-      "updatedAt": "2026-09-30T18:32:34.000Z",
-      "historyClose": 352.8399963378906,
-      "historyDate": "2026-09-29",
+      "price": 182.635,
+      "updatedAt": "2026-10-02T19:35:47.000Z",
+      "historyClose": 183,
+      "historyDate": "2026-10-02",
       "deviationPct": -0.2
     },
+    "CRCL": {
+      "price": 81.68315,
+      "updatedAt": "2026-10-02T20:17:50.000Z",
+      "historyClose": 81.25,
+      "historyDate": "2026-10-02",
+      "deviationPct": 0.53
+    },
+    "SPY": {
+      "price": 770.71210575,
+      "updatedAt": "2026-10-02T12:30:38.000Z",
+      "historyClose": 769.6400146484375,
+      "historyDate": "2026-10-02",
+      "deviationPct": 0.14
+    },
+    "QQQ": {
+      "price": 751.99912534,
+      "updatedAt": "2026-10-02T12:57:12.000Z",
+      "historyClose": 749.5800170898438,
+      "historyDate": "2026-10-02",
+      "deviationPct": 0.32
+    },
+    "GLD": {
+      "price": 379.98172703,
+      "updatedAt": "2026-10-03T15:17:13.000Z",
+      "historyClose": 380.1400146484375,
+      "historyDate": "2026-10-02",
+      "deviationPct": -0.04
+    },
+    "USO": {
+      "price": 146.83305,
+      "updatedAt": "2026-10-02T18:28:23.000Z",
+      "historyClose": 147.3699951171875,
+      "historyDate": "2026-10-02",
+      "deviationPct": -0.36
+    },
+    "AMD": {
+      "price": 632.82895,
+      "updatedAt": "2026-10-02T18:51:35.000Z",
+      "historyClose": 633.9099731445312,
+      "historyDate": "2026-10-02",
+      "deviationPct": -0.17
+    },
+    "TSLA": {
+      "price": 370.448,
+      "updatedAt": "2026-10-02T19:55:31.000Z",
+      "historyClose": 370.5899963378906,
+      "historyDate": "2026-10-02",
+      "deviationPct": -0.04
+    },
     "ETH": {
-      "price": 2684.48215445,
-      "updatedAt": "2026-09-30T15:32:14.000Z",
-      "historyClose": 2676.72216796875,
-      "historyDate": "2026-09-29",
-      "deviationPct": 0.29
+      "price": 2691.87652464,
+      "updatedAt": "2026-10-04T01:18:12.000Z",
+      "historyClose": 2668.151123046875,
+      "historyDate": "2026-10-02",
+      "deviationPct": 0.89
     },
     "BTC": {
-      "price": 83851.49556639,
-      "updatedAt": "2026-09-30T18:26:07.000Z",
-      "historyClose": 83622.4296875,
-      "historyDate": "2026-09-29",
-      "deviationPct": 0.27
+      "price": 84984.68837367,
+      "updatedAt": "2026-10-03T17:58:13.000Z",
+      "historyClose": 84497.2109375,
+      "historyDate": "2026-10-02",
+      "deviationPct": 0.58
     },
     "LINK": {
-      "price": 14.29944365,
-      "updatedAt": "2026-09-30T18:37:54.000Z",
-      "historyClose": 14.597477912902832,
-      "historyDate": "2026-09-29",
-      "deviationPct": -2.04
+      "price": 14.01429962,
+      "updatedAt": "2026-10-04T03:17:58.000Z",
+      "historyClose": 13.798003196716309,
+      "historyDate": "2026-10-02",
+      "deviationPct": 1.57
     }
   },
   "series": {
     "NVDA": [
-      {
-        "date": "2026-03-30",
-        "close": 165.1699981689453
-      },
-      {
-        "date": "2026-03-31",
-        "close": 174.39999389648438
-      },
-      {
-        "date": "2026-04-01",
-        "close": 175.75
-      },
-      {
-        "date": "2026-04-02",
-        "close": 177.38999938964844
-      },
       {
         "date": "2026-04-06",
         "close": 177.63999938964844
@@ -733,25 +717,21 @@
       {
         "date": "2026-09-29",
         "close": 227.2100067138672
+      },
+      {
+        "date": "2026-09-30",
+        "close": 228.3800048828125
+      },
+      {
+        "date": "2026-10-01",
+        "close": 230.86000061035156
+      },
+      {
+        "date": "2026-10-02",
+        "close": 233.9499969482422
       }
     ],
     "GOOGL": [
-      {
-        "date": "2026-03-30",
-        "close": 273.5
-      },
-      {
-        "date": "2026-03-31",
-        "close": 287.55999755859375
-      },
-      {
-        "date": "2026-04-01",
-        "close": 297.3900146484375
-      },
-      {
-        "date": "2026-04-02",
-        "close": 295.7699890136719
-      },
       {
         "date": "2026-04-06",
         "close": 299.989990234375
@@ -1243,25 +1223,21 @@
       {
         "date": "2026-09-29",
         "close": 340.9200134277344
+      },
+      {
+        "date": "2026-09-30",
+        "close": 344.0799865722656
+      },
+      {
+        "date": "2026-10-01",
+        "close": 338.239990234375
+      },
+      {
+        "date": "2026-10-02",
+        "close": 343.5
       }
     ],
     "COIN": [
-      {
-        "date": "2026-03-30",
-        "close": 160.7899932861328
-      },
-      {
-        "date": "2026-03-31",
-        "close": 174.61000061035156
-      },
-      {
-        "date": "2026-04-01",
-        "close": 172.99000549316406
-      },
-      {
-        "date": "2026-04-02",
-        "close": 171.4600067138672
-      },
       {
         "date": "2026-04-06",
         "close": 174.7899932861328
@@ -1753,25 +1729,21 @@
       {
         "date": "2026-09-29",
         "close": 190.02000427246094
+      },
+      {
+        "date": "2026-09-30",
+        "close": 186.41000366210938
+      },
+      {
+        "date": "2026-10-01",
+        "close": 189.2899932861328
+      },
+      {
+        "date": "2026-10-02",
+        "close": 183
       }
     ],
     "CRCL": [
-      {
-        "date": "2026-03-30",
-        "close": 89.91000366210938
-      },
-      {
-        "date": "2026-03-31",
-        "close": 95.41000366210938
-      },
-      {
-        "date": "2026-04-01",
-        "close": 90.73999786376953
-      },
-      {
-        "date": "2026-04-02",
-        "close": 90.26000213623047
-      },
       {
         "date": "2026-04-06",
         "close": 92.1500015258789
@@ -2263,25 +2235,21 @@
       {
         "date": "2026-09-29",
         "close": 83.69999694824219
+      },
+      {
+        "date": "2026-09-30",
+        "close": 82.16999816894531
+      },
+      {
+        "date": "2026-10-01",
+        "close": 82.91000366210938
+      },
+      {
+        "date": "2026-10-02",
+        "close": 81.25
       }
     ],
     "SPY": [
-      {
-        "date": "2026-03-30",
-        "close": 631.969970703125
-      },
-      {
-        "date": "2026-03-31",
-        "close": 650.3400268554688
-      },
-      {
-        "date": "2026-04-01",
-        "close": 655.239990234375
-      },
-      {
-        "date": "2026-04-02",
-        "close": 655.8300170898438
-      },
       {
         "date": "2026-04-06",
         "close": 658.9299926757812
@@ -2773,25 +2741,21 @@
       {
         "date": "2026-09-29",
         "close": 764.2000122070312
+      },
+      {
+        "date": "2026-09-30",
+        "close": 762.6300048828125
+      },
+      {
+        "date": "2026-10-01",
+        "close": 763.989990234375
+      },
+      {
+        "date": "2026-10-02",
+        "close": 769.6400146484375
       }
     ],
     "QQQ": [
-      {
-        "date": "2026-03-30",
-        "close": 558.280029296875
-      },
-      {
-        "date": "2026-03-31",
-        "close": 577.1799926757812
-      },
-      {
-        "date": "2026-04-01",
-        "close": 584.3099975585938
-      },
-      {
-        "date": "2026-04-02",
-        "close": 584.97998046875
-      },
       {
         "date": "2026-04-06",
         "close": 588.5
@@ -3283,25 +3247,21 @@
       {
         "date": "2026-09-29",
         "close": 737.9299926757812
+      },
+      {
+        "date": "2026-09-30",
+        "close": 739.77001953125
+      },
+      {
+        "date": "2026-10-01",
+        "close": 742.030029296875
+      },
+      {
+        "date": "2026-10-02",
+        "close": 749.5800170898438
       }
     ],
     "GLD": [
-      {
-        "date": "2026-03-30",
-        "close": 414.5799865722656
-      },
-      {
-        "date": "2026-03-31",
-        "close": 430.2900085449219
-      },
-      {
-        "date": "2026-04-01",
-        "close": 437.82000732421875
-      },
-      {
-        "date": "2026-04-02",
-        "close": 429.4100036621094
-      },
       {
         "date": "2026-04-06",
         "close": 427.6499938964844
@@ -3793,25 +3753,21 @@
       {
         "date": "2026-09-29",
         "close": 382.8900146484375
+      },
+      {
+        "date": "2026-09-30",
+        "close": 380.8399963378906
+      },
+      {
+        "date": "2026-10-01",
+        "close": 382.760009765625
+      },
+      {
+        "date": "2026-10-02",
+        "close": 380.1400146484375
       }
     ],
     "USO": [
-      {
-        "date": "2026-03-30",
-        "close": 129.8300018310547
-      },
-      {
-        "date": "2026-03-31",
-        "close": 127.25
-      },
-      {
-        "date": "2026-04-01",
-        "close": 124.08999633789062
-      },
-      {
-        "date": "2026-04-02",
-        "close": 137.9199981689453
-      },
       {
         "date": "2026-04-06",
         "close": 138.94000244140625
@@ -4303,25 +4259,21 @@
       {
         "date": "2026-09-29",
         "close": 143.35000610351562
+      },
+      {
+        "date": "2026-09-30",
+        "close": 145.66000366210938
+      },
+      {
+        "date": "2026-10-01",
+        "close": 150.02000427246094
+      },
+      {
+        "date": "2026-10-02",
+        "close": 147.3699951171875
       }
     ],
     "AMD": [
-      {
-        "date": "2026-03-30",
-        "close": 196.0399932861328
-      },
-      {
-        "date": "2026-03-31",
-        "close": 203.42999267578125
-      },
-      {
-        "date": "2026-04-01",
-        "close": 210.2100067138672
-      },
-      {
-        "date": "2026-04-02",
-        "close": 217.5
-      },
       {
         "date": "2026-04-06",
         "close": 220.17999267578125
@@ -4813,25 +4765,21 @@
       {
         "date": "2026-09-29",
         "close": 607.5700073242188
+      },
+      {
+        "date": "2026-09-30",
+        "close": 611.760009765625
+      },
+      {
+        "date": "2026-10-01",
+        "close": 615.72998046875
+      },
+      {
+        "date": "2026-10-02",
+        "close": 633.9099731445312
       }
     ],
     "TSLA": [
-      {
-        "date": "2026-03-30",
-        "close": 355.2799987792969
-      },
-      {
-        "date": "2026-03-31",
-        "close": 371.75
-      },
-      {
-        "date": "2026-04-01",
-        "close": 381.260009765625
-      },
-      {
-        "date": "2026-04-02",
-        "close": 360.5899963378906
-      },
       {
         "date": "2026-04-06",
         "close": 352.82000732421875
@@ -5323,29 +5271,21 @@
       {
         "date": "2026-09-29",
         "close": 352.8399963378906
+      },
+      {
+        "date": "2026-09-30",
+        "close": 354.80999755859375
+      },
+      {
+        "date": "2026-10-01",
+        "close": 354.1099853515625
+      },
+      {
+        "date": "2026-10-02",
+        "close": 370.5899963378906
       }
     ],
     "ETH": [
-      {
-        "date": "2026-03-29",
-        "close": 1982.5596923828125
-      },
-      {
-        "date": "2026-03-30",
-        "close": 2023.514892578125
-      },
-      {
-        "date": "2026-03-31",
-        "close": 2104.708251953125
-      },
-      {
-        "date": "2026-04-01",
-        "close": 2138.737060546875
-      },
-      {
-        "date": "2026-04-02",
-        "close": 2056.8525390625
-      },
       {
         "date": "2026-04-03",
         "close": 2053.38525390625
@@ -6065,29 +6005,21 @@
       {
         "date": "2026-09-29",
         "close": 2676.72216796875
+      },
+      {
+        "date": "2026-09-30",
+        "close": 2683.679443359375
+      },
+      {
+        "date": "2026-10-01",
+        "close": 2705.537109375
+      },
+      {
+        "date": "2026-10-02",
+        "close": 2668.151123046875
       }
     ],
     "BTC": [
-      {
-        "date": "2026-03-29",
-        "close": 65954.921875
-      },
-      {
-        "date": "2026-03-30",
-        "close": 66691.4453125
-      },
-      {
-        "date": "2026-03-31",
-        "close": 68233.3125
-      },
-      {
-        "date": "2026-04-01",
-        "close": 68078.5546875
-      },
-      {
-        "date": "2026-04-02",
-        "close": 66888.5703125
-      },
       {
         "date": "2026-04-03",
         "close": 66931.1015625
@@ -6807,29 +6739,21 @@
       {
         "date": "2026-09-29",
         "close": 83622.4296875
+      },
+      {
+        "date": "2026-09-30",
+        "close": 83553.8515625
+      },
+      {
+        "date": "2026-10-01",
+        "close": 84853.1015625
+      },
+      {
+        "date": "2026-10-02",
+        "close": 84497.2109375
       }
     ],
     "LINK": [
-      {
-        "date": "2026-03-29",
-        "close": 8.405261993408203
-      },
-      {
-        "date": "2026-03-30",
-        "close": 8.610695838928223
-      },
-      {
-        "date": "2026-03-31",
-        "close": 8.777544975280762
-      },
-      {
-        "date": "2026-04-01",
-        "close": 8.9378023147583
-      },
-      {
-        "date": "2026-04-02",
-        "close": 8.628460884094238
-      },
       {
         "date": "2026-04-03",
         "close": 8.658191680908203
@@ -7549,25 +7473,21 @@
       {
         "date": "2026-09-29",
         "close": 14.597477912902832
+      },
+      {
+        "date": "2026-09-30",
+        "close": 14.358115196228027
+      },
+      {
+        "date": "2026-10-01",
+        "close": 14.382877349853516
+      },
+      {
+        "date": "2026-10-02",
+        "close": 13.798003196716309
       }
     ],
     "benchmark": [
-      {
-        "date": "2026-03-30",
-        "close": 6343.72021484375
-      },
-      {
-        "date": "2026-03-31",
-        "close": 6528.52001953125
-      },
-      {
-        "date": "2026-04-01",
-        "close": 6575.31982421875
-      },
-      {
-        "date": "2026-04-02",
-        "close": 6582.68994140625
-      },
       {
         "date": "2026-04-06",
         "close": 6611.830078125
@@ -8059,29 +7979,21 @@
       {
         "date": "2026-09-29",
         "close": 7670.83984375
+      },
+      {
+        "date": "2026-09-30",
+        "close": 7651.5400390625
+      },
+      {
+        "date": "2026-10-01",
+        "close": 7666.4501953125
+      },
+      {
+        "date": "2026-10-02",
+        "close": 7722.72021484375
       }
     ],
     "SOL": [
-      {
-        "date": "2026-03-29",
-        "close": 81.38667344193283
-      },
-      {
-        "date": "2026-03-30",
-        "close": 82.4461259589699
-      },
-      {
-        "date": "2026-03-31",
-        "close": 83.03928802068708
-      },
-      {
-        "date": "2026-04-01",
-        "close": 81.21202678364425
-      },
-      {
-        "date": "2026-04-02",
-        "close": 79.04954676326335
-      },
       {
         "date": "2026-04-03",
         "close": 80.4339628863637
@@ -8801,29 +8713,25 @@
       {
         "date": "2026-09-29",
         "close": 119.09316711111971
+      },
+      {
+        "date": "2026-09-30",
+        "close": 118.04003762291576
+      },
+      {
+        "date": "2026-10-01",
+        "close": 118.38176764361535
+      },
+      {
+        "date": "2026-10-02",
+        "close": 118.58928060236005
+      },
+      {
+        "date": "2026-10-03",
+        "close": 119.60164144317127
       }
     ],
     "TAO": [
-      {
-        "date": "2026-03-29",
-        "close": 316.0879997250095
-      },
-      {
-        "date": "2026-03-30",
-        "close": 311.5056282050169
-      },
-      {
-        "date": "2026-03-31",
-        "close": 305.3204946773446
-      },
-      {
-        "date": "2026-04-01",
-        "close": 307.9839189985972
-      },
-      {
-        "date": "2026-04-02",
-        "close": 300.5367338839403
-      },
       {
         "date": "2026-04-03",
         "close": 308.96636943201435
@@ -9543,29 +9451,25 @@
       {
         "date": "2026-09-29",
         "close": 300.56726942854164
+      },
+      {
+        "date": "2026-09-30",
+        "close": 300.8300516664956
+      },
+      {
+        "date": "2026-10-01",
+        "close": 303.28046624595544
+      },
+      {
+        "date": "2026-10-02",
+        "close": 292.0850724449768
+      },
+      {
+        "date": "2026-10-03",
+        "close": 307.2271294345238
       }
     ],
     "NEAR": [
-      {
-        "date": "2026-03-29",
-        "close": 1.1642700447896535
-      },
-      {
-        "date": "2026-03-30",
-        "close": 1.1624033755385363
-      },
-      {
-        "date": "2026-03-31",
-        "close": 1.1872773714438605
-      },
-      {
-        "date": "2026-04-01",
-        "close": 1.1908041426923526
-      },
-      {
-        "date": "2026-04-02",
-        "close": 1.1642794016026057
-      },
       {
         "date": "2026-04-03",
         "close": 1.2087766177837824
@@ -10285,29 +10189,25 @@
       {
         "date": "2026-09-29",
         "close": 4.886592635782179
+      },
+      {
+        "date": "2026-09-30",
+        "close": 5.335091109736817
+      },
+      {
+        "date": "2026-10-01",
+        "close": 4.807012283395656
+      },
+      {
+        "date": "2026-10-02",
+        "close": 4.690818392891492
+      },
+      {
+        "date": "2026-10-03",
+        "close": 4.829822220269547
       }
     ],
     "RENDER": [
-      {
-        "date": "2026-03-29",
-        "close": 1.6579617413504013
-      },
-      {
-        "date": "2026-03-30",
-        "close": 1.6984773994969427
-      },
-      {
-        "date": "2026-03-31",
-        "close": 1.7438470781510809
-      },
-      {
-        "date": "2026-04-01",
-        "close": 1.7647277012408529
-      },
-      {
-        "date": "2026-04-02",
-        "close": 1.8800521942560977
-      },
       {
         "date": "2026-04-03",
         "close": 1.9436887976968034
@@ -11027,6 +10927,22 @@
       {
         "date": "2026-09-29",
         "close": 1.9085292666187812
+      },
+      {
+        "date": "2026-09-30",
+        "close": 1.9119741053439863
+      },
+      {
+        "date": "2026-10-01",
+        "close": 1.9085117501638187
+      },
+      {
+        "date": "2026-10-02",
+        "close": 1.9737093489706676
+      },
+      {
+        "date": "2026-10-03",
+        "close": 1.9872006766629902
       }
     ]
   }
